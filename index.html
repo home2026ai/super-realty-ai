@@ -482,21 +482,47 @@
             left: 4px;
             top: 4px;
             bottom: 4px;
-            width: calc((100% - 8px) / 3);
+            width: calc((100% - 8px) / 2);
             border-radius: 12px;
             background: rgba(255, 255, 255, 0.7);
             box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
             transition: transform 0.25s ease;
             z-index: 0;
         }
-        .agent-bookmark-group[data-mode="menu"] .bookmark-indicator {
+        .agent-bookmark-group[data-mode="browse"] .bookmark-indicator {
             transform: translateX(0%);
         }
-        .agent-bookmark-group[data-mode="chat"] .bookmark-indicator {
+        .agent-bookmark-group[data-mode="agent"] .bookmark-indicator {
             transform: translateX(100%);
         }
-        .agent-bookmark-group[data-mode="agent"] .bookmark-indicator {
-            transform: translateX(200%);
+        .header-menu-btn {
+            width: 38px;
+            height: 38px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 auto;
+            border: none;
+            border-radius: 12px;
+            background: transparent;
+            color: var(--main-text);
+            cursor: pointer;
+            padding: 0;
+        }
+        .header-menu-btn svg {
+            width: 20px;
+            height: 20px;
+            display: block;
+            stroke: currentColor;
+        }
+        .header-menu-btn:hover,
+        .header-menu-btn:active,
+        .header-menu-btn:focus-visible,
+        .header-menu-btn.is-active {
+            box-shadow: none;
+            outline: none;
+            color: var(--main-text);
+            background: transparent;
         }
         .agent-bookmark {
             background: transparent;
@@ -953,17 +979,14 @@
             }
 
             .chat-header {
+                grid-template-columns: 36px minmax(0, 1fr) 132px;
                 padding: 12px 12px 6px;
-                flex-direction: row;
-                align-items: center;
-                justify-content: space-between;
                 gap: 10px;
             }
 
             .chat-header .chat-title {
-                flex: 1 1 auto;
                 min-width: 0;
-                text-align: left;
+                text-align: center;
                 font-size: clamp(18px, 5.2vw, 26px);
                 line-height: 1.15;
                 white-space: nowrap;
@@ -972,16 +995,15 @@
             }
 
             .agent-bookmark-group {
-                flex: 0 0 auto;
                 display: inline-grid;
-                grid-template-columns: repeat(3, minmax(0, 1fr));
-                width: min(52vw, 240px);
-                max-width: 52vw;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                width: 132px;
+                max-width: 132px;
                 border-radius: 16px;
             }
 
             .agent-bookmark-group .bookmark-indicator {
-                width: calc((100% - 8px) / 3);
+                width: calc((100% - 8px) / 2);
                 border-radius: 10px;
             }
 
@@ -1718,20 +1740,20 @@
             color: var(--main-text);
             font-weight: bold;
             font-size: 20px;
-            display: flex;
+            display: grid;
+            grid-template-columns: 42px minmax(0, 1fr) auto;
             align-items: center;
-            justify-content: center;
             gap: 12px;
             background: var(--app-surface);
         }
         .chat-card.menu-shift .chat-header {
             padding-left: 0;
             padding-right: 0;
-            justify-content: center;
         }
         .chat-header .chat-title {
             display: inline-block;
             white-space: nowrap;
+            text-align: center;
         }
         .agent-cta-bar {
             display: flex;
@@ -1742,6 +1764,9 @@
             padding-bottom: 7px;
             transition: transform 0.25s ease;
             background: var(--app-surface);
+        }
+        .agent-cta-bar:empty {
+            display: none;
         }
         .chat-card.menu-shift .agent-cta-bar {
             transform: translateX(0px);
@@ -2391,7 +2416,7 @@
 
         @media (max-width: 420px) {
             .chat-header {
-                grid-template-columns: minmax(0, 1fr) 156px;
+                grid-template-columns: 34px minmax(0, 1fr) 124px;
                 gap: 0;
                 padding-left: 10px;
                 padding-right: 10px;
@@ -2403,9 +2428,9 @@
             }
 
             .agent-bookmark-group {
-                width: 156px;
-                min-width: 156px;
-                max-width: 156px;
+                width: 124px;
+                min-width: 124px;
+                max-width: 124px;
             }
 
             .agent-bookmark {
@@ -2510,17 +2535,21 @@
         <div class="glow-blob"></div>
         <div class="frost-overlay"></div>
         <div class="chat-header" id="chatHeader">
+            <button type="button" class="header-menu-btn press-glow" id="menuLabel" aria-label="功能展開" title="功能展開">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                    <path d="M4 7h16"></path>
+                    <path d="M4 12h16"></path>
+                    <path d="M4 17h16"></path>
+                </svg>
+            </button>
             <span class="chat-title">超級房仲 AI</span>
             <div class="agent-bookmark-group">
                 <span class="bookmark-indicator" aria-hidden="true"></span>
-                <button type="button" class="agent-bookmark press-glow" id="menuLabel">功能展開</button>
-                <button class="agent-bookmark press-glow" id="chatBookmark">AI 對話</button>
+                <button class="agent-bookmark press-glow" id="chatBookmark">瀏覽清單</button>
                 <button class="agent-bookmark press-glow" id="agentBookmark">業務資訊</button>
             </div>
         </div>
-        <div class="agent-cta-bar" id="agentCtaBar">
-            <button type="button" class="agent-cta-btn press-glow" id="floatingEyeBtn" title="瀏覽清單"><span class="agent-cta-text">瀏覽清單</span></button>
-        </div>
+        <div class="agent-cta-bar" id="agentCtaBar"></div>
         <div class="chat-box" id="chatBox">
             <div class="msg ai"><strong>你好，我是你的 AI 房產助理 👋
 專門幫你快速搞懂 林口 / 龜山的房子值不值得買
@@ -2544,7 +2573,10 @@
                     <div class="composer-attachment-slot" id="composerAttachmentSlot"></div>
                     <input type="text" id="userInput" class="text-input" placeholder="請輸入訊息...">
                     <div class="composer-tools" aria-label="輸入工具">
-                        <button type="button" class="composer-tool-btn" id="composerToolPlus" aria-label="工具一" title="工具一">＋</button>
+                        <button type="button" class="composer-tool-btn" id="composerToolPlus" aria-label="上傳" title="上傳">
+                            <span>＋</span>
+                            <span class="composer-tool-label">上傳</span>
+                        </button>
                         <button type="button" class="composer-tool-btn" id="composerToolFeatured" aria-label="精選物件" title="精選物件">
                             <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                 <path d="m12 3.8 2.4 4.85 5.36.78-3.88 3.78.92 5.34L12 15.8l-4.8 2.53.92-5.34-3.88-3.78 5.36-.78L12 3.8Z"></path>
@@ -3735,8 +3767,7 @@ function setToggleIconState(isOpen) {
 
 function setMenuLabelState(isOpen) {
     if (!menuLabel) return;
-    if (!toggleBtn) return;
-    menuLabel.classList.toggle('is-hidden', isOpen);
+    menuLabel.classList.toggle('is-active', isOpen);
 }
 
 function updateDrawerMenuLayout(isOpen) {
@@ -3773,7 +3804,7 @@ function toggleDrawer() {
     if (active && drawerMenu) drawerMenu.scrollTop = 0;
     setToggleIconState(active);
     setMenuLabelState(active);
-    setBookmarkMode(active ? 'menu' : 'chat');
+    setBookmarkMode('browse');
     document.querySelector('.chat-card')?.classList.toggle('menu-shift', active);
     requestAnimationFrame(() => updateDrawerMenuLayout(active));
 }
@@ -3795,7 +3826,7 @@ function closeDrawer() {
     setToggleIconState(false);
     setMenuLabelState(false);
     if (!document.getElementById('agentOverlay')?.classList.contains('is-open')) {
-        setBookmarkMode('chat');
+        setBookmarkMode('browse');
     }
     document.querySelector('.chat-card')?.classList.remove('menu-shift');
     updateDrawerMenuLayout(false);
@@ -4921,11 +4952,13 @@ function openBrowseList() {
     refreshBrowseListFromCache();
     renderBrowseList();
     overlay.classList.add('is-open');
+    setBookmarkMode('browse');
     const plus = document.getElementById('toggleBtn');
     if (plus) plus.classList.add('shifted');
 }
 function closeBrowseList() {
     document.getElementById('browseOverlay')?.classList.remove('is-open');
+    setBookmarkMode('browse');
     const plus = document.getElementById('toggleBtn');
     if (plus) plus.classList.remove('shifted');
 }
@@ -5511,13 +5544,11 @@ function setBookmarkMode(mode) {
     const group = document.querySelector('.agent-bookmark-group');
     const chatBtn = document.getElementById('chatBookmark');
     const agentBtn = document.getElementById('agentBookmark');
-    const menuBtn = document.getElementById('menuLabel');
-    if (!group || !chatBtn || !agentBtn || !menuBtn) return;
-    const safeMode = mode === 'menu' || mode === 'agent' ? mode : 'chat';
+    if (!group || !chatBtn || !agentBtn) return;
+    const safeMode = mode === 'agent' ? 'agent' : 'browse';
     group.setAttribute('data-mode', safeMode);
-    chatBtn.classList.toggle('is-active', safeMode === 'chat');
+    chatBtn.classList.toggle('is-active', safeMode === 'browse');
     agentBtn.classList.toggle('is-active', safeMode === 'agent');
-    menuBtn.classList.toggle('is-active', safeMode === 'menu');
 }
 
 function openAgentPanel() {
@@ -5531,7 +5562,7 @@ function openAgentPanel() {
 function closeAgentPanel() {
     document.getElementById('agentOverlay')?.classList.remove('is-open');
     setChatVisibility(true);
-    setBookmarkMode('chat');
+    setBookmarkMode('browse');
     const plus = document.getElementById('toggleBtn');
     if (plus) plus.classList.remove('shifted');
 }
@@ -5869,12 +5900,12 @@ document.getElementById('viewerImage')?.addEventListener('touchend', () => {
 
 document.getElementById('agentBookmark')?.addEventListener('click', openAgentPanel);
 document.getElementById('agentBackBtn')?.addEventListener('click', closeAgentPanel);
-document.getElementById('chatBookmark')?.addEventListener('click', closeAgentPanel);
+document.getElementById('chatBookmark')?.addEventListener('click', openBrowseList);
 document.getElementById('agentEditPhotoFile')?.addEventListener('change', handleAgentPhotoFile);
 document.getElementById('agentPhotoRemoveBtn')?.addEventListener('click', removeAgentPhoto);
 document.getElementById('agentStatsBtn')?.addEventListener('click', toggleAgentStats);
 document.getElementById('agentStatsRefreshBtn')?.addEventListener('click', refreshAgentStats);
-setBookmarkMode('chat');
+setBookmarkMode('browse');
 document.getElementById('agentLoginBtn')?.addEventListener('click', async () => {
     const agentId = document.getElementById('agentIdInput')?.value.trim();
     const pwd = document.getElementById('agentPwdInput')?.value.trim();
@@ -6081,17 +6112,96 @@ function addUserMsgContent(text, attachment = null) {
     if (text) addUserMsg(text);
     scrollChat();
 }
+function formatInlineMarkdown(text) {
+    const escaped = escapeHtml(text || "");
+    return escaped
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/`([^`]+)`/g, '<code>$1</code>');
+}
+
+function isMarkdownTableLine(line) {
+    const trimmed = line.trim();
+    return trimmed.startsWith('|') && trimmed.endsWith('|');
+}
+
+function isMarkdownTableDivider(line) {
+    return /^\|\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)+\|?$/.test(line.trim());
+}
+
 function formatMarkdownTable(text) {
-    if (!text.includes('|')) return text;
-    const lines = text.split('\n');
-    let html = '<table>';
-    lines.forEach(l => {
-        if (l.trim().startsWith('|') && !l.includes('---')) {
-            const cols = l.split('|').filter(c => c.trim().length > 0);
-            html += '<tr>' + cols.map(c => `<td>${c.trim()}</td>`).join('') + '</tr>';
-        } else if (!l.includes('|')) { html += `<div>${l}</div>`; }
-    });
-    return html + '</table>';
+    const lines = String(text || "").split('\n');
+    const html = [];
+    let i = 0;
+
+    while (i < lines.length) {
+        const line = lines[i];
+        const trimmed = line.trim();
+
+        if (!trimmed) {
+            i += 1;
+            continue;
+        }
+
+        if (
+            i + 1 < lines.length &&
+            isMarkdownTableLine(lines[i]) &&
+            isMarkdownTableDivider(lines[i + 1])
+        ) {
+            const tableLines = [lines[i]];
+            i += 2;
+            while (i < lines.length && isMarkdownTableLine(lines[i])) {
+                tableLines.push(lines[i]);
+                i += 1;
+            }
+            const rows = tableLines.map((row) => row.split('|').slice(1, -1).map((cell) => cell.trim()));
+            const header = rows.shift() || [];
+            let tableHtml = '<table><thead><tr>';
+            tableHtml += header.map((cell) => `<th>${formatInlineMarkdown(cell)}</th>`).join('');
+            tableHtml += '</tr></thead><tbody>';
+            tableHtml += rows.map((row) => `<tr>${row.map((cell) => `<td>${formatInlineMarkdown(cell)}</td>`).join('')}</tr>`).join('');
+            tableHtml += '</tbody></table>';
+            html.push(tableHtml);
+            continue;
+        }
+
+        if (/^[-*]\s+/.test(trimmed)) {
+            const items = [];
+            while (i < lines.length && /^[-*]\s+/.test(lines[i].trim())) {
+                items.push(lines[i].trim().replace(/^[-*]\s+/, ''));
+                i += 1;
+            }
+            html.push(`<ul>${items.map((item) => `<li>${formatInlineMarkdown(item)}</li>`).join('')}</ul>`);
+            continue;
+        }
+
+        if (/^\d+\.\s+/.test(trimmed)) {
+            const items = [];
+            while (i < lines.length && /^\d+\.\s+/.test(lines[i].trim())) {
+                items.push(lines[i].trim().replace(/^\d+\.\s+/, ''));
+                i += 1;
+            }
+            html.push(`<ol>${items.map((item) => `<li>${formatInlineMarkdown(item)}</li>`).join('')}</ol>`);
+            continue;
+        }
+
+        const paragraph = [];
+        while (i < lines.length) {
+            const next = lines[i].trim();
+            if (!next) break;
+            if (
+                /^[-*]\s+/.test(next) ||
+                /^\d+\.\s+/.test(next) ||
+                (isMarkdownTableLine(lines[i]) && i + 1 < lines.length && isMarkdownTableDivider(lines[i + 1]))
+            ) {
+                break;
+            }
+            paragraph.push(lines[i]);
+            i += 1;
+        }
+        html.push(`<div>${paragraph.map((part) => formatInlineMarkdown(part)).join('<br>')}</div>`);
+    }
+
+    return html.join('');
 }
 function updateChatIndicatorBounds() {
     if (!chatBox || !chatIndicator) return;
