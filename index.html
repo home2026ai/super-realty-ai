@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#859791">
+    <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>你的房產AI助理</title>
     <style>
@@ -15,6 +16,10 @@
             --accent-pink: #f06292;
             --main-blur: blur(25px);
             --bg-gradient: linear-gradient(135deg, #7b2ff7 0%, #2196f3 30%, #f06292 70%, #ffb74d 100%);
+            --safe-top: env(safe-area-inset-top, 0px);
+            --safe-right: env(safe-area-inset-right, 0px);
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+            --safe-left: env(safe-area-inset-left, 0px);
         }
 
         html, body {
@@ -896,7 +901,7 @@
             }
 
             .chat-header {
-                padding: calc(env(safe-area-inset-top) + 12px) 12px 6px;
+                padding: 12px 12px 6px;
                 flex-direction: row;
                 align-items: center;
                 justify-content: space-between;
@@ -1297,6 +1302,7 @@
             transition: height 0.35s ease;
             transition: height 0.35s ease;
             will-change: filter;
+            padding-top: var(--safe-top);
         }
         .chat-card.is-hidden {
             opacity: 0;
@@ -1470,7 +1476,7 @@
             100% { filter: hue-rotate(360deg); }
         }
         .chat-header {
-            padding: 30px 0 8px;
+            padding: 12px 0 8px;
             color: white;
             font-weight: bold;
             font-size: 20px;
@@ -1776,7 +1782,7 @@
                 grid-template-columns: minmax(0, 1fr) 168px;
                 align-items: center;
                 gap: 0;
-                padding: calc(env(safe-area-inset-top) + 10px) 14px 10px;
+                padding: 10px 14px 10px;
             }
 
             .chat-header .chat-title {
@@ -1865,7 +1871,7 @@
 
             .chat-footer {
                 gap: 0;
-                padding-bottom: calc(env(safe-area-inset-bottom) + 6px);
+                padding-bottom: calc(var(--safe-bottom) + 6px);
                 background: #859791;
             }
 
