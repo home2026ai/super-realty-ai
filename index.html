@@ -1859,7 +1859,7 @@
             width: 100%;
             display: grid;
             grid-template-columns: minmax(0, 1fr) auto;
-            grid-template-rows: auto auto;
+            grid-template-rows: auto auto auto;
             align-items: end;
             column-gap: 12px;
             row-gap: 8px;
@@ -1869,9 +1869,99 @@
             background: var(--composer-surface);
             box-shadow: none;
         }
+        .composer-attachment-slot {
+            grid-column: 1 / span 2;
+            grid-row: 1;
+            display: none;
+            align-items: center;
+            min-width: 0;
+        }
+        .composer-attachment-slot.has-attachment {
+            display: flex;
+        }
+        .composer-attachment-card {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            max-width: min(100%, 240px);
+            min-height: 52px;
+            padding: 8px 34px 8px 8px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .composer-attachment-thumb {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            overflow: hidden;
+            flex: 0 0 auto;
+            background: rgba(255, 255, 255, 0.08);
+        }
+        .composer-attachment-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .composer-attachment-file {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 auto;
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--main-text);
+        }
+        .composer-attachment-file svg {
+            width: 20px;
+            height: 20px;
+            display: block;
+            stroke: currentColor;
+        }
+        .composer-attachment-meta {
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .composer-attachment-name,
+        .composer-attachment-type {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .composer-attachment-name {
+            font-size: 12px;
+            color: var(--main-text);
+        }
+        .composer-attachment-type {
+            font-size: 11px;
+            color: var(--muted-text);
+        }
+        .composer-attachment-remove {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            width: 18px;
+            height: 18px;
+            border: none;
+            border-radius: 999px;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.18);
+            color: #fff;
+            font-size: 12px;
+            line-height: 1;
+            cursor: pointer;
+        }
         .text-input {
             grid-column: 1;
-            grid-row: 1;
+            grid-row: 2;
             min-width: 0;
             width: 100%;
             min-height: 44px;
@@ -1891,7 +1981,7 @@
         }
         .composer-tools {
             grid-column: 1;
-            grid-row: 2;
+            grid-row: 3;
             display: flex;
             align-items: center;
             gap: 8px;
@@ -1913,6 +2003,12 @@
             padding: 0;
             box-shadow: none;
         }
+        .composer-tool-btn svg {
+            width: 18px;
+            height: 18px;
+            display: block;
+            stroke: currentColor;
+        }
         .composer-tool-btn:hover,
         .composer-tool-btn:active,
         .composer-tool-btn:focus-visible,
@@ -1923,9 +2019,13 @@
             outline: none;
             transform: none;
         }
+        .composer-tool-btn.is-disabled {
+            opacity: 0.38;
+            pointer-events: none;
+        }
         .send-stack {
             grid-column: 2;
-            grid-row: 1 / span 2;
+            grid-row: 2 / span 2;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -2223,6 +2323,10 @@
                 border-radius: 26px;
             }
 
+            .composer-attachment-card {
+                max-width: 100%;
+            }
+
             .text-input {
                 min-height: 42px;
                 padding: 8px 0 0;
@@ -2289,6 +2393,7 @@
 <body>
 
 <div class="phone-wrapper">
+    <input type="file" id="composerFileInput" accept="image/*,.pdf,.txt,.md,.csv,.json,.doc,.docx" style="display:none;">
     <input type="file" id="fileInput" onchange="handleFileSelect(this)" accept="image/*" style="display:none;">
     
 <div class="calc-overlay" id="uploadOverlay" data-mode="doc">
@@ -2378,8 +2483,6 @@
             </div>
         </div>
         <div class="agent-cta-bar" id="agentCtaBar">
-            <a class="agent-cta-btn press-glow" id="agentFeaturedBtn" href="#" target="_blank" rel="noopener"><span class="agent-cta-text">推薦精選物件</span></a>
-            <a class="agent-cta-btn press-glow" id="agentMediaBtn" href="#" target="_blank" rel="noopener"><span class="agent-cta-text">房地產影音</span></a>
             <button type="button" class="agent-cta-btn press-glow" id="floatingEyeBtn" title="瀏覽清單"><span class="agent-cta-text">瀏覽清單</span></button>
         </div>
         <div class="chat-box" id="chatBox">
@@ -2402,10 +2505,24 @@
         <div class="chat-footer">
             <div class="input-area">
                 <div class="composer-shell">
+                    <div class="composer-attachment-slot" id="composerAttachmentSlot"></div>
                     <input type="text" id="userInput" class="text-input" placeholder="請輸入訊息...">
                     <div class="composer-tools" aria-label="輸入工具">
                         <button type="button" class="composer-tool-btn" id="composerToolPlus" aria-label="工具一" title="工具一">＋</button>
-                        <button type="button" class="composer-tool-btn" id="composerToolGrid" aria-label="工具二" title="工具二">◫</button>
+                        <button type="button" class="composer-tool-btn" id="composerToolFeatured" aria-label="精選物件" title="精選物件">
+                            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M7.5 11.2v7.1"></path>
+                                <path d="M7.5 11.2L10 5.7a2.1 2.1 0 0 1 2-1.2h.3c.6 0 1 .5 1 1.1v2.8c0 .7-.1 1.4-.4 2l-.3.8h4c1.1 0 1.9 1 1.7 2.1l-.8 4.2a2 2 0 0 1-2 1.6H9.3a1.8 1.8 0 0 1-1.8-1.8v-6.1a1.8 1.8 0 0 1 1.8-1.8h.2Z"></path>
+                                <path d="M4.6 11.2h1.8a1.1 1.1 0 0 1 1.1 1.1v5.9a1.1 1.1 0 0 1-1.1 1.1H4.6"></path>
+                            </svg>
+                        </button>
+                        <button type="button" class="composer-tool-btn" id="composerToolMedia" aria-label="房地產影音" title="房地產影音">
+                            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <rect x="3.5" y="6" width="13.5" height="12" rx="2.2"></rect>
+                                <path d="M10 10.2 13.8 12 10 13.8v-3.6Z"></path>
+                                <path d="M17 10.2 20.5 8v8L17 13.8"></path>
+                            </svg>
+                        </button>
                     </div>
                     <div class="send-stack is-send" id="sendStack">
                         <div class="send-btn ripple-btn send-action" id="sendBtn">↑</div>
@@ -2852,6 +2969,7 @@
 <script>
     // 🌟 必須補上這一行，用來儲存圖片數據
     let base64Image = ""; 
+    let composerAttachment = null;
     let currentListingState = null;
     const listingCache = {};
     const detailCache = {};
@@ -2860,6 +2978,142 @@
     let detailImageList = [];
     let detailImageIndex = 0;
     let detailZoom = 1;
+
+    function inferAttachmentMimeType(file) {
+        if (file?.type) return file.type;
+        const ext = String(file?.name || "").toLowerCase().split('.').pop();
+        const mimeMap = {
+            pdf: "application/pdf",
+            txt: "text/plain",
+            md: "text/markdown",
+            csv: "text/csv",
+            json: "application/json",
+            doc: "application/msword",
+            docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        };
+        return mimeMap[ext] || "application/octet-stream";
+    }
+
+    function readFileAsDataUrl(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = () => reject(new Error("附件讀取失敗"));
+            reader.readAsDataURL(file);
+        });
+    }
+
+    function compressImageFile(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+                    const maxSize = 1200;
+                    if (width > height) {
+                        if (width > maxSize) {
+                            height *= maxSize / width;
+                            width = maxSize;
+                        }
+                    } else if (height > maxSize) {
+                        width *= maxSize / height;
+                        height = maxSize;
+                    }
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    resolve(canvas.toDataURL('image/jpeg', 0.72));
+                };
+                img.onerror = () => reject(new Error("圖片讀取失敗"));
+                img.src = e.target.result;
+            };
+            reader.onerror = () => reject(new Error("圖片讀取失敗"));
+            reader.readAsDataURL(file);
+        });
+    }
+
+    async function buildComposerAttachment(file) {
+        if (!file) return null;
+        const maxBytes = 15 * 1024 * 1024;
+        if (file.size > maxBytes) {
+            throw new Error("附件請控制在 15MB 內");
+        }
+        const isImage = /^image\//.test(file.type);
+        if (isImage) {
+            const dataUrl = await compressImageFile(file);
+            return {
+                kind: "image",
+                name: file.name,
+                mimeType: "image/jpeg",
+                data: dataUrl.split(',')[1],
+                previewUrl: dataUrl
+            };
+        }
+        const dataUrl = await readFileAsDataUrl(file);
+        return {
+            kind: "file",
+            name: file.name,
+            mimeType: inferAttachmentMimeType(file),
+            data: dataUrl.split(',')[1],
+            previewUrl: null
+        };
+    }
+
+    function renderComposerAttachment() {
+        const slot = document.getElementById('composerAttachmentSlot');
+        if (!slot) return;
+        if (!composerAttachment) {
+            slot.classList.remove('has-attachment');
+            slot.innerHTML = "";
+            return;
+        }
+        const typeLabel = composerAttachment.kind === "image" ? "圖片附件" : "文件附件";
+        const preview = composerAttachment.kind === "image"
+            ? `<div class="composer-attachment-thumb"><img src="${composerAttachment.previewUrl}" alt="${escapeHtml(composerAttachment.name)}"></div>`
+            : `<div class="composer-attachment-file" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M8 3.5h6l4 4V19a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 6 19V5A1.5 1.5 0 0 1 7.5 3.5Z"></path>
+                        <path d="M14 3.5V8h4"></path>
+                    </svg>
+               </div>`;
+        slot.classList.add('has-attachment');
+        slot.innerHTML = `
+            <div class="composer-attachment-card">
+                ${preview}
+                <div class="composer-attachment-meta">
+                    <div class="composer-attachment-name">${escapeHtml(composerAttachment.name)}</div>
+                    <div class="composer-attachment-type">${typeLabel}</div>
+                </div>
+                <button type="button" class="composer-attachment-remove" id="composerAttachmentRemove" aria-label="移除附件">×</button>
+            </div>
+        `;
+        slot.querySelector('#composerAttachmentRemove')?.addEventListener('click', removeComposerAttachment);
+    }
+
+    function removeComposerAttachment() {
+        composerAttachment = null;
+        const input = document.getElementById('composerFileInput');
+        if (input) input.value = '';
+        renderComposerAttachment();
+    }
+
+    async function handleComposerFileSelect(input) {
+        const file = input?.files?.[0];
+        if (!file) return;
+        try {
+            composerAttachment = await buildComposerAttachment(file);
+            renderComposerAttachment();
+        } catch (error) {
+            alert(error.message || "附件上傳失敗");
+            removeComposerAttachment();
+        } finally {
+            if (input) input.value = '';
+        }
+    }
     const DEFAULT_AGENT = {
         name: "業務",
         bio: "",
@@ -3865,16 +4119,18 @@ function openCommunitySearch() { document.getElementById('communityOverlay').sty
 
 async function sendMessage() {
     const input = document.getElementById('userInput');
-    if (!input.value.trim()) return;
-    const val = input.value;
-    addUserMsg(val);
+    const val = input.value.trim();
+    const attachment = composerAttachment ? { ...composerAttachment } : null;
+    if (!val && !attachment) return;
+    addUserMsgContent(val, attachment);
     input.value = '';
+    removeComposerAttachment();
     const loadingId = "load-" + Date.now();
     const pendingQuery = getListingPending();
-    if (pendingQuery && !hasListingCriteria(val)) {
+    if (!attachment && pendingQuery && !hasListingCriteria(val)) {
         clearListingPending();
     }
-    const shouldSearchListing = isListingQuery(val) || (pendingQuery && hasListingCriteria(val));
+    const shouldSearchListing = !attachment && (isListingQuery(val) || (pendingQuery && hasListingCriteria(val)));
     if (shouldSearchListing) {
         let query = pendingQuery ? `${pendingQuery} ${val}` : val;
         if (shouldAskGuishanArea(query)) {
@@ -3889,14 +4145,20 @@ async function sendMessage() {
         return;
     }
 
-    addBotMsg("AI 思考中...", loadingId);
+    addBotMsg(attachment ? "AI 正在分析附件..." : "AI 思考中...", loadingId);
     try {
+        const fallbackPrompt = attachment
+            ? (attachment.kind === 'image' ? "請分析我上傳的圖片內容並整理重點。" : "請分析我上傳的文件內容並整理重點。")
+            : "";
         const response = await fetch(`${API_BASE}/api/chat`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({
-                message: val,
-                sessionId: getSessionId()
+                message: val || fallbackPrompt,
+                sessionId: getSessionId(),
+                attachmentData: attachment?.data || null,
+                attachmentMimeType: attachment?.mimeType || null,
+                attachmentName: attachment?.name || null
             })
         });
         const data = await response.json();
@@ -4892,24 +5154,22 @@ function updateAgentLinks() {
     const lineEl = document.getElementById('agentLineLink');
     const phoneEl = document.getElementById('agentPhoneLink');
     const detailPhoneEl = document.getElementById('detailContactBtn');
-    const featuredBtn = document.getElementById('agentFeaturedBtn');
-    const mediaBtn = document.getElementById('agentMediaBtn');
+    const featuredTool = document.getElementById('composerToolFeatured');
+    const mediaTool = document.getElementById('composerToolMedia');
     const featuredUrl = currentAgent.featuredUrl || DEFAULT_AGENT.featuredUrl;
     const mediaUrl = currentAgent.mediaUrl || DEFAULT_AGENT.mediaUrl;
-    const mediaTitle = currentAgent.mediaTitle || DEFAULT_AGENT.mediaTitle;
-    const agentName = currentAgent.name || DEFAULT_AGENT.name || "業務";
     if (lineEl) lineEl.href = lineUrl || "#";
     if (phoneEl) phoneEl.href = phoneNumber ? `tel:${phoneNumber}` : "#";
     if (detailPhoneEl) detailPhoneEl.href = phoneNumber ? `tel:${phoneNumber}` : "#";
-    if (featuredBtn) {
-        featuredBtn.textContent = `${agentName} 推薦精選物件`;
-        featuredBtn.href = featuredUrl || "#";
-        featuredBtn.classList.toggle('is-disabled', !featuredUrl);
+    if (featuredTool) {
+        featuredTool.dataset.href = featuredUrl || "";
+        featuredTool.classList.toggle('is-disabled', !featuredUrl);
     }
-    if (mediaBtn) {
-        mediaBtn.textContent = mediaTitle || "房地產影音";
-        mediaBtn.href = mediaUrl || "#";
-        mediaBtn.classList.toggle('is-disabled', !mediaUrl);
+    if (mediaTool) {
+        mediaTool.dataset.href = mediaUrl || "";
+        mediaTool.classList.toggle('is-disabled', !mediaUrl);
+        mediaTool.title = currentAgent.mediaTitle || DEFAULT_AGENT.mediaTitle || "房地產影音";
+        mediaTool.setAttribute('aria-label', currentAgent.mediaTitle || DEFAULT_AGENT.mediaTitle || "房地產影音");
     }
     document.querySelectorAll('.agent-line-link').forEach((el) => {
         el.href = lineUrl || "#";
@@ -5410,6 +5670,20 @@ document.getElementById('detailCommunityBtn')?.addEventListener('click', async (
 });
 document.getElementById('detailSendBtn')?.addEventListener('click', sendDetailToLine);
 document.getElementById('floatingEyeBtn')?.addEventListener('click', openBrowseList);
+document.getElementById('composerToolPlus')?.addEventListener('click', () => {
+    document.getElementById('composerFileInput')?.click();
+});
+document.getElementById('composerFileInput')?.addEventListener('change', (e) => {
+    handleComposerFileSelect(e.target);
+});
+document.getElementById('composerToolFeatured')?.addEventListener('click', () => {
+    const href = document.getElementById('composerToolFeatured')?.dataset.href;
+    if (href) window.open(href, '_blank', 'noopener');
+});
+document.getElementById('composerToolMedia')?.addEventListener('click', () => {
+    const href = document.getElementById('composerToolMedia')?.dataset.href;
+    if (href) window.open(href, '_blank', 'noopener');
+});
 document.getElementById('browseBackBtn')?.addEventListener('click', closeBrowseList);
 document.getElementById('browseSendBtn')?.addEventListener('click', sendBrowseListToLine);
 document.getElementById('detailAddBtn')?.addEventListener('click', () => {
@@ -5757,6 +6031,23 @@ function renderListings(data) {
 function addUserMsg(text) {
     const d = document.createElement('div'); d.className = 'msg user'; d.innerText = text;
     chatBox.appendChild(d); scrollChat();
+}
+function addUserMsgContent(text, attachment = null) {
+    if (!attachment) {
+        addUserMsg(text);
+        return;
+    }
+    const d = document.createElement('div');
+    d.className = 'msg user';
+    const attachmentHtml = attachment.kind === 'image'
+        ? `<div style="margin-bottom:${text ? '8px' : '0'};"><img src="${attachment.previewUrl}" alt="${escapeHtml(attachment.name)}" style="display:block;max-width:168px;border-radius:12px;"></div>`
+        : `<div style="display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border-radius:12px;background:rgba(255,255,255,0.18);margin-bottom:${text ? '8px' : '0'};">
+                <span style="font-size:13px;">📎</span>
+                <span style="font-size:12px;line-height:1.3;">${escapeHtml(attachment.name)}</span>
+           </div>`;
+    d.innerHTML = `${attachmentHtml}${text ? `<div>${escapeHtml(text)}</div>` : ''}`;
+    chatBox.appendChild(d);
+    scrollChat();
 }
 function formatMarkdownTable(text) {
     if (!text.includes('|')) return text;
