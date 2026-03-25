@@ -7,6 +7,29 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>你的房產AI助理</title>
+    <script>
+        (function applyInitialTheme() {
+            try {
+                var DEFAULT_BG = "noir";
+                var THEMES = {
+                    forest: { surface: "#9bbcaf", gradient: "linear-gradient(135deg, #9bbcaf 0%, #9bbcaf 100%)" },
+                    noir: { surface: "#0a0a0a", gradient: "linear-gradient(135deg, #0a0a0a 0%, #0a0a0a 100%)" },
+                    amethyst: { surface: "#a593bf", gradient: "linear-gradient(135deg, #a593bf 0%, #a593bf 100%)" }
+                };
+                var saved = JSON.parse(localStorage.getItem("ui_settings") || "{}");
+                var bgTheme = saved.bgTheme || localStorage.getItem("bg_theme") || DEFAULT_BG;
+                var theme = THEMES[bgTheme] || THEMES[DEFAULT_BG];
+                var root = document.documentElement;
+                root.style.setProperty("--bg-gradient", theme.gradient);
+                root.style.setProperty("--app-surface", theme.surface);
+                root.style.setProperty("--panel-surface", theme.surface);
+                root.style.setProperty("--chrome-surface", theme.surface);
+                root.style.setProperty("--chrome-strong", theme.surface);
+                var meta = document.querySelector('meta[name="theme-color"]');
+                if (meta) meta.setAttribute("content", theme.surface);
+            } catch (error) {}
+        })();
+    </script>
     <style>
         :root {
             --glass-white: rgba(255, 255, 255, 0.2);
