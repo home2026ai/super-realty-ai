@@ -2292,6 +2292,9 @@
             flex: 1;
             min-height: 0;
         }
+        .media-home {
+            gap: 12px;
+        }
         .media-home.is-active,
         .media-reels.is-active {
             display: flex;
@@ -2330,7 +2333,6 @@
             display: grid;
             grid-template-columns: minmax(0, 1.3fr) minmax(220px, 0.7fr);
             gap: 14px;
-            margin-bottom: 14px;
             padding: 18px;
             border-radius: 30px;
             overflow: hidden;
@@ -2464,7 +2466,7 @@
         .media-home-grid {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 14px;
+            gap: 10px;
             overflow-y: auto;
             padding-right: 2px;
         }
@@ -2474,7 +2476,7 @@
         }
         .media-category-card {
             position: relative;
-            min-height: 340px;
+            min-height: 430px;
             border-radius: 26px;
             overflow: hidden;
             background: #0f0f12;
@@ -2501,9 +2503,13 @@
         }
         .media-category-preview iframe {
             pointer-events: none;
-            transform: scale(1.18);
+            width: 218%;
+            height: 132%;
+            top: -16%;
+            left: -59%;
+            transform: none;
             filter: saturate(1.12) contrast(1.04);
-            transition: transform 0.45s ease;
+            transition: transform 0.45s ease, filter 0.45s ease;
         }
         .media-category-fallback {
             display: flex;
@@ -2532,13 +2538,14 @@
             position: absolute;
             inset: 0;
             background:
-                linear-gradient(180deg, rgba(0,0,0,0.04) 0%, rgba(0,0,0,0.34) 38%, rgba(0,0,0,0.86) 100%),
-                linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0));
+                linear-gradient(180deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.12) 24%, rgba(0,0,0,0.1) 58%, rgba(0,0,0,0.84) 100%),
+                linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0));
             pointer-events: none;
         }
         .media-category-card:hover .media-category-preview iframe,
         .media-category-card:focus-visible .media-category-preview iframe {
-            transform: scale(1.24);
+            transform: scale(1.03);
+            filter: saturate(1.18) contrast(1.06);
         }
         .media-category-card:hover,
         .media-category-card:focus-visible {
@@ -2596,12 +2603,14 @@
         }
         .media-category-content {
             position: absolute;
-            inset: auto 0 0 0;
+            inset: auto 0 40px 0;
             z-index: 1;
-            padding: 18px 18px 18px;
+            padding: 0 16px;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            align-items: center;
+            text-align: center;
+            gap: 7px;
         }
         .media-category-pill {
             align-self: flex-start;
@@ -2643,16 +2652,17 @@
         }
         .media-category-title {
             color: #fff;
-            font-size: 28px;
-            font-weight: 800;
-            line-height: 1.04;
+            font-size: 30px;
+            font-weight: 900;
+            line-height: 1.02;
             letter-spacing: -0.03em;
+            text-shadow: 0 8px 22px rgba(0,0,0,0.34);
         }
         .media-category-desc {
             color: rgba(255,255,255,0.82);
             font-size: 13px;
             line-height: 1.55;
-            max-width: 26ch;
+            max-width: 18ch;
         }
         .media-category-arrow {
             position: absolute;
@@ -3307,27 +3317,35 @@
             }
 
             .media-stage {
-                padding: 4px 12px 12px;
+                padding: 4px 10px 12px;
             }
 
             .media-home-hero {
-                grid-template-columns: 1fr;
-                gap: 10px;
-                padding: 16px;
-                border-radius: 24px;
+                order: 2;
+                display: block;
+                min-height: 112px;
+                padding: 14px 16px;
+                border-radius: 22px;
+                margin-top: auto;
+            }
+
+            .media-home-eyebrow,
+            .media-home-tags {
+                display: none;
             }
 
             .media-home-title {
-                font-size: 27px;
+                font-size: 22px;
                 max-width: none;
             }
 
             .media-home-desc {
                 font-size: 12px;
+                max-width: none;
             }
 
             .media-home-visual {
-                min-height: 132px;
+                display: none;
             }
 
             .media-home-ring {
@@ -3341,22 +3359,62 @@
             }
 
             .media-home-grid {
-                grid-template-columns: 1fr;
-                gap: 12px;
+                order: 1;
+                flex: 1;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 8px;
+                overflow: visible;
+                align-content: start;
             }
 
             .media-category-card {
-                min-height: 260px;
+                min-height: 364px;
+                border-radius: 22px;
+            }
+
+            .media-category-card[data-category-style="knowledge"] {
+                margin-top: 8px;
             }
 
             .media-category-title {
-                font-size: 24px;
+                font-size: 18px;
             }
 
             .media-category-desc,
             .media-reels-subtitle,
             .media-reels-hint {
                 font-size: 12px;
+            }
+
+            .media-category-desc {
+                max-width: 13ch;
+                line-height: 1.45;
+            }
+
+            .media-category-content {
+                bottom: 34px;
+                padding: 0 10px;
+            }
+
+            .media-category-chrome {
+                inset: auto 10px 10px 10px;
+                justify-content: center;
+            }
+
+            .media-category-index {
+                display: none;
+            }
+
+            .media-category-live {
+                min-height: 28px;
+                padding: 0 9px;
+                font-size: 10px;
+            }
+
+            .media-category-pill,
+            .media-category-meta,
+            .media-category-arrow {
+                display: none;
             }
 
             .media-category-arrow {
