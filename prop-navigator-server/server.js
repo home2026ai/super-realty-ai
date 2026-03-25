@@ -905,7 +905,9 @@ app.post('/api/agents/:agentId', (req, res) => {
         phoneNumber: typeof data.phoneNumber === "string" ? data.phoneNumber : agent.phoneNumber,
         featuredUrl: typeof data.featuredUrl === "string" ? data.featuredUrl : agent.featuredUrl,
         mediaTitle: typeof data.mediaTitle === "string" ? data.mediaTitle : agent.mediaTitle,
-        mediaUrl: typeof data.mediaUrl === "string" ? data.mediaUrl : agent.mediaUrl
+        mediaUrl: typeof data.mediaUrl === "string" ? data.mediaUrl : agent.mediaUrl,
+        mediaPlaylistTour: typeof data.mediaPlaylistTour === "string" ? data.mediaPlaylistTour : agent.mediaPlaylistTour,
+        mediaPlaylistKnowledge: typeof data.mediaPlaylistKnowledge === "string" ? data.mediaPlaylistKnowledge : agent.mediaPlaylistKnowledge
     };
     agents[agentId] = next;
     saveAgents(agents);
