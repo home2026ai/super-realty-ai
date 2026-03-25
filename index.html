@@ -1241,14 +1241,45 @@
             text-align: center;
             font-size: 12px;
         }
-        .settings-color-input {
+        .settings-rgb-group {
+            display: grid;
+            gap: 8px;
+        }
+        .settings-rgb-row {
+            display: grid;
+            grid-template-columns: 14px minmax(0, 1fr) 40px;
+            gap: 8px;
+            align-items: center;
+        }
+        .settings-rgb-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.78);
+            text-align: center;
+        }
+        .settings-rgb-slider {
             width: 100%;
-            height: 40px;
-            border: none;
-            border-radius: 10px;
-            background: transparent;
-            padding: 0;
-            cursor: pointer;
+            margin: 0;
+            accent-color: #ffffff;
+        }
+        .settings-rgb-slider[data-channel="r"] {
+            accent-color: #ff5a5f;
+        }
+        .settings-rgb-slider[data-channel="g"] {
+            accent-color: #34c759;
+        }
+        .settings-rgb-slider[data-channel="b"] {
+            accent-color: #4f8cff;
+        }
+        .settings-rgb-number {
+            width: 100%;
+            height: 28px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            background: rgba(0, 0, 0, 0.18);
+            color: #fff;
+            text-align: center;
+            font-size: 11px;
         }
         .settings-swatches {
             display: grid;
@@ -2133,14 +2164,47 @@
                         <span class="settings-label">文字顏色</span>
                         <span class="settings-value" id="textColorValue">#FFFFFF</span>
                     </div>
-                    <input type="color" class="settings-color-input" id="textColorInput" value="#ffffff">
+                    <div class="settings-rgb-group" id="textColorControls">
+                        <div class="settings-rgb-row">
+                            <span class="settings-rgb-label">R</span>
+                            <input type="range" class="settings-rgb-slider" data-target="text" data-channel="r" min="0" max="255" step="1" value="255">
+                            <input type="number" class="settings-rgb-number" data-target="text" data-channel="r" min="0" max="255" step="1" value="255">
+                        </div>
+                        <div class="settings-rgb-row">
+                            <span class="settings-rgb-label">G</span>
+                            <input type="range" class="settings-rgb-slider" data-target="text" data-channel="g" min="0" max="255" step="1" value="255">
+                            <input type="number" class="settings-rgb-number" data-target="text" data-channel="g" min="0" max="255" step="1" value="255">
+                        </div>
+                        <div class="settings-rgb-row">
+                            <span class="settings-rgb-label">B</span>
+                            <input type="range" class="settings-rgb-slider" data-target="text" data-channel="b" min="0" max="255" step="1" value="255">
+                            <input type="number" class="settings-rgb-number" data-target="text" data-channel="b" min="0" max="255" step="1" value="255">
+                        </div>
+                    </div>
                 </div>
                 <div class="settings-row">
                     <div class="settings-head">
                         <span class="settings-label">個性化背景</span>
-                        <span class="settings-value">黑 / 白 / 暗紫</span>
+                        <span class="settings-value" id="bgColorValue">黑 / 暗紫 / 自訂</span>
                     </div>
                     <div class="settings-swatches" id="settingsBgSwatches"></div>
+                    <div class="settings-rgb-group" id="bgColorControls">
+                        <div class="settings-rgb-row">
+                            <span class="settings-rgb-label">R</span>
+                            <input type="range" class="settings-rgb-slider" data-target="bg" data-channel="r" min="0" max="255" step="1" value="0">
+                            <input type="number" class="settings-rgb-number" data-target="bg" data-channel="r" min="0" max="255" step="1" value="0">
+                        </div>
+                        <div class="settings-rgb-row">
+                            <span class="settings-rgb-label">G</span>
+                            <input type="range" class="settings-rgb-slider" data-target="bg" data-channel="g" min="0" max="255" step="1" value="0">
+                            <input type="number" class="settings-rgb-number" data-target="bg" data-channel="g" min="0" max="255" step="1" value="0">
+                        </div>
+                        <div class="settings-rgb-row">
+                            <span class="settings-rgb-label">B</span>
+                            <input type="range" class="settings-rgb-slider" data-target="bg" data-channel="b" min="0" max="255" step="1" value="0">
+                            <input type="number" class="settings-rgb-number" data-target="bg" data-channel="b" min="0" max="255" step="1" value="0">
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -4466,13 +4530,6 @@ const BG_THEMES = [
         panel: "#000000"
     },
     {
-        id: "paper",
-        label: "白色",
-        gradient: "linear-gradient(135deg, #ffffff 0%, #f1f1f1 100%)",
-        surface: "rgba(255, 255, 255, 0.94)",
-        panel: "#ececec"
-    },
-    {
         id: "amethyst",
         label: "暗紫",
         gradient: "linear-gradient(135deg, #120b1f 0%, #241239 52%, #3b1d59 100%)",
@@ -4483,7 +4540,8 @@ const BG_THEMES = [
 const DEFAULT_UI_SETTINGS = {
     fontScale: 1,
     textColor: "#ffffff",
-    bgTheme: "noir"
+    bgTheme: "noir",
+    bgCustomColor: "#000000"
 };
 let uiSettings = { ...DEFAULT_UI_SETTINGS };
 
@@ -4504,7 +4562,8 @@ function loadUiSettings() {
         return {
             fontScale: clampFontPercent((saved.fontScale || 1) * 100) / 100,
             textColor: saved.textColor || DEFAULT_UI_SETTINGS.textColor,
-            bgTheme
+            bgTheme,
+            bgCustomColor: saved.bgCustomColor || DEFAULT_UI_SETTINGS.bgCustomColor
         };
     } catch (error) {
         return {
@@ -4512,6 +4571,38 @@ function loadUiSettings() {
             bgTheme: localStorage.getItem(BG_STORAGE_KEY) || DEFAULT_UI_SETTINGS.bgTheme
         };
     }
+}
+
+function clampRgb(value) {
+    const num = Number(value);
+    if (!Number.isFinite(num)) return 0;
+    return Math.min(255, Math.max(0, Math.round(num)));
+}
+
+function hexToRgb(hex) {
+    const raw = String(hex || "").replace("#", "").trim();
+    const normalized = raw.length === 3 ? raw.split("").map((x) => x + x).join("") : raw.padEnd(6, "0").slice(0, 6);
+    const int = parseInt(normalized, 16);
+    if (!Number.isFinite(int)) return { r: 255, g: 255, b: 255 };
+    return {
+        r: (int >> 16) & 255,
+        g: (int >> 8) & 255,
+        b: int & 255
+    };
+}
+
+function rgbToHex(rgb) {
+    const toHex = (value) => clampRgb(value).toString(16).padStart(2, "0");
+    return `#${toHex(rgb.r)}${toHex(rgb.g)}${toHex(rgb.b)}`;
+}
+
+function syncRgbControls(target, color) {
+    const rgb = typeof color === "string" ? hexToRgb(color) : color;
+    ["r", "g", "b"].forEach((channel) => {
+        document.querySelectorAll(`[data-target="${target}"][data-channel="${channel}"]`).forEach((el) => {
+            el.value = String(clampRgb(rgb[channel]));
+        });
+    });
 }
 
 function shouldScaleFont(el) {
@@ -4545,12 +4636,41 @@ function applyFontScale(scale, root = document.body) {
 function applyTextColor(color) {
     document.documentElement.style.setProperty('--ui-text-color', color);
     const valueEl = document.getElementById('textColorValue');
-    const inputEl = document.getElementById('textColorInput');
     if (valueEl) valueEl.textContent = String(color || "").toUpperCase();
-    if (inputEl && inputEl.value !== color) inputEl.value = color;
+    syncRgbControls("text", color);
+}
+
+function applyCustomBackground(color) {
+    const rgb = hexToRgb(color);
+    const soft = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.92)`;
+    const deep = `rgba(${Math.max(0, rgb.r - 18)}, ${Math.max(0, rgb.g - 18)}, ${Math.max(0, rgb.b - 18)}, 0.98)`;
+    const gradient = `linear-gradient(135deg, rgb(${rgb.r}, ${rgb.g}, ${rgb.b}) 0%, rgb(${rgb.r}, ${rgb.g}, ${rgb.b}) 100%)`;
+    document.documentElement.style.setProperty('--bg-gradient', gradient);
+    document.documentElement.style.setProperty('--app-surface', soft);
+    document.documentElement.style.setProperty('--panel-surface', deep);
+    document.documentElement.setAttribute('data-bg', 'custom');
+    localStorage.setItem(BG_STORAGE_KEY, 'custom');
+    const preview = document.getElementById('bgPreview');
+    if (preview) preview.style.background = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
+    document.querySelectorAll('.bg-swatch').forEach((btn) => {
+        btn.classList.toggle('is-active', btn.dataset.bg === 'custom');
+    });
+    document.querySelectorAll('.settings-bg-btn').forEach((btn) => {
+        btn.classList.toggle('is-active', btn.dataset.bg === 'custom');
+    });
+    const valueEl = document.getElementById('bgColorValue');
+    if (valueEl) valueEl.textContent = rgbToHex(rgb).toUpperCase();
+    syncRgbControls("bg", rgb);
+    uiSettings.bgTheme = 'custom';
+    uiSettings.bgCustomColor = rgbToHex(rgb);
+    saveUiSettings();
 }
 
 function applyBackground(themeId) {
+    if (themeId === 'custom') {
+        applyCustomBackground(uiSettings.bgCustomColor || DEFAULT_UI_SETTINGS.bgCustomColor);
+        return;
+    }
     const theme = BG_THEMES.find((item) => item.id === themeId) || BG_THEMES[0];
     document.documentElement.style.setProperty('--bg-gradient', theme.gradient);
     document.documentElement.style.setProperty('--app-surface', theme.surface);
@@ -4565,6 +4685,8 @@ function applyBackground(themeId) {
     document.querySelectorAll('.settings-bg-btn').forEach((btn) => {
         btn.classList.toggle('is-active', btn.dataset.bg === theme.id);
     });
+    const valueEl = document.getElementById('bgColorValue');
+    if (valueEl) valueEl.textContent = theme.label;
     uiSettings.bgTheme = theme.id;
     saveUiSettings();
 }
@@ -4593,13 +4715,15 @@ function initSettingsPanel() {
     const fontRange = document.getElementById('fontSizeRange');
     const fontNumber = document.getElementById('fontSizeNumber');
     const fontValue = document.getElementById('fontSizeValue');
-    const textColorInput = document.getElementById('textColorInput');
     const bgSwatches = document.getElementById('settingsBgSwatches');
-    if (!settingsRoot || !settingsToggle || !fontRange || !fontNumber || !fontValue || !textColorInput || !bgSwatches) return;
+    if (!settingsRoot || !settingsToggle || !fontRange || !fontNumber || !fontValue || !bgSwatches) return;
 
-    bgSwatches.innerHTML = BG_THEMES.map((theme) => (
+    bgSwatches.innerHTML = [
+        ...BG_THEMES.map((theme) => (
         `<button type="button" class="settings-bg-btn press-glow" data-bg="${theme.id}" style="background:${theme.gradient};">${theme.label}</button>`
-    )).join('');
+        )),
+        `<button type="button" class="settings-bg-btn press-glow" data-bg="custom">自訂</button>`
+    ].join('');
 
     settingsToggle.addEventListener('click', () => {
         settingsRoot.classList.toggle('is-open');
@@ -4625,10 +4749,24 @@ function initSettingsPanel() {
     fontNumber.addEventListener('change', (e) => {
         updateFontScale(e.target.value);
     });
-    textColorInput.addEventListener('input', (e) => {
-        uiSettings.textColor = e.target.value;
-        applyTextColor(uiSettings.textColor);
-        saveUiSettings();
+    document.querySelectorAll('[data-target="text"]').forEach((el) => {
+        const eventName = el.matches('input[type="range"]') ? 'input' : 'change';
+        el.addEventListener(eventName, (e) => {
+            const current = hexToRgb(uiSettings.textColor);
+            current[e.target.dataset.channel] = clampRgb(e.target.value);
+            uiSettings.textColor = rgbToHex(current);
+            applyTextColor(uiSettings.textColor);
+            saveUiSettings();
+        });
+    });
+    document.querySelectorAll('[data-target="bg"]').forEach((el) => {
+        const eventName = el.matches('input[type="range"]') ? 'input' : 'change';
+        el.addEventListener(eventName, (e) => {
+            const current = hexToRgb(uiSettings.bgCustomColor || DEFAULT_UI_SETTINGS.bgCustomColor);
+            current[e.target.dataset.channel] = clampRgb(e.target.value);
+            uiSettings.bgCustomColor = rgbToHex(current);
+            applyCustomBackground(uiSettings.bgCustomColor);
+        });
     });
     bgSwatches.addEventListener('click', (e) => {
         const btn = e.target.closest('.settings-bg-btn');
@@ -4639,6 +4777,7 @@ function initSettingsPanel() {
     uiSettings = loadUiSettings();
     syncFontControls(Math.round(uiSettings.fontScale * 100));
     applyTextColor(uiSettings.textColor);
+    syncRgbControls("bg", uiSettings.bgCustomColor);
     applyBackground(uiSettings.bgTheme);
     applyFontScale(uiSettings.fontScale);
 
