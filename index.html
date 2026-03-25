@@ -21,7 +21,6 @@
             --chrome-surface: rgba(255, 255, 255, 0.16);
             --chrome-strong: rgba(255, 255, 255, 0.22);
             --ui-font-scale: 1;
-            --ui-text-color: #ffffff;
             --safe-top: env(safe-area-inset-top, 0px);
             --safe-right: env(safe-area-inset-right, 0px);
             --safe-bottom: env(safe-area-inset-bottom, 0px);
@@ -1306,41 +1305,6 @@
         .settings-bg-btn.is-active {
             box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.75);
         }
-        .drawer-menu,
-        .drawer-menu .drawer-btn,
-        .drawer-menu .drawer-preview-item,
-        .drawer-menu .settings-label,
-        .drawer-menu .settings-value,
-        .chat-header,
-        .chat-header .chat-title,
-        .chat-box,
-        .ai,
-        .bg-toggle,
-        .text-input,
-        .agent-bookmark,
-        .menu-label,
-        .agent-cta-btn,
-        .agent-cta-text,
-        .agent-panel,
-        .agent-title,
-        .agent-name,
-        .agent-bio,
-        .agent-links a,
-        .agent-stats-card,
-        .agent-stats-title,
-        .agent-stats-empty,
-        .agent-stats-list,
-        .detail-panel,
-        .detail-top-title,
-        .detail-meta,
-        .detail-section-title,
-        .detail-text {
-            color: var(--ui-text-color);
-        }
-        .text-input::placeholder {
-            color: color-mix(in srgb, var(--ui-text-color) 65%, transparent);
-        }
-
         .plus-box {
             --menu-top: 71px;
             --menu-left: 38px;
@@ -1693,7 +1657,7 @@
             padding: 0 14px;
             border-radius: 999px;
             background: color-mix(in srgb, var(--chrome-strong) 78%, rgba(255, 255, 255, 0.08));
-            color: var(--ui-text-color);
+            color: #fff;
             font-size: 12px;
             font-weight: 400;
             text-decoration: none;
@@ -1734,6 +1698,25 @@
             opacity: 0.45;
             cursor: not-allowed;
             pointer-events: none;
+        }
+        #agentFeaturedBtn:hover,
+        #agentFeaturedBtn:active,
+        #agentFeaturedBtn:focus-visible,
+        #agentFeaturedBtn.is-pressed,
+        #agentMediaBtn:hover,
+        #agentMediaBtn:active,
+        #agentMediaBtn:focus-visible,
+        #agentMediaBtn.is-pressed,
+        #floatingEyeBtn:hover,
+        #floatingEyeBtn:active,
+        #floatingEyeBtn:focus-visible,
+        #floatingEyeBtn.is-pressed {
+            box-shadow:
+                inset 0 0px 0 rgba(255, 255, 255, 0.7),
+                inset 0 -6px 12px rgba(30, 120, 80, 0.25),
+                0 6px 14px rgba(0, 0, 0, 0.18);
+            transform: none;
+            outline: none;
         }
         .agent-cta-btn.has-items {
             box-shadow:
@@ -1784,8 +1767,8 @@
             color: #fff;
         }
 
-        .chat-footer { position: absolute; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; gap: 6px; padding-bottom: 12px; --input-offset: 0px; background: var(--chrome-surface); }
-        .input-area { padding: 12px 20px 0; margin-top: 0; display: flex; align-items: flex-end; gap: 10px; transform: translateY(var(--input-offset)); background: var(--chrome-strong); }
+        .chat-footer { position: absolute; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; gap: 6px; padding-bottom: 12px; --input-offset: 0px; background: linear-gradient(180deg, color-mix(in srgb, var(--chrome-strong) 0%, transparent) 0%, var(--chrome-strong) 28px, var(--chrome-strong) 100%); }
+        .input-area { padding: 12px 20px 0; margin-top: 0; display: flex; align-items: flex-end; gap: 10px; transform: translateY(var(--input-offset)); background: transparent; }
         .text-input {
             flex: 1;
             padding: 12px 20px;
@@ -1801,7 +1784,6 @@
         }
         .text-input::placeholder {
             color: rgba(255, 255, 255, 0.75);
-            color: color-mix(in srgb, var(--ui-text-color) 65%, transparent);
         }
         .send-stack {
             display: flex;
@@ -2050,13 +2032,13 @@
             .chat-footer {
                 gap: 0;
                 padding-bottom: calc(var(--safe-bottom) + 6px);
-                background: var(--chrome-surface);
+                background: linear-gradient(180deg, color-mix(in srgb, var(--chrome-strong) 0%, transparent) 0%, var(--chrome-strong) 20px, var(--chrome-strong) 100%);
             }
 
             .input-area {
                 padding: 6px 12px 0;
                 gap: 8px;
-                background: var(--chrome-strong);
+                background: transparent;
             }
 
             .text-input {
@@ -2170,19 +2152,6 @@
                 </div>
                 <div class="settings-row">
                     <div class="settings-head">
-                        <span class="settings-label">文字顏色</span>
-                        <div class="settings-preview">
-                            <span class="settings-preview-swatch" id="textColorSwatch"></span>
-                            <span class="settings-value" id="textColorValue">#FFFFFF</span>
-                        </div>
-                    </div>
-                    <div class="settings-palette" id="textPalette">
-                        <canvas class="settings-palette-canvas" id="textPaletteCanvas" width="320" height="132"></canvas>
-                        <span class="settings-palette-marker" id="textPaletteMarker"></span>
-                    </div>
-                </div>
-                <div class="settings-row">
-                    <div class="settings-head">
                         <span class="settings-label">個性化背景</span>
                         <div class="settings-preview">
                             <span class="settings-preview-swatch" id="bgColorSwatch"></span>
@@ -2217,11 +2186,11 @@
             <button type="button" class="agent-cta-btn press-glow" id="floatingEyeBtn" title="瀏覽清單"><span class="agent-cta-text">瀏覽清單</span></button>
         </div>
         <div class="chat-box" id="chatBox">
-            <div class="msg ai">你好，我是你的 AI 房產助理 👋
+            <div class="msg ai"><strong>你好，我是你的 AI 房產助理 👋
 專門幫你快速搞懂 林口 / 龜山的房子值不值得買
 
 你可以直接跟我說👇
-🏠 找房：例如「我要找龜山3房車2500萬」
+🏠 找房：例如「我要找龜山3房車2500萬」</strong>
 
 其他功能表👇
 💰 房貸試算（含寬限期）
@@ -2229,9 +2198,9 @@
 📊 社區行情 / 實價登錄
 🧾 交易流程 & 費用整理
 
-👉 我會幫你精準篩選，還可以直接幫你安排看房 🏠
+<strong>👉 我會幫你精準篩選，還可以直接幫你安排看房 🏠
 
-試試看輸入一句話，我幫你找最接近的物件 👇</div>
+試試看輸入一句話，我幫你找最接近的物件 👇</strong></div>
         </div>
         <div class="chat-footer">
             <div class="input-area">
@@ -3309,6 +3278,7 @@ function toggleDrawer() {
     if (!drawerToggle) return;
     const active = drawerToggle.classList.toggle('active');
     drawerMenu.classList.toggle('active');
+    if (active && drawerMenu) drawerMenu.scrollTop = 0;
     setToggleIconState(active);
     setMenuLabelState(active);
     setBookmarkMode(active ? 'menu' : 'chat');
@@ -4498,37 +4468,29 @@ const BG_STORAGE_KEY = "bg_theme";
 const UI_SETTINGS_STORAGE_KEY = "ui_settings";
 const BG_THEMES = [
     {
-        id: "aurora",
-        label: "幻彩",
-        gradient: "linear-gradient(135deg, #7b2ff7 0%, #2196f3 30%, #f06292 70%, #ffb74d 100%)",
-        surface: "rgba(255, 255, 255, 0.15)",
-        panel: "#2f2f2f"
-    },
-    {
         id: "forest",
         label: "森林",
         gradient: "linear-gradient(135deg, #1f3a33 0%, #2d4b43 35%, #3f6b5f 70%, #5fa08d 100%)",
-        surface: "rgba(33, 54, 49, 0.86)",
+        surface: "rgba(33, 54, 49, 0.56)",
         panel: "#1f312d"
     },
     {
         id: "noir",
         label: "黑色",
         gradient: "linear-gradient(135deg, #000000 0%, #000000 50%, #000000 100%)",
-        surface: "rgba(8, 8, 8, 0.94)",
+        surface: "rgba(8, 8, 8, 0.64)",
         panel: "#000000"
     },
     {
         id: "amethyst",
         label: "暗紫",
         gradient: "linear-gradient(135deg, #120b1f 0%, #241239 52%, #3b1d59 100%)",
-        surface: "rgba(28, 14, 46, 0.92)",
+        surface: "rgba(28, 14, 46, 0.62)",
         panel: "#1a102a"
     }
 ];
 const DEFAULT_UI_SETTINGS = {
     fontScale: 1,
-    textColor: "#ffffff",
     bgTheme: "noir",
     bgCustomColor: "#000000"
 };
@@ -4550,7 +4512,6 @@ function loadUiSettings() {
         const bgTheme = saved.bgTheme || localStorage.getItem(BG_STORAGE_KEY) || DEFAULT_UI_SETTINGS.bgTheme;
         return {
             fontScale: clampFontPercent((saved.fontScale || 1) * 100) / 100,
-            textColor: saved.textColor || DEFAULT_UI_SETTINGS.textColor,
             bgTheme,
             bgCustomColor: saved.bgCustomColor || DEFAULT_UI_SETTINGS.bgCustomColor
         };
@@ -4583,34 +4544,6 @@ function hexToRgb(hex) {
 function rgbToHex(rgb) {
     const toHex = (value) => clampRgb(value).toString(16).padStart(2, "0");
     return `#${toHex(rgb.r)}${toHex(rgb.g)}${toHex(rgb.b)}`;
-}
-
-function rgbToHsl(rgb) {
-    const r = clampRgb(rgb.r) / 255;
-    const g = clampRgb(rgb.g) / 255;
-    const b = clampRgb(rgb.b) / 255;
-    const max = Math.max(r, g, b);
-    const min = Math.min(r, g, b);
-    let h = 0;
-    let s = 0;
-    const l = (max + min) / 2;
-    const d = max - min;
-    if (d !== 0) {
-        s = d / (1 - Math.abs(2 * l - 1));
-        switch (max) {
-            case r:
-                h = 60 * (((g - b) / d) % 6);
-                break;
-            case g:
-                h = 60 * (((b - r) / d) + 2);
-                break;
-            default:
-                h = 60 * (((r - g) / d) + 4);
-                break;
-        }
-    }
-    if (h < 0) h += 360;
-    return { h, s, l };
 }
 
 function hslToRgb(h, s, l) {
@@ -4666,18 +4599,6 @@ function renderColorPalette(canvas) {
     ctx.putImageData(image, 0, 0);
 }
 
-function setPaletteMarker(target, color) {
-    const marker = document.getElementById(`${target}PaletteMarker`);
-    const canvas = document.getElementById(`${target}PaletteCanvas`);
-    if (!marker || !canvas) return;
-    marker.classList.remove('is-hidden');
-    const { h, l } = rgbToHsl(hexToRgb(color));
-    const x = (h / 360) * canvas.clientWidth;
-    const y = (1 - l) * canvas.clientHeight;
-    marker.style.left = `${Math.max(0, Math.min(canvas.clientWidth, x))}px`;
-    marker.style.top = `${Math.max(0, Math.min(canvas.clientHeight, y))}px`;
-}
-
 function shouldScaleFont(el) {
     if (!el || el.nodeType !== 1) return false;
     if (["SCRIPT", "STYLE", "CANVAS"].includes(el.tagName)) return false;
@@ -4706,15 +4627,6 @@ function applyFontScale(scale, root = document.body) {
     });
 }
 
-function applyTextColor(color) {
-    document.documentElement.style.setProperty('--ui-text-color', color);
-    const valueEl = document.getElementById('textColorValue');
-    const swatchEl = document.getElementById('textColorSwatch');
-    if (valueEl) valueEl.textContent = String(color || "").toUpperCase();
-    if (swatchEl) swatchEl.style.background = color;
-    setPaletteMarker("text", color);
-}
-
 function applyCustomBackground(color) {
     const rgb = hexToRgb(color);
     const soft = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.92)`;
@@ -4741,7 +4653,15 @@ function applyCustomBackground(color) {
     const swatchEl = document.getElementById('bgColorSwatch');
     if (valueEl) valueEl.textContent = rgbToHex(rgb).toUpperCase();
     if (swatchEl) swatchEl.style.background = rgbToHex(rgb);
-    setPaletteMarker("bg", rgbToHex(rgb));
+    const marker = document.getElementById('bgPaletteMarker');
+    const canvas = document.getElementById('bgPaletteCanvas');
+    if (marker && canvas) {
+        marker.classList.remove('is-hidden');
+        const x = (rgb.r / 255) * canvas.clientWidth;
+        const y = canvas.clientHeight - (rgb.g / 255) * canvas.clientHeight;
+        marker.style.left = `${Math.max(0, Math.min(canvas.clientWidth, x))}px`;
+        marker.style.top = `${Math.max(0, Math.min(canvas.clientHeight, y))}px`;
+    }
     uiSettings.bgTheme = 'custom';
     uiSettings.bgCustomColor = rgbToHex(rgb);
     saveUiSettings();
@@ -4803,11 +4723,9 @@ function initSettingsPanel() {
     const fontNumber = document.getElementById('fontSizeNumber');
     const fontValue = document.getElementById('fontSizeValue');
     const bgSwatches = document.getElementById('settingsBgSwatches');
-    const textPalette = document.getElementById('textPalette');
-    const textPaletteCanvas = document.getElementById('textPaletteCanvas');
     const bgPalette = document.getElementById('bgPalette');
     const bgPaletteCanvas = document.getElementById('bgPaletteCanvas');
-    if (!settingsRoot || !settingsToggle || !fontRange || !fontNumber || !fontValue || !bgSwatches || !textPalette || !textPaletteCanvas || !bgPalette || !bgPaletteCanvas) return;
+    if (!settingsRoot || !settingsToggle || !fontRange || !fontNumber || !fontValue || !bgSwatches || !bgPalette || !bgPaletteCanvas) return;
 
     bgSwatches.innerHTML = [
         ...BG_THEMES.map((theme) => (
@@ -4840,7 +4758,6 @@ function initSettingsPanel() {
     fontNumber.addEventListener('change', (e) => {
         updateFontScale(e.target.value);
     });
-    renderColorPalette(textPaletteCanvas);
     renderColorPalette(bgPaletteCanvas);
 
     const bindPalette = (target, container, canvas, onPick) => {
@@ -4872,11 +4789,6 @@ function initSettingsPanel() {
         });
     };
 
-    bindPalette("text", textPalette, textPaletteCanvas, (color) => {
-        uiSettings.textColor = color;
-        applyTextColor(uiSettings.textColor);
-        saveUiSettings();
-    });
     bindPalette("bg", bgPalette, bgPaletteCanvas, (color) => {
         uiSettings.bgCustomColor = color;
         applyCustomBackground(uiSettings.bgCustomColor);
@@ -4889,7 +4801,6 @@ function initSettingsPanel() {
 
     uiSettings = loadUiSettings();
     syncFontControls(Math.round(uiSettings.fontScale * 100));
-    applyTextColor(uiSettings.textColor);
     applyBackground(uiSettings.bgTheme);
     applyFontScale(uiSettings.fontScale);
 
