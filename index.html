@@ -13,9 +13,9 @@
             try {
                 var DEFAULT_BG = "noir";
                 var THEMES = {
-                    forest: { surface: "#9bbcaf", gradient: "linear-gradient(135deg, #9bbcaf 0%, #9bbcaf 100%)", scheme: "light" },
-                    noir: { surface: "#0a0a0a", gradient: "linear-gradient(135deg, #0a0a0a 0%, #0a0a0a 100%)", scheme: "dark" },
-                    amethyst: { surface: "#a593bf", gradient: "linear-gradient(135deg, #a593bf 0%, #a593bf 100%)", scheme: "light" }
+                    forest: { surface: "#9bbcaf", gradient: "linear-gradient(135deg, #9bbcaf 0%, #9bbcaf 100%)", scheme: "light", composer: "#49645b", composerIcon: "rgba(255,255,255,0.76)", composerActionBg: "rgba(247, 248, 246, 0.94)", composerActionColor: "#23312c" },
+                    noir: { surface: "#0a0a0a", gradient: "linear-gradient(135deg, #0a0a0a 0%, #0a0a0a 100%)", scheme: "dark", composer: "#2a2a2a", composerIcon: "rgba(255,255,255,0.75)", composerActionBg: "rgba(240, 240, 240, 0.92)", composerActionColor: "#1f1f1f" },
+                    amethyst: { surface: "#a593bf", gradient: "linear-gradient(135deg, #a593bf 0%, #a593bf 100%)", scheme: "light", composer: "#5b4c74", composerIcon: "rgba(255,255,255,0.8)", composerActionBg: "rgba(246, 242, 252, 0.95)", composerActionColor: "#2d2340" }
                 };
                 var saved = JSON.parse(localStorage.getItem("ui_settings") || "{}");
                 var bgTheme = saved.bgTheme || localStorage.getItem("bg_theme") || DEFAULT_BG;
@@ -26,6 +26,10 @@
                 root.style.setProperty("--panel-surface", theme.surface);
                 root.style.setProperty("--chrome-surface", theme.surface);
                 root.style.setProperty("--chrome-strong", theme.surface);
+                root.style.setProperty("--composer-surface", theme.composer);
+                root.style.setProperty("--composer-icon", theme.composerIcon);
+                root.style.setProperty("--composer-action-bg", theme.composerActionBg);
+                root.style.setProperty("--composer-action-color", theme.composerActionColor);
                 root.style.colorScheme = theme.scheme;
                 var meta = document.querySelector('meta[name="theme-color"]');
                 if (meta) meta.setAttribute("content", theme.surface);
@@ -48,6 +52,10 @@
             --panel-surface: #2f2f2f;
             --chrome-surface: rgba(255, 255, 255, 0.16);
             --chrome-strong: rgba(255, 255, 255, 0.22);
+            --composer-surface: #2a2a2a;
+            --composer-icon: rgba(255, 255, 255, 0.75);
+            --composer-action-bg: rgba(240, 240, 240, 0.92);
+            --composer-action-color: #1f1f1f;
             --ui-font-scale: 1;
             --safe-top: env(safe-area-inset-top, 0px);
             --safe-right: env(safe-area-inset-right, 0px);
@@ -1830,25 +1838,30 @@
         .input-area { padding: 12px 20px 0; margin-top: 0; display: flex; align-items: flex-end; transform: translateY(var(--input-offset)); background: transparent; }
         .composer-shell {
             width: 100%;
-            display: flex;
-            align-items: flex-end;
-            gap: 10px;
-            padding: 8px 8px 8px 18px;
-            border-radius: 28px;
-            border: 1px solid rgba(255, 255, 255, 0.18);
-            background: rgba(42, 42, 42, 0.72);
-            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            grid-template-rows: auto auto;
+            align-items: end;
+            column-gap: 12px;
+            row-gap: 8px;
+            padding: 12px 12px 10px 18px;
+            border-radius: 30px;
+            border: none;
+            background: var(--composer-surface);
+            box-shadow: none;
         }
         .text-input {
-            flex: 1;
+            grid-column: 1;
+            grid-row: 1;
             min-width: 0;
-            padding: 10px 0 11px;
+            width: 100%;
+            padding: 6px 0 0;
             border-radius: 0;
             border: none;
             outline: none;
             background: transparent;
             color: #fff;
-            font-size: 15px;
+            font-size: 16px;
             backdrop-filter: none;
             -webkit-backdrop-filter: none;
             box-shadow: none;
@@ -1856,7 +1869,43 @@
         .text-input::placeholder {
             color: rgba(255, 255, 255, 0.52);
         }
+        .composer-tools {
+            grid-column: 1;
+            grid-row: 2;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-height: 30px;
+        }
+        .composer-tool-btn {
+            width: 30px;
+            height: 30px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            border-radius: 999px;
+            background: transparent;
+            color: var(--composer-icon);
+            font-size: 22px;
+            line-height: 1;
+            cursor: pointer;
+            padding: 0;
+            box-shadow: none;
+        }
+        .composer-tool-btn:hover,
+        .composer-tool-btn:active,
+        .composer-tool-btn:focus-visible,
+        .composer-tool-btn.is-pressed {
+            background: transparent;
+            color: #fff;
+            box-shadow: none;
+            outline: none;
+            transform: none;
+        }
         .send-stack {
+            grid-column: 2;
+            grid-row: 1 / span 2;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1869,12 +1918,12 @@
         .send-btn {
             width: var(--btn-size);
             height: var(--btn-size);
-            background: rgba(240, 240, 240, 0.92);
+            background: var(--composer-action-bg);
             border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
-            color: #1f1f1f;
+            color: var(--composer-action-color);
             cursor: pointer;
             border: none;
             z-index: 1;
@@ -2124,14 +2173,26 @@
             }
 
             .composer-shell {
-                gap: 8px;
-                padding: 7px 7px 7px 14px;
-                border-radius: 24px;
+                column-gap: 10px;
+                row-gap: 6px;
+                padding: 10px 10px 8px 14px;
+                border-radius: 26px;
             }
 
             .text-input {
-                padding: 11px 0;
+                padding: 4px 0 0;
                 font-size: 16px;
+            }
+
+            .composer-tools {
+                gap: 6px;
+                min-height: 28px;
+            }
+
+            .composer-tool-btn {
+                width: 28px;
+                height: 28px;
+                font-size: 20px;
             }
 
             .send-stack {
@@ -2285,6 +2346,10 @@
             <div class="input-area">
                 <div class="composer-shell">
                     <input type="text" id="userInput" class="text-input" placeholder="請輸入訊息...">
+                    <div class="composer-tools" aria-label="輸入工具">
+                        <button type="button" class="composer-tool-btn" id="composerToolPlus" aria-label="工具一" title="工具一">＋</button>
+                        <button type="button" class="composer-tool-btn" id="composerToolGrid" aria-label="工具二" title="工具二">◫</button>
+                    </div>
                     <div class="send-stack is-send" id="sendStack">
                         <div class="send-btn ripple-btn send-action" id="sendBtn">↑</div>
                     </div>
@@ -4554,7 +4619,11 @@ const BG_THEMES = [
         gradient: "linear-gradient(135deg, #9bbcaf 0%, #9bbcaf 100%)",
         surface: "#9bbcaf",
         panel: "#9bbcaf",
-        scheme: "light"
+        scheme: "light",
+        composer: "#49645b",
+        composerIcon: "rgba(255,255,255,0.76)",
+        composerActionBg: "rgba(247, 248, 246, 0.94)",
+        composerActionColor: "#23312c"
     },
     {
         id: "noir",
@@ -4562,7 +4631,11 @@ const BG_THEMES = [
         gradient: "linear-gradient(135deg, #0a0a0a 0%, #0a0a0a 100%)",
         surface: "#0a0a0a",
         panel: "#0a0a0a",
-        scheme: "dark"
+        scheme: "dark",
+        composer: "#2a2a2a",
+        composerIcon: "rgba(255,255,255,0.75)",
+        composerActionBg: "rgba(240, 240, 240, 0.92)",
+        composerActionColor: "#1f1f1f"
     },
     {
         id: "amethyst",
@@ -4570,7 +4643,11 @@ const BG_THEMES = [
         gradient: "linear-gradient(135deg, #a593bf 0%, #a593bf 100%)",
         surface: "#a593bf",
         panel: "#a593bf",
-        scheme: "light"
+        scheme: "light",
+        composer: "#5b4c74",
+        composerIcon: "rgba(255,255,255,0.8)",
+        composerActionBg: "rgba(246, 242, 252, 0.95)",
+        composerActionColor: "#2d2340"
     }
 ];
 const DEFAULT_UI_SETTINGS = {
@@ -4656,6 +4733,10 @@ function applyBackground(themeId) {
     document.documentElement.style.setProperty('--panel-surface', theme.panel);
     document.documentElement.style.setProperty('--chrome-surface', theme.surface);
     document.documentElement.style.setProperty('--chrome-strong', theme.surface);
+    document.documentElement.style.setProperty('--composer-surface', theme.composer);
+    document.documentElement.style.setProperty('--composer-icon', theme.composerIcon);
+    document.documentElement.style.setProperty('--composer-action-bg', theme.composerActionBg);
+    document.documentElement.style.setProperty('--composer-action-color', theme.composerActionColor);
     document.documentElement.setAttribute('data-bg', theme.id);
     updateThemeColor(theme.surface);
     updateColorScheme(theme.scheme);
