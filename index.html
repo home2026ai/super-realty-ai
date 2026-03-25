@@ -1807,7 +1807,7 @@
             color: #fff;
         }
 
-        .chat-footer { position: absolute; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; gap: 6px; padding-bottom: 12px; --input-offset: 0px; background: linear-gradient(180deg, color-mix(in srgb, var(--chrome-strong) 0%, transparent) 0%, var(--chrome-strong) 28px, var(--chrome-strong) 100%); }
+        .chat-footer { position: absolute; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; gap: 6px; padding-bottom: 12px; --input-offset: 0px; background: var(--chrome-surface); }
         .input-area { padding: 12px 20px 0; margin-top: 0; display: flex; align-items: flex-end; gap: 10px; transform: translateY(var(--input-offset)); background: transparent; }
         .text-input {
             flex: 1;
@@ -2073,7 +2073,7 @@
             .chat-footer {
                 gap: 0;
                 padding-bottom: calc(var(--safe-bottom) + 6px);
-                background: linear-gradient(180deg, color-mix(in srgb, var(--chrome-strong) 0%, transparent) 0%, var(--chrome-strong) 20px, var(--chrome-strong) 100%);
+                background: var(--chrome-surface);
             }
 
             .input-area {
@@ -4504,28 +4504,29 @@ const BG_THEMES = [
     {
         id: "forest",
         label: "森林",
-        gradient: "linear-gradient(135deg, #6f9488 0%, #7fa89b 35%, #95bbb0 70%, #b8d5cc 100%)",
-        surface: "rgba(156, 187, 176, 0.46)",
-        panel: "#6f9488"
+        gradient: "linear-gradient(135deg, #9bbcaf 0%, #9bbcaf 100%)",
+        surface: "#9bbcaf",
+        panel: "#9bbcaf"
     },
     {
         id: "noir",
         label: "黑色",
-        gradient: "linear-gradient(135deg, #000000 0%, #000000 50%, #000000 100%)",
-        surface: "rgba(8, 8, 8, 0.64)",
-        panel: "#000000"
+        gradient: "linear-gradient(135deg, #0a0a0a 0%, #0a0a0a 100%)",
+        surface: "#0a0a0a",
+        panel: "#0a0a0a"
     },
     {
         id: "amethyst",
         label: "暗紫",
-        gradient: "linear-gradient(135deg, #8d7aa6 0%, #9b88b4 45%, #b29dca 100%)",
-        surface: "rgba(173, 154, 198, 0.44)",
-        panel: "#7f6a98"
+        gradient: "linear-gradient(135deg, #a593bf 0%, #a593bf 100%)",
+        surface: "#a593bf",
+        panel: "#a593bf"
     }
 ];
 const DEFAULT_UI_SETTINGS = {
     fontScale: 1.1,
-    bgTheme: "noir"
+    bgTheme: "noir",
+    fontScaleTouched: false
 };
 let uiSettings = { ...DEFAULT_UI_SETTINGS };
 
@@ -4543,9 +4544,12 @@ function loadUiSettings() {
     try {
         const saved = JSON.parse(localStorage.getItem(UI_SETTINGS_STORAGE_KEY) || "{}");
         const bgTheme = saved.bgTheme || localStorage.getItem(BG_STORAGE_KEY) || DEFAULT_UI_SETTINGS.bgTheme;
+        const savedPercent = clampFontPercent((saved.fontScale || DEFAULT_UI_SETTINGS.fontScale) * 100);
+        const fontScaleTouched = !!saved.fontScaleTouched;
         return {
-            fontScale: clampFontPercent((saved.fontScale || 1) * 100) / 100,
-            bgTheme
+            fontScale: (!fontScaleTouched && savedPercent === 100 ? 110 : savedPercent) / 100,
+            bgTheme,
+            fontScaleTouched
         };
     } catch (error) {
         return {
@@ -4588,8 +4592,8 @@ function applyBackground(themeId) {
     document.documentElement.style.setProperty('--bg-gradient', theme.gradient);
     document.documentElement.style.setProperty('--app-surface', theme.surface);
     document.documentElement.style.setProperty('--panel-surface', theme.panel);
-    document.documentElement.style.setProperty('--chrome-surface', `color-mix(in srgb, ${theme.surface} 78%, transparent)`);
-    document.documentElement.style.setProperty('--chrome-strong', `color-mix(in srgb, ${theme.panel} 72%, ${theme.surface} 28%)`);
+    document.documentElement.style.setProperty('--chrome-surface', theme.surface);
+    document.documentElement.style.setProperty('--chrome-strong', theme.surface);
     document.documentElement.setAttribute('data-bg', theme.id);
     localStorage.setItem(BG_STORAGE_KEY, theme.id);
     const preview = document.getElementById('bgPreview');
@@ -4648,6 +4652,7 @@ function initSettingsPanel() {
     const updateFontScale = (value) => {
         const percent = clampFontPercent(value);
         uiSettings.fontScale = percent / 100;
+        uiSettings.fontScaleTouched = true;
         syncFontControls(percent);
         applyFontScale(uiSettings.fontScale);
         saveUiSettings();
@@ -4669,6 +4674,7 @@ function initSettingsPanel() {
     syncFontControls(Math.round(uiSettings.fontScale * 100));
     applyBackground(uiSettings.bgTheme);
     applyFontScale(uiSettings.fontScale);
+    saveUiSettings();
 
     const observer = new MutationObserver((records) => {
         records.forEach((record) => {
