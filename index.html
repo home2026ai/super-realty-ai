@@ -1702,10 +1702,7 @@
             font-weight: 400;
             text-decoration: none;
             border: 1px solid rgba(255, 255, 255, 0.7);
-            box-shadow:
-                inset 0 0px 0 rgba(255, 255, 255, 0.7),
-                inset 0 -6px 12px rgba(30, 120, 80, 0.25),
-                0 6px 14px rgba(0, 0, 0, 0.18);
+            box-shadow: none;
             backdrop-filter: none;
             -webkit-backdrop-filter: none;
             cursor: pointer;
@@ -1751,18 +1748,12 @@
         #floatingEyeBtn:active,
         #floatingEyeBtn:focus-visible,
         #floatingEyeBtn.is-pressed {
-            box-shadow:
-                inset 0 0px 0 rgba(255, 255, 255, 0.7),
-                inset 0 -6px 12px rgba(30, 120, 80, 0.25),
-                0 6px 14px rgba(0, 0, 0, 0.18);
+            box-shadow: none;
             transform: none;
             outline: none;
         }
         .agent-cta-btn.has-items {
-            box-shadow:
-                inset 0 0px 0 rgba(255, 255, 255, 0.7),
-                inset 0 -6px 12px rgba(30, 120, 80, 0.25),
-                0 6px 14px rgba(0, 0, 0, 0.18);
+            box-shadow: none;
             animation: none;
         }
         .chat-box { flex: 1; padding: 20px 20px 160px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; scrollbar-width: none; }
@@ -4540,6 +4531,11 @@ function saveUiSettings() {
     localStorage.setItem(UI_SETTINGS_STORAGE_KEY, JSON.stringify(uiSettings));
 }
 
+function updateThemeColor(color) {
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute('content', color);
+}
+
 function loadUiSettings() {
     try {
         const saved = JSON.parse(localStorage.getItem(UI_SETTINGS_STORAGE_KEY) || "{}");
@@ -4595,6 +4591,7 @@ function applyBackground(themeId) {
     document.documentElement.style.setProperty('--chrome-surface', theme.surface);
     document.documentElement.style.setProperty('--chrome-strong', theme.surface);
     document.documentElement.setAttribute('data-bg', theme.id);
+    updateThemeColor(theme.surface);
     localStorage.setItem(BG_STORAGE_KEY, theme.id);
     const preview = document.getElementById('bgPreview');
     if (preview) preview.style.background = theme.gradient;
