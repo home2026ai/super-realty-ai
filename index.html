@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="theme-color" content="#859791">
+    <meta name="theme-color" content="#161616">
     <meta name="color-scheme" content="light dark">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -49,11 +49,11 @@
             --ai-purple: #9b51e0;
             --accent-pink: #f06292;
             --main-blur: blur(25px);
-            --bg-gradient: linear-gradient(135deg, #7b2ff7 0%, #2196f3 30%, #f06292 70%, #ffb74d 100%);
-            --app-surface: rgba(255, 255, 255, 0.15);
-            --panel-surface: #2f2f2f;
-            --chrome-surface: rgba(255, 255, 255, 0.16);
-            --chrome-strong: rgba(255, 255, 255, 0.22);
+            --bg-gradient: linear-gradient(135deg, #161616 0%, #161616 100%);
+            --app-surface: #161616;
+            --panel-surface: #161616;
+            --chrome-surface: #161616;
+            --chrome-strong: #161616;
             --composer-surface: #2a2a2a;
             --composer-icon: rgba(255, 255, 255, 0.75);
             --composer-action-bg: rgba(240, 240, 240, 0.92);
@@ -667,6 +667,12 @@
             border: 1px solid #ddd;
             font-size: 12px;
             outline: none;
+            background: #fff;
+            color: #111;
+            -webkit-text-fill-color: #111;
+            color-scheme: light;
+            appearance: none;
+            -webkit-appearance: none;
         }
         .agent-form textarea {
             min-height: 80px;
@@ -943,7 +949,7 @@
 
         @media (max-width: 768px) {
             html, body {
-                background: #5f746d !important;
+                background: var(--bg-gradient) !important;
             }
 
             .chat-header {
@@ -1031,6 +1037,7 @@
             .chat-footer {
                 gap: 6px;
                 padding-bottom: calc(env(safe-area-inset-bottom) + 6px);
+                background: var(--app-surface);
             }
 
             .input-area {
@@ -1097,7 +1104,7 @@
             cursor: pointer;
         }
 
-        .phone-wrapper { width: 100vw; height: 100dvh; min-height: 100vh; max-width: none; position: relative; display: flex; align-items: stretch; padding: 0; }
+        .phone-wrapper { width: 100vw; height: 100dvh; min-height: 100vh; max-width: none; position: relative; display: flex; align-items: stretch; padding: 0; background: var(--app-surface); color: var(--main-text); }
 
         /* AI 表格樣式 */
         .msg table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 12px; background: rgba(255, 255, 255, 0.1); border-radius: 10px; overflow: hidden; }
@@ -1234,7 +1241,17 @@
             gap: 8px;
         }
         .drawer-settings-toggle .settings-gear {
-            font-size: 14px;
+            width: 14px;
+            height: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 auto;
+        }
+        .drawer-settings-toggle .settings-gear svg {
+            width: 14px;
+            height: 14px;
+            display: block;
         }
         .drawer-settings-panel {
             display: none;
@@ -1510,6 +1527,7 @@
             height: var(--chat-height, 100dvh);
             min-height: 100vh;
             background: var(--app-surface);
+            color: var(--main-text);
             backdrop-filter: none;
             border-radius: 0;
             border: none;
@@ -1704,7 +1722,7 @@
             align-items: center;
             justify-content: center;
             gap: 12px;
-            background: var(--chrome-surface);
+            background: var(--app-surface);
         }
         .chat-card.menu-shift .chat-header {
             padding-left: 0;
@@ -1723,7 +1741,7 @@
             padding-top: 15px;
             padding-bottom: 7px;
             transition: transform 0.25s ease;
-            background: var(--chrome-surface);
+            background: var(--app-surface);
         }
         .chat-card.menu-shift .agent-cta-bar {
             transform: translateX(0px);
@@ -1835,7 +1853,7 @@
             color: var(--main-text);
         }
 
-        .chat-footer { position: absolute; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; gap: 6px; padding-bottom: 12px; --input-offset: 0px; background: var(--chrome-surface); }
+        .chat-footer { position: absolute; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; gap: 6px; padding-bottom: 12px; --input-offset: 0px; background: var(--app-surface); }
         .input-area { padding: 12px 20px 0; margin-top: 0; display: flex; align-items: flex-end; transform: translateY(var(--input-offset)); background: transparent; }
         .composer-shell {
             width: 100%;
@@ -1845,7 +1863,7 @@
             align-items: end;
             column-gap: 12px;
             row-gap: 8px;
-            padding: 12px 12px 10px 18px;
+            padding: 15px 12px 12px 18px;
             border-radius: 30px;
             border: none;
             background: var(--composer-surface);
@@ -1856,12 +1874,13 @@
             grid-row: 1;
             min-width: 0;
             width: 100%;
-            padding: 6px 0 0;
+            min-height: 44px;
+            padding: 10px 0 0;
             border-radius: 0;
             border: none;
             outline: none;
             background: transparent;
-            color: #fff;
+            color: var(--main-text);
             font-size: 16px;
             backdrop-filter: none;
             -webkit-backdrop-filter: none;
@@ -1949,7 +1968,31 @@
         .calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .input-group { margin-bottom: 12px; }
         .input-group label { display: block; font-size: 11px; color: #666; margin-bottom: 4px; font-weight: bold; }
-        .style-input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 10px; font-size: 14px; outline: none; }
+        .style-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 14px;
+            outline: none;
+            background: #fff;
+            color: #111;
+            -webkit-text-fill-color: #111;
+            color-scheme: light;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+        .style-input::placeholder,
+        .agent-form input::placeholder,
+        .agent-form textarea::placeholder {
+            color: #666;
+            -webkit-text-fill-color: #666;
+        }
+        .style-input:read-only {
+            background: #f3f3f3;
+            color: #555;
+            -webkit-text-fill-color: #555;
+        }
         .unit-input-row { display: flex; align-items: center; gap: 6px; }
         .unit-input-row .style-input { flex: 1; }
         .unit-suffix { font-size: 12px; color: #000; white-space: nowrap; font-weight: 700; }
@@ -2176,12 +2219,13 @@
             .composer-shell {
                 column-gap: 10px;
                 row-gap: 6px;
-                padding: 10px 10px 8px 14px;
+                padding: 12px 10px 10px 14px;
                 border-radius: 26px;
             }
 
             .text-input {
-                padding: 4px 0 0;
+                min-height: 42px;
+                padding: 8px 0 0;
                 font-size: 16px;
             }
 
@@ -2284,7 +2328,19 @@
         <div class="drawer-spacer"></div>
         <div class="drawer-settings" id="drawerSettings">
             <button type="button" class="drawer-btn drawer-settings-toggle press-glow ripple-btn" id="settingsToggle">
-                <span class="settings-gear">⚙</span>
+                <span class="settings-gear" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="3.1"></circle>
+                        <path d="M12 2.8v2"></path>
+                        <path d="M12 19.2v2"></path>
+                        <path d="M4.8 4.8l1.4 1.4"></path>
+                        <path d="M17.8 17.8l1.4 1.4"></path>
+                        <path d="M2.8 12h2"></path>
+                        <path d="M19.2 12h2"></path>
+                        <path d="M4.8 19.2l1.4-1.4"></path>
+                        <path d="M17.8 6.2l1.4-1.4"></path>
+                    </svg>
+                </span>
                 <span>設定</span>
             </button>
             <div class="drawer-settings-panel" id="settingsPanel">
@@ -4732,6 +4788,9 @@ function applyBackground(themeId) {
     document.documentElement.style.setProperty('--composer-icon', theme.composerIcon);
     document.documentElement.style.setProperty('--composer-action-bg', theme.composerActionBg);
     document.documentElement.style.setProperty('--composer-action-color', theme.composerActionColor);
+    document.documentElement.style.setProperty('--main-text', theme.text);
+    document.documentElement.style.setProperty('--muted-text', theme.mutedText);
+    document.documentElement.style.setProperty('--active-text', theme.activeText);
     document.documentElement.setAttribute('data-bg', theme.id);
     updateThemeColor(theme.surface);
     updateColorScheme(theme.scheme);
