@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#859791">
-    <meta name="color-scheme" content="dark">
+    <meta name="color-scheme" content="light dark">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>你的房產AI助理</title>
@@ -13,9 +13,9 @@
             try {
                 var DEFAULT_BG = "noir";
                 var THEMES = {
-                    forest: { surface: "#9bbcaf", gradient: "linear-gradient(135deg, #9bbcaf 0%, #9bbcaf 100%)" },
-                    noir: { surface: "#0a0a0a", gradient: "linear-gradient(135deg, #0a0a0a 0%, #0a0a0a 100%)" },
-                    amethyst: { surface: "#a593bf", gradient: "linear-gradient(135deg, #a593bf 0%, #a593bf 100%)" }
+                    forest: { surface: "#9bbcaf", gradient: "linear-gradient(135deg, #9bbcaf 0%, #9bbcaf 100%)", scheme: "light" },
+                    noir: { surface: "#0a0a0a", gradient: "linear-gradient(135deg, #0a0a0a 0%, #0a0a0a 100%)", scheme: "dark" },
+                    amethyst: { surface: "#a593bf", gradient: "linear-gradient(135deg, #a593bf 0%, #a593bf 100%)", scheme: "light" }
                 };
                 var saved = JSON.parse(localStorage.getItem("ui_settings") || "{}");
                 var bgTheme = saved.bgTheme || localStorage.getItem("bg_theme") || DEFAULT_BG;
@@ -26,14 +26,17 @@
                 root.style.setProperty("--panel-surface", theme.surface);
                 root.style.setProperty("--chrome-surface", theme.surface);
                 root.style.setProperty("--chrome-strong", theme.surface);
+                root.style.colorScheme = theme.scheme;
                 var meta = document.querySelector('meta[name="theme-color"]');
                 if (meta) meta.setAttribute("content", theme.surface);
+                var schemeMeta = document.querySelector('meta[name="color-scheme"]');
+                if (schemeMeta) schemeMeta.setAttribute("content", theme.scheme);
             } catch (error) {}
         })();
     </script>
     <style>
         :root {
-            color-scheme: dark;
+            color-scheme: light dark;
             --glass-white: rgba(255, 255, 255, 0.2);
             --glass-bg: rgba(255, 255, 255, 0.15);
             --glass-border: rgba(255, 255, 255, 0.35);
@@ -1824,45 +1827,68 @@
         }
 
         .chat-footer { position: absolute; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; gap: 6px; padding-bottom: 12px; --input-offset: 0px; background: var(--chrome-surface); }
-        .input-area { padding: 12px 20px 0; margin-top: 0; display: flex; align-items: flex-end; gap: 10px; transform: translateY(var(--input-offset)); background: transparent; }
+        .input-area { padding: 12px 20px 0; margin-top: 0; display: flex; align-items: flex-end; transform: translateY(var(--input-offset)); background: transparent; }
+        .composer-shell {
+            width: 100%;
+            display: flex;
+            align-items: flex-end;
+            gap: 10px;
+            padding: 8px 8px 8px 18px;
+            border-radius: 28px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            background: rgba(42, 42, 42, 0.72);
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+        }
         .text-input {
             flex: 1;
-            padding: 12px 20px;
-            border-radius: 30px;
-            border: 1px solid rgba(255, 255, 255, 0.35);
+            min-width: 0;
+            padding: 10px 0 11px;
+            border-radius: 0;
+            border: none;
             outline: none;
-            background: color-mix(in srgb, var(--chrome-strong) 78%, transparent);
+            background: transparent;
             color: #fff;
             font-size: 15px;
             backdrop-filter: none;
             -webkit-backdrop-filter: none;
-            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.15), 0 10px 24px rgba(0, 0, 0, 0.12);
+            box-shadow: none;
         }
         .text-input::placeholder {
-            color: rgba(255, 255, 255, 0.75);
+            color: rgba(255, 255, 255, 0.52);
         }
         .send-stack {
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
-            --btn-size: 46px;
+            flex: 0 0 auto;
+            --btn-size: 44px;
             width: var(--btn-size);
             height: var(--btn-size);
         }
         .send-btn {
             width: var(--btn-size);
             height: var(--btn-size);
-            background: rgba(0, 0, 0, 0.3);
+            background: rgba(240, 240, 240, 0.92);
             border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
-            color: white;
+            color: #1f1f1f;
             cursor: pointer;
             border: none;
             z-index: 1;
-            transition: transform 0.22s ease;
+            font-size: 21px;
+            font-weight: 700;
+            box-shadow: none;
+            transition: transform 0.22s ease, background 0.22s ease;
+        }
+        .send-btn:hover,
+        .send-btn:active,
+        .send-btn:focus-visible,
+        .send-btn.is-pressed {
+            box-shadow: none;
+            outline: none;
         }
 
         /* 彈窗樣式 */
@@ -2094,19 +2120,22 @@
 
             .input-area {
                 padding: 6px 12px 0;
-                gap: 8px;
                 background: transparent;
             }
 
+            .composer-shell {
+                gap: 8px;
+                padding: 7px 7px 7px 14px;
+                border-radius: 24px;
+            }
+
             .text-input {
-                min-width: 0;
-                padding: 12px 16px;
+                padding: 11px 0;
                 font-size: 16px;
             }
 
             .send-stack {
                 --btn-size: 44px;
-                flex: 0 0 auto;
             }
 
             .bg-picker {
@@ -2254,9 +2283,11 @@
         </div>
         <div class="chat-footer">
             <div class="input-area">
-                <input type="text" id="userInput" class="text-input" placeholder="請輸入訊息...">
-                <div class="send-stack is-send" id="sendStack">
-                    <div class="send-btn press-glow ripple-btn send-action" id="sendBtn">↑</div>
+                <div class="composer-shell">
+                    <input type="text" id="userInput" class="text-input" placeholder="請輸入訊息...">
+                    <div class="send-stack is-send" id="sendStack">
+                        <div class="send-btn ripple-btn send-action" id="sendBtn">↑</div>
+                    </div>
                 </div>
             </div>
             <div class="bg-picker is-collapsed" id="bgPicker" aria-label="背景選擇">
@@ -4522,21 +4553,24 @@ const BG_THEMES = [
         label: "森林",
         gradient: "linear-gradient(135deg, #9bbcaf 0%, #9bbcaf 100%)",
         surface: "#9bbcaf",
-        panel: "#9bbcaf"
+        panel: "#9bbcaf",
+        scheme: "light"
     },
     {
         id: "noir",
         label: "黑色",
         gradient: "linear-gradient(135deg, #0a0a0a 0%, #0a0a0a 100%)",
         surface: "#0a0a0a",
-        panel: "#0a0a0a"
+        panel: "#0a0a0a",
+        scheme: "dark"
     },
     {
         id: "amethyst",
         label: "暗紫",
         gradient: "linear-gradient(135deg, #a593bf 0%, #a593bf 100%)",
         surface: "#a593bf",
-        panel: "#a593bf"
+        panel: "#a593bf",
+        scheme: "light"
     }
 ];
 const DEFAULT_UI_SETTINGS = {
@@ -4559,6 +4593,13 @@ function saveUiSettings() {
 function updateThemeColor(color) {
     const meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.setAttribute('content', color);
+}
+
+function updateColorScheme(scheme) {
+    const nextScheme = scheme === 'dark' ? 'dark' : 'light';
+    document.documentElement.style.colorScheme = nextScheme;
+    const meta = document.querySelector('meta[name="color-scheme"]');
+    if (meta) meta.setAttribute('content', nextScheme);
 }
 
 function loadUiSettings() {
@@ -4617,6 +4658,7 @@ function applyBackground(themeId) {
     document.documentElement.style.setProperty('--chrome-strong', theme.surface);
     document.documentElement.setAttribute('data-bg', theme.id);
     updateThemeColor(theme.surface);
+    updateColorScheme(theme.scheme);
     localStorage.setItem(BG_STORAGE_KEY, theme.id);
     const preview = document.getElementById('bgPreview');
     if (preview) preview.style.background = theme.gradient;
