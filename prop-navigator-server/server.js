@@ -12,6 +12,7 @@ const isAllowedOrigin = (origin) => {
     if (!origin) return true; // allow file:// and same-origin requests
     if (/^http:\/\/localhost(:\d+)?$/.test(origin)) return true;
     if (/^http:\/\/127\.0\.0\.1(:\d+)?$/.test(origin)) return true;
+    if (/^https:\/\/[a-z0-9-]+\.onrender\.com$/i.test(origin)) return true;
     return false;
 };
 app.use(cors({
