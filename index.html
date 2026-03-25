@@ -1747,10 +1747,10 @@
 
             .chat-header {
                 display: grid;
-                grid-template-columns: minmax(0, 1fr) 176px;
+                grid-template-columns: minmax(0, 1fr) 168px;
                 align-items: center;
-                gap: 10px;
-                padding: calc(env(safe-area-inset-top) + 10px) 14px 6px;
+                gap: 4px;
+                padding: calc(env(safe-area-inset-top) + 10px) 14px 2px;
             }
 
             .chat-header .chat-title {
@@ -1763,9 +1763,9 @@
             }
 
             .agent-bookmark-group {
-                width: 176px;
-                min-width: 176px;
-                max-width: 176px;
+                width: 168px;
+                min-width: 168px;
+                max-width: 168px;
                 border-radius: 16px;
             }
 
@@ -1792,7 +1792,7 @@
                 display: grid;
                 grid-template-columns: repeat(3, minmax(0, 1fr));
                 gap: 8px;
-                padding: 4px 12px 8px;
+                padding: 0 12px 8px;
             }
 
             .agent-cta-btn {
@@ -1811,7 +1811,7 @@
             }
 
             .chat-box {
-                padding: 10px 12px 144px;
+                padding: 10px 12px 118px;
                 gap: 10px;
             }
 
@@ -1823,8 +1823,8 @@
             }
 
             .chat-footer {
-                gap: 6px;
-                padding-bottom: calc(env(safe-area-inset-bottom) + 4px);
+                gap: 0;
+                padding-bottom: calc(env(safe-area-inset-bottom) + 6px);
             }
 
             .input-area {
@@ -1844,30 +1844,14 @@
             }
 
             .bg-picker {
-                margin: 0 12px;
-                gap: 8px;
-                min-width: 0;
-                overflow: hidden;
-            }
-
-            .bg-toggle {
-                height: 32px;
-                padding: 0 10px;
-                font-size: 11px;
-            }
-
-            .bg-picker-panel {
-                flex: 1 1 auto;
-                min-width: 0;
-                max-width: 140px;
-                overflow-x: auto;
+                display: none !important;
             }
         }
 
         @media (max-width: 420px) {
             .chat-header {
-                grid-template-columns: minmax(0, 1fr) 164px;
-                gap: 8px;
+                grid-template-columns: minmax(0, 1fr) 156px;
+                gap: 2px;
                 padding-left: 10px;
                 padding-right: 10px;
             }
@@ -1877,9 +1861,9 @@
             }
 
             .agent-bookmark-group {
-                width: 164px;
-                min-width: 164px;
-                max-width: 164px;
+                width: 156px;
+                min-width: 156px;
+                max-width: 156px;
             }
 
             .agent-bookmark {
