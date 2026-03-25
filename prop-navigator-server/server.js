@@ -761,6 +761,39 @@ async function generateGeminiContent(model, contents, config = undefined) {
     });
 }
 
+function delay(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function isRetryableGeminiError(error) {
+    const status = error?.status || error?.response?.status || error?.cause?.status || null;
+    const text = JSON.stringify(getErrorDetails(error) || {}).toLowerCase();
+    return status === 429 || status === 500 || status === 503 ||
+        text.includes("unavailable") ||
+        text.includes("high demand") ||
+        text.includes("temporarily") ||
+        text.includes("overloaded") ||
+        text.includes("rate limit");
+}
+
+async function generateGeminiContentWithRetry(model, contents, config = undefined, retries = 2) {
+    let lastError = null;
+    for (let attempt = 0; attempt <= retries; attempt += 1) {
+        try {
+            return await generateGeminiContent(model, contents, config);
+        } catch (error) {
+            lastError = error;
+            if (!isRetryableGeminiError(error) || attempt === retries) {
+                throw error;
+            }
+            const waitMs = 900 * (attempt + 1);
+            console.warn(`⏳ Retry ${attempt + 1}/${retries} for ${model} after ${waitMs}ms`);
+            await delay(waitMs);
+        }
+    }
+    throw lastError;
+}
+
 function getErrorDetails(error) {
     return {
         status: error?.status || error?.response?.status || error?.cause?.status || null,
@@ -1126,7 +1159,7 @@ promptParts.push({ text: combinedText });
 
         for (const modelName of modelNames) {
             try {
-                const response = await generateGeminiContent(modelName, contents);
+                const response = await generateGeminiContentWithRetry(modelName, contents);
                 responseText = extractResponseText(response);
                 usedModel = modelName;
                 break;
@@ -1148,7 +1181,14 @@ promptParts.push({ text: combinedText });
 
     } catch (error) {
         console.error("❌ API 錯誤詳情:", error); // 這行能幫我們在黑窗抓出連線失敗的原因
-        res.status(500).json({ text: "分析失敗：" + error.message });
+        const details = getErrorDetails(error);
+        const status = details.status || 500;
+        const isBusy = isRetryableGeminiError(error);
+        res.status(status).json({
+            text: isBusy
+                ? "圖片分析服務目前流量較高，請稍後再試一次。"
+                : `分析失敗：${details.message || "未知錯誤"}`
+        });
     }
 });
 
