@@ -197,6 +197,13 @@
                 transparent 18px
             );
         }
+        .msg.listing-msg {
+            max-width: min(96%, 760px);
+            width: 100%;
+        }
+        .msg.listing-msg > div {
+            width: 100%;
+        }
         .listing-card .listing-title {
             font-weight: 400;
             text-align: center;
@@ -1836,6 +1843,16 @@
                 padding: 10px 12px;
                 font-size: 14px;
                 line-height: 1.5;
+            }
+            .msg.listing-msg {
+                max-width: calc(100% - 8px);
+                padding: 10px 8px 10px 10px;
+            }
+            .listing-card {
+                min-width: min(78vw, 280px);
+                max-width: min(78vw, 280px);
+                padding: 12px 12px 10px;
+                margin-right: 8px;
             }
 
             .chat-footer {
@@ -3568,6 +3585,7 @@ function startListingSearch(query, pendingQuery, baseInput, loadingId) {
     const noteId = `${boxId}-note`;
     const holder = document.getElementById(loadingId);
     if (holder) {
+        holder.classList.add('listing-msg');
         holder.innerHTML = `
             <div id="${boxId}">
                 <div id="${statusId}" style="font-size:12px;color:#fff;margin-bottom:6px;">搜尋中...</div>
