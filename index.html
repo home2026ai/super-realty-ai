@@ -1749,8 +1749,8 @@
                 display: grid;
                 grid-template-columns: minmax(0, 1fr) 168px;
                 align-items: center;
-                gap: 4px;
-                padding: calc(env(safe-area-inset-top) + 10px) 14px 2px;
+                gap: 0;
+                padding: calc(env(safe-area-inset-top) + 10px) 14px 10px;
             }
 
             .chat-header .chat-title {
@@ -1760,6 +1760,7 @@
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
+                padding-right: 2px;
             }
 
             .agent-bookmark-group {
@@ -1792,7 +1793,7 @@
                 display: grid;
                 grid-template-columns: repeat(3, minmax(0, 1fr));
                 gap: 8px;
-                padding: 0 12px 8px;
+                padding: 4px 12px 8px;
             }
 
             .agent-cta-btn {
@@ -1851,7 +1852,7 @@
         @media (max-width: 420px) {
             .chat-header {
                 grid-template-columns: minmax(0, 1fr) 156px;
-                gap: 2px;
+                gap: 0;
                 padding-left: 10px;
                 padding-right: 10px;
             }
