@@ -1712,6 +1712,192 @@
         .road-buttons .community-tag-btn { background: #fff; color: var(--ai-purple); border: 1px solid var(--ai-purple); border-radius: 10px; padding: 8px 10px; font-size: 12px; font-weight: 700; cursor: pointer; }
         .road-buttons .community-tag-btn:hover { background: var(--ai-purple); color: #fff; }
         .community-note { font-size: 11px; color: #777; margin-top: 6px; }
+        @media (max-width: 768px) {
+            html, body {
+                width: 100%;
+                max-width: 100%;
+                overflow-x: hidden;
+                background: #859791 !important;
+            }
+
+            body {
+                display: block;
+            }
+
+            .phone-wrapper,
+            .chat-card,
+            .chat-box,
+            .chat-footer,
+            .agent-cta-bar,
+            .chat-header {
+                max-width: 100%;
+                overflow-x: hidden;
+            }
+
+            .phone-wrapper {
+                width: 100%;
+                min-height: 100dvh;
+            }
+
+            .chat-card {
+                height: 100dvh;
+                min-height: 100dvh;
+                background: #859791;
+            }
+
+            .chat-header {
+                display: grid;
+                grid-template-columns: minmax(0, 1fr) 176px;
+                align-items: center;
+                gap: 10px;
+                padding: calc(env(safe-area-inset-top) + 10px) 14px 6px;
+            }
+
+            .chat-header .chat-title {
+                min-width: 0;
+                font-size: clamp(15px, 4.8vw, 22px);
+                line-height: 1.1;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .agent-bookmark-group {
+                width: 176px;
+                min-width: 176px;
+                max-width: 176px;
+                border-radius: 16px;
+            }
+
+            .agent-bookmark-group .bookmark-indicator {
+                top: 3px;
+                bottom: 3px;
+                left: 3px;
+                width: calc((100% - 6px) / 3);
+                border-radius: 11px;
+            }
+
+            .agent-bookmark {
+                min-width: 0;
+                padding: 8px 4px;
+                font-size: 10px;
+                line-height: 1.05;
+                letter-spacing: 0;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .agent-cta-bar {
+                display: grid;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 8px;
+                padding: 4px 12px 8px;
+            }
+
+            .agent-cta-btn {
+                min-width: 0;
+                width: 100%;
+                height: 32px;
+                padding: 0 8px;
+                border-radius: 999px;
+                font-size: 11px;
+            }
+
+            .agent-cta-text {
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+            .chat-box {
+                padding: 10px 12px 144px;
+                gap: 10px;
+            }
+
+            .msg {
+                max-width: min(86%, 320px);
+                padding: 10px 12px;
+                font-size: 14px;
+                line-height: 1.5;
+            }
+
+            .chat-footer {
+                gap: 6px;
+                padding-bottom: calc(env(safe-area-inset-bottom) + 4px);
+            }
+
+            .input-area {
+                padding: 6px 12px 0;
+                gap: 8px;
+            }
+
+            .text-input {
+                min-width: 0;
+                padding: 12px 16px;
+                font-size: 16px;
+            }
+
+            .send-stack {
+                --btn-size: 44px;
+                flex: 0 0 auto;
+            }
+
+            .bg-picker {
+                margin: 0 12px;
+                gap: 8px;
+                min-width: 0;
+                overflow: hidden;
+            }
+
+            .bg-toggle {
+                height: 32px;
+                padding: 0 10px;
+                font-size: 11px;
+            }
+
+            .bg-picker-panel {
+                flex: 1 1 auto;
+                min-width: 0;
+                max-width: 140px;
+                overflow-x: auto;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .chat-header {
+                grid-template-columns: minmax(0, 1fr) 164px;
+                gap: 8px;
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+
+            .chat-header .chat-title {
+                font-size: clamp(14px, 4.6vw, 19px);
+            }
+
+            .agent-bookmark-group {
+                width: 164px;
+                min-width: 164px;
+                max-width: 164px;
+            }
+
+            .agent-bookmark {
+                font-size: 9px;
+                padding: 8px 2px;
+            }
+
+            .agent-cta-bar {
+                gap: 6px;
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+
+            .agent-cta-btn {
+                font-size: 10px;
+                padding: 0 6px;
+            }
+        }
     </style>
 </head>
 <body>
