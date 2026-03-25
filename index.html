@@ -231,58 +231,125 @@
             box-shadow: 0 0 0 2px rgba(0,0,0,0.2);
         }
         .listing-card {
-            min-width: 220px;
-            max-width: 220px;
-            background-color: rgba(255, 255, 255, 0.92);
-            border-radius: 12px;
-            padding: 10px 10px 8px;
+            min-width: 248px;
+            max-width: 248px;
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 10px 10px 12px;
             margin-right: 10px;
             flex: 0 0 auto;
             position: relative;
-            line-height: 1.15;
-            background-image: repeating-linear-gradient(
-                to bottom,
-                rgba(0, 0, 0, 0.06) 0px,
-                rgba(0, 0, 0, 0.06) 1px,
-                transparent 1px,
-                transparent 14px
-            );
+            line-height: 1.2;
+            box-shadow: 0 12px 26px rgba(0, 0, 0, 0.14);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            overflow: hidden;
         }
         .listing-card .listing-image {
             width: 100%;
-            height: 140px;
+            height: 172px;
             object-fit: cover;
-            border-radius: 10px;
-            margin-bottom: 8px;
+            border-radius: 14px;
+            margin-bottom: 10px;
             display: block;
         }
+        .listing-card .listing-body {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .listing-card .listing-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 24px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: #fff2e7;
+            color: #ff7a00;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.01em;
+        }
         .msg.listing-msg {
+            max-width: min(96%, 760px);
+            width: 100%;
+        }
+        .msg.community-msg {
             max-width: min(96%, 760px);
             width: 100%;
         }
         .msg.listing-msg > div {
             width: 100%;
         }
+        .msg.community-msg > div {
+            width: 100%;
+        }
         .listing-card .listing-title {
-            font-weight: 400;
-            text-align: center;
-            margin: 4px 0 6px;
-            color: #111;
+            font-weight: 700;
+            text-align: left;
+            margin: 0;
+            color: #202020;
+            font-size: 16px;
+            line-height: 1.35;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
         .listing-card .listing-price {
             font-weight: 700;
-            font-size: 15px;
-            color: #d7263d;
-            margin-bottom: 6px;
+            font-size: 19px;
+            color: #f24d2d;
+            margin: 0;
+            line-height: 1;
+        }
+        .listing-card .listing-address {
+            color: #4b4b4b;
+            font-size: 13px;
+            line-height: 1.45;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            min-height: 36px;
+        }
+        .listing-card .listing-summary {
+            color: #4d4d4d;
+            font-size: 13px;
+            line-height: 1.55;
+            display: grid;
+            gap: 3px;
         }
         .listing-card .listing-line {
-            font-size: 12px;
+            font-size: 13px;
             color: #666;
-            margin-bottom: 1px;
+            margin-bottom: 0;
+        }
+        .listing-card .listing-line strong {
+            color: #1f1f1f;
+            font-weight: 700;
         }
         .listing-card .listing-link {
             font-size: 12px;
             margin-top: 4px;
+            display: grid;
+        }
+        .listing-card .listing-link .detail-open-btn {
+            width: 100%;
+            min-height: 42px;
+            border-radius: 12px !important;
+            background: #fff7f1 !important;
+            color: #ff7a00 !important;
+            border: 1px solid rgba(255, 122, 0, 0.45) !important;
+            font-size: 14px;
+            font-weight: 700;
+            justify-content: center;
+        }
+        .listing-card .listing-link .detail-open-btn:hover,
+        .listing-card .listing-link .detail-open-btn:active,
+        .listing-card .listing-link .detail-open-btn:focus-visible {
+            box-shadow: none;
+            outline: none;
         }
         .detail-overlay {
             position: absolute;
@@ -968,6 +1035,21 @@
         @media (max-width: 768px) {
             html, body {
                 background: var(--bg-gradient) !important;
+            }
+
+            .calc-overlay {
+                align-items: flex-start;
+                padding: calc(var(--safe-top) + 10px) 12px calc(var(--safe-bottom) + 12px);
+                border-radius: 0;
+            }
+
+            .calc-card {
+                width: 100%;
+                max-width: 100%;
+                margin: 0;
+                border-radius: 24px;
+                padding: 18px 16px 20px;
+                max-height: none;
             }
 
             .chat-header {
@@ -2181,8 +2263,8 @@
         }
 
         /* 彈窗樣式 */
-        .calc-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); backdrop-filter: none; z-index: 500; display: none; justify-content: center; align-items: center; border-radius: 40px; padding: 20px; }
-        .calc-card { width: 100%; background: white; border-radius: 30px; padding: 25px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); max-height: 85%; overflow-y: auto; }
+        .calc-overlay { position: absolute; inset: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); backdrop-filter: none; z-index: 500; display: none; justify-content: center; align-items: center; border-radius: 40px; padding: 20px; overflow-y: auto; overflow-x: hidden; overscroll-behavior-x: contain; overscroll-behavior-y: contain; }
+        .calc-card { width: min(100%, 560px); max-width: 100%; box-sizing: border-box; background: white; border-radius: 30px; padding: 25px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); max-height: 85%; overflow-y: auto; overflow-x: hidden; }
         .calc-section { border-bottom: 2px dashed #eee; padding-bottom: 20px; margin-bottom: 20px; }
         .calc-section:last-child { border-bottom: none; }
         .calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -2417,32 +2499,42 @@
                 max-width: calc(100% - 8px);
                 padding: 10px 8px 10px 10px;
             }
+            .msg.community-msg {
+                max-width: calc(100% - 8px);
+                padding: 8px 4px 8px 8px;
+            }
             .listing-card {
-                min-width: min(82vw, 300px);
-                max-width: min(82vw, 300px);
-                padding: 10px 10px 8px;
+                min-width: min(84vw, 314px);
+                max-width: min(84vw, 314px);
+                padding: 10px 10px 12px;
                 margin-right: 8px;
-                line-height: 1.02;
+                line-height: 1.18;
             }
             .listing-card .listing-image {
-                height: 120px;
-                margin-bottom: 6px;
+                height: 176px;
+                margin-bottom: 10px;
             }
             .listing-card .listing-title {
-                margin: 2px 0 4px;
-                font-size: 13px;
-                line-height: 1.2;
+                font-size: 15px;
+                line-height: 1.35;
             }
             .listing-card .listing-price {
-                font-size: 14px;
-                margin-bottom: 4px;
+                font-size: 18px;
+            }
+            .listing-card .listing-address {
+                font-size: 12px;
+                min-height: 34px;
+            }
+            .listing-card .listing-summary {
+                font-size: 12px;
+                gap: 2px;
             }
             .listing-card .listing-line {
-                font-size: 11px;
+                font-size: 12px;
                 margin-bottom: 0;
             }
             .listing-card .listing-link {
-                margin-top: 3px;
+                margin-top: 6px;
             }
 
             .chat-footer {
@@ -4562,7 +4654,10 @@ function addBotMsg(text, id = null) {
     chatBox.appendChild(d); scrollChat();
 }
 function addBotMsgHTML(html) {
-    const d = document.createElement('div'); d.className = 'msg ai'; d.innerHTML = html;
+    const d = document.createElement('div');
+    d.className = 'msg ai';
+    if (String(html).includes('community-cards-row')) d.classList.add('community-msg');
+    d.innerHTML = html;
     chatBox.appendChild(d); scrollChat();
 }
 function isListingQuery(text) {
@@ -4680,6 +4775,8 @@ function renderListingCard(item, isMatch = true, baseMatch = isMatch) {
     const baths = item.baths !== null ? `${item.baths}` : "";
     const area = item.area ? `${item.area}` : "";
     const age = item.ageYears ? `${item.ageYears} 年` : "不明";
+    const title = item.title || "未命名物件";
+    const address = item.address || "地址待補充";
     let floorText = "不明";
     if (item.floor) {
         floorText = item.totalFloor ? `${item.floor} / ${item.totalFloor} 樓` : `${item.floor} 樓`;
@@ -4691,7 +4788,7 @@ function renderListingCard(item, isMatch = true, baseMatch = isMatch) {
         ? `<img class="listing-image" src="${item.image}">`
         : "";
     const link = item.id
-        ? `<button class="press-glow detail-open-btn" data-sn="${item.id}" style="display:inline-block;padding:6px 10px;border-radius:10px;background:rgba(255,255,255,0.85);color:#333;border:none;cursor:pointer;">查看詳情</button>`
+        ? `<button class="press-glow detail-open-btn" data-sn="${item.id}" style="display:inline-flex;align-items:center;padding:6px 10px;border:none;cursor:pointer;">看本案詳情</button>`
         : "";
     const badge = `<div class="candidate-badge" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.5);color:white;font-size:10px;padding:4px 6px;border-radius:999px;${isMatch ? "display:none;" : ""}">候選</div>`;
     const dimStyle = isMatch ? "" : "opacity:0.55;filter:saturate(0.7);";
@@ -4699,16 +4796,20 @@ function renderListingCard(item, isMatch = true, baseMatch = isMatch) {
         <div class="listing-card" data-sn="${item.id || ''}" data-base-match="${baseMatch ? 1 : 0}" data-match="${isMatch ? 1 : 0}" style="${dimStyle}">
             ${img}
             ${badge}
-            <div class="listing-title">${item.title || "未命名物件"}</div>
-            <div class="listing-price">${price}</div>
-            <div class="listing-line">建坪：${area || "不明"} 坪</div>
-            <div class="listing-line">房型：${rooms || "?"} 房(室) ${halls || "?"} 廳 ${baths || "?"} 衛</div>
-            <div class="listing-line">屋齡：${age}</div>
-            <div class="listing-line">樓層：${floorText}</div>
-            <div class="listing-line">車位：${parking}</div>
-            <div class="listing-line">物件特色：<span class="listing-features">點擊詳情查看</span></div>
-            <div class="listing-line">鄰近機能：<span class="listing-nearby">點擊詳情查看</span></div>
-            <div class="listing-link">${link}</div>
+            <div class="listing-body">
+                <div class="listing-badge">${isMatch ? "精選物件" : "候選物件"}</div>
+                <div class="listing-title">${title}</div>
+                <div class="listing-price">${price}</div>
+                <div class="listing-address">${address}</div>
+                <div class="listing-summary">
+                    <div class="listing-line"><strong>建坪</strong> ${area || "不明"} 坪</div>
+                    <div class="listing-line"><strong>格局</strong> ${rooms || "?"} 房 / ${halls || "?"} 廳 / ${baths || "?"} 衛</div>
+                    <div class="listing-line"><strong>屋齡</strong> ${age}</div>
+                    <div class="listing-line"><strong>樓層</strong> ${floorText}</div>
+                    <div class="listing-line"><strong>車位</strong> ${parking}</div>
+                </div>
+                <div class="listing-link">${link}</div>
+            </div>
         </div>
     `;
 }
@@ -6106,7 +6207,7 @@ function renderListingNote() {
 function renderCommunityDetailCards(name, details) {
     const cards = [];
     const communityCardWidth = window.innerWidth <= 768
-        ? "min(82vw, 320px)"
+        ? "min(88vw, 340px)"
         : "200px";
     const communityCardStyle = `min-width:${communityCardWidth};max-width:${communityCardWidth};background:#fff8e1;border-radius:12px;padding:10px 10px 12px;margin-right:8px;flex:0 0 auto;box-shadow:0 4px 12px rgba(0,0,0,0.12);border:1px solid rgba(0,0,0,0.06);position:relative;`;
     const usedLabels = new Set();
@@ -6170,7 +6271,7 @@ function renderCommunityDetailCards(name, details) {
     }
 
     return `
-        <div style="display:flex;overflow-x:auto;gap:0;padding-bottom:4px;">
+        <div class="community-cards-row" style="display:flex;overflow-x:auto;gap:0;padding-bottom:4px;width:100%;">
             ${cards.join("")}
         </div>
     `;
