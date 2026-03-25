@@ -2477,11 +2477,11 @@
         .media-category-card {
             position: relative;
             min-height: 430px;
-            border-radius: 26px;
+            border-radius: 28px;
             overflow: hidden;
-            background: #0f0f12;
-            border: 1px solid rgba(255,255,255,0.14);
-            box-shadow: 0 16px 34px rgba(0,0,0,0.28);
+            background: transparent;
+            border: none;
+            box-shadow: none;
             cursor: pointer;
             transform: translateY(18px) scale(0.985);
             opacity: 0;
@@ -2538,9 +2538,12 @@
             position: absolute;
             inset: 0;
             background:
-                linear-gradient(180deg, rgba(0,0,0,0.98) 0%, rgba(0,0,0,0.78) 10%, rgba(0,0,0,0.28) 28%, rgba(0,0,0,0.08) 44%, rgba(0,0,0,0.1) 58%, rgba(0,0,0,0.54) 78%, rgba(0,0,0,0.92) 100%),
+                linear-gradient(180deg, var(--app-surface) 0%, rgba(0,0,0,0.8) 9%, rgba(0,0,0,0.24) 24%, rgba(0,0,0,0.05) 42%, rgba(0,0,0,0.08) 58%, rgba(0,0,0,0.48) 78%, var(--app-surface) 100%),
                 linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0));
             pointer-events: none;
+        }
+        .media-category-card::selection {
+            background: transparent;
         }
         .media-category-card:hover .media-category-preview iframe,
         .media-category-card:focus-visible .media-category-preview iframe {
@@ -2550,10 +2553,10 @@
         .media-category-card:hover,
         .media-category-card:focus-visible {
             transform: translateY(-4px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.34);
+            box-shadow: none;
         }
         .media-category-card:focus-visible {
-            outline: 2px solid rgba(255,255,255,0.48);
+            outline: 1px solid rgba(255,255,255,0.28);
             outline-offset: 2px;
         }
         .media-category-chrome {
@@ -2603,7 +2606,7 @@
         }
         .media-category-content {
             position: absolute;
-            inset: auto 0 26px 0;
+            inset: auto 0 14px 0;
             z-index: 1;
             padding: 0 16px;
             display: flex;
@@ -3369,7 +3372,7 @@
 
             .media-category-card {
                 min-height: 364px;
-                border-radius: 22px;
+                border-radius: 24px;
             }
 
             .media-category-card[data-category-style="knowledge"] {
@@ -3392,7 +3395,7 @@
             }
 
             .media-category-content {
-                bottom: 22px;
+                bottom: 10px;
                 padding: 0 10px;
             }
 
