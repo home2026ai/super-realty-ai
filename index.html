@@ -13,9 +13,8 @@
             try {
                 var DEFAULT_BG = "noir";
                 var THEMES = {
-                    forest: { surface: "#9bbcaf", gradient: "linear-gradient(135deg, #9bbcaf 0%, #9bbcaf 100%)", scheme: "light", composer: "#49645b", composerIcon: "rgba(255,255,255,0.76)", composerActionBg: "rgba(247, 248, 246, 0.94)", composerActionColor: "#23312c" },
-                    noir: { surface: "#0a0a0a", gradient: "linear-gradient(135deg, #0a0a0a 0%, #0a0a0a 100%)", scheme: "dark", composer: "#2a2a2a", composerIcon: "rgba(255,255,255,0.75)", composerActionBg: "rgba(240, 240, 240, 0.92)", composerActionColor: "#1f1f1f" },
-                    amethyst: { surface: "#a593bf", gradient: "linear-gradient(135deg, #a593bf 0%, #a593bf 100%)", scheme: "light", composer: "#5b4c74", composerIcon: "rgba(255,255,255,0.8)", composerActionBg: "rgba(246, 242, 252, 0.95)", composerActionColor: "#2d2340" }
+                    noir: { surface: "#161616", gradient: "linear-gradient(135deg, #161616 0%, #161616 100%)", scheme: "dark", composer: "#353535", composerIcon: "rgba(255,255,255,0.78)", composerActionBg: "rgba(238, 238, 238, 0.94)", composerActionColor: "#202020", text: "#f7f7f7", mutedText: "rgba(255,255,255,0.82)", activeText: "#2c2c2c" },
+                    mist: { surface: "#e5e3de", gradient: "linear-gradient(135deg, #e5e3de 0%, #e5e3de 100%)", scheme: "light", composer: "#989187", composerIcon: "rgba(46,42,37,0.72)", composerActionBg: "rgba(59, 55, 50, 0.94)", composerActionColor: "#f6f3ee", text: "#2f2c28", mutedText: "rgba(47,44,40,0.82)", activeText: "#26221d" }
                 };
                 var saved = JSON.parse(localStorage.getItem("ui_settings") || "{}");
                 var bgTheme = saved.bgTheme || localStorage.getItem("bg_theme") || DEFAULT_BG;
@@ -30,6 +29,9 @@
                 root.style.setProperty("--composer-icon", theme.composerIcon);
                 root.style.setProperty("--composer-action-bg", theme.composerActionBg);
                 root.style.setProperty("--composer-action-color", theme.composerActionColor);
+                root.style.setProperty("--main-text", theme.text);
+                root.style.setProperty("--muted-text", theme.mutedText);
+                root.style.setProperty("--active-text", theme.activeText);
                 root.style.colorScheme = theme.scheme;
                 var meta = document.querySelector('meta[name="theme-color"]');
                 if (meta) meta.setAttribute("content", theme.surface);
@@ -56,6 +58,9 @@
             --composer-icon: rgba(255, 255, 255, 0.75);
             --composer-action-bg: rgba(240, 240, 240, 0.92);
             --composer-action-color: #1f1f1f;
+            --main-text: #f7f7f7;
+            --muted-text: rgba(255, 255, 255, 0.82);
+            --active-text: #2c2c2c;
             --ui-font-scale: 1;
             --safe-top: env(safe-area-inset-top, 0px);
             --safe-right: env(safe-area-inset-right, 0px);
@@ -179,7 +184,7 @@
             border-radius: var(--picker-radius);
             border: 1px solid rgba(0, 0, 0, 0.75);
             background: rgba(0, 0, 0, 0.7);
-            color: #fff;
+            color: var(--main-text);
             font-size: 12px;
             cursor: pointer;
             white-space: nowrap;
@@ -496,7 +501,7 @@
         .agent-bookmark {
             background: transparent;
             border: none;
-            color: rgba(255, 255, 255, 0.9);
+            color: var(--muted-text);
             font-weight: 600;
             font-size: 12px;
             padding: 8px 28px;
@@ -512,7 +517,7 @@
             box-shadow: none;
         }
         .agent-bookmark.is-active {
-            color: #333;
+            color: var(--active-text);
         }
         .agent-overlay {
             position: fixed;
@@ -1154,7 +1159,7 @@
             100% { opacity: 1; transform: translateX(0); filter: blur(0); }
         }
         .drawer-btn {
-            color: #fff;
+            color: var(--main-text);
             font-size: 12px;
             font-weight: 600;
             text-align: left;
@@ -1191,7 +1196,7 @@
         .drawer-group-items { display: none; }
         .drawer-group-preview { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 2px 0 8px; }
         .drawer-group.is-open .drawer-group-preview { display: none; }
-        .drawer-preview-item { position: relative; padding-left: 12px; font-size: 10px; color: rgba(255, 255, 255, 0.92); }
+        .drawer-preview-item { position: relative; padding-left: 12px; font-size: 10px; color: var(--muted-text); }
         .drawer-preview-item::before {
             content: "";
             position: absolute;
@@ -1257,11 +1262,11 @@
         .settings-label {
             font-size: 11px;
             font-weight: 700;
-            color: #fff;
+            color: var(--main-text);
         }
         .settings-value {
             font-size: 11px;
-            color: rgba(255, 255, 255, 0.95);
+            color: var(--muted-text);
         }
         .settings-size-controls {
             display: grid;
@@ -1692,7 +1697,7 @@
         }
         .chat-header {
             padding: 12px 0 8px;
-            color: white;
+            color: var(--main-text);
             font-weight: bold;
             font-size: 20px;
             display: flex;
@@ -1733,7 +1738,7 @@
             padding: 0 14px;
             border-radius: 999px;
             background: color-mix(in srgb, var(--chrome-strong) 78%, rgba(255, 255, 255, 0.08));
-            color: #fff;
+            color: var(--main-text);
             font-size: 12px;
             font-weight: 400;
             text-decoration: none;
@@ -1750,10 +1755,6 @@
             transform: translateX(0);
             opacity: 1;
             transition: none;
-        }
-        html[data-bg="forest"] .agent-cta-btn,
-        html[data-bg="noir"] .agent-cta-btn {
-            color: #fff;
         }
         .chat-card.menu-shift .agent-cta-btn {
             width: auto;
@@ -1824,14 +1825,14 @@
             box-shadow: 0 10px 24px rgba(255, 255, 255, 0.45);
         }
         .msg { max-width: 92%; font-size: 14px; line-height: 1.5; white-space: pre-line; }
-        .ai { align-self: flex-start; background: transparent; color: #fff; }
-        .ai table, .ai th, .ai td { color: #fff; }
+        .ai { align-self: flex-start; background: transparent; color: var(--main-text); }
+        .ai table, .ai th, .ai td { color: var(--main-text); }
         .user { align-self: flex-end; padding: 10px 14px; border-radius: 18px; background: var(--ai-purple); color: white; }
         .listing-msg {
             padding: 10px 14px;
             border-radius: 18px;
             background: rgba(255,255,255,0.25);
-            color: #fff;
+            color: var(--main-text);
         }
 
         .chat-footer { position: absolute; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; gap: 6px; padding-bottom: 12px; --input-offset: 0px; background: var(--chrome-surface); }
@@ -1867,7 +1868,7 @@
             box-shadow: none;
         }
         .text-input::placeholder {
-            color: rgba(255, 255, 255, 0.52);
+            color: color-mix(in srgb, var(--composer-icon) 72%, transparent);
         }
         .composer-tools {
             grid-column: 1;
@@ -1898,7 +1899,7 @@
         .composer-tool-btn:focus-visible,
         .composer-tool-btn.is-pressed {
             background: transparent;
-            color: #fff;
+            color: var(--main-text);
             box-shadow: none;
             outline: none;
             transform: none;
@@ -2300,7 +2301,7 @@
                 <div class="settings-row">
                     <div class="settings-head">
                         <span class="settings-label">個性化背景</span>
-                        <span class="settings-value">森林 / 黑色 / 暗紫</span>
+                        <span class="settings-value">黑色 / 霧白</span>
                     </div>
                     <div class="settings-swatches" id="settingsBgSwatches"></div>
                 </div>
@@ -4614,40 +4615,34 @@ const BG_STORAGE_KEY = "bg_theme";
 const UI_SETTINGS_STORAGE_KEY = "ui_settings";
 const BG_THEMES = [
     {
-        id: "forest",
-        label: "森林",
-        gradient: "linear-gradient(135deg, #9bbcaf 0%, #9bbcaf 100%)",
-        surface: "#9bbcaf",
-        panel: "#9bbcaf",
-        scheme: "light",
-        composer: "#49645b",
-        composerIcon: "rgba(255,255,255,0.76)",
-        composerActionBg: "rgba(247, 248, 246, 0.94)",
-        composerActionColor: "#23312c"
-    },
-    {
         id: "noir",
         label: "黑色",
-        gradient: "linear-gradient(135deg, #0a0a0a 0%, #0a0a0a 100%)",
-        surface: "#0a0a0a",
-        panel: "#0a0a0a",
+        gradient: "linear-gradient(135deg, #161616 0%, #161616 100%)",
+        surface: "#161616",
+        panel: "#161616",
         scheme: "dark",
-        composer: "#2a2a2a",
-        composerIcon: "rgba(255,255,255,0.75)",
-        composerActionBg: "rgba(240, 240, 240, 0.92)",
-        composerActionColor: "#1f1f1f"
+        composer: "#353535",
+        composerIcon: "rgba(255,255,255,0.78)",
+        composerActionBg: "rgba(238, 238, 238, 0.94)",
+        composerActionColor: "#202020",
+        text: "#f7f7f7",
+        mutedText: "rgba(255,255,255,0.82)",
+        activeText: "#2c2c2c"
     },
     {
-        id: "amethyst",
-        label: "暗紫",
-        gradient: "linear-gradient(135deg, #a593bf 0%, #a593bf 100%)",
-        surface: "#a593bf",
-        panel: "#a593bf",
+        id: "mist",
+        label: "霧白",
+        gradient: "linear-gradient(135deg, #e5e3de 0%, #e5e3de 100%)",
+        surface: "#e5e3de",
+        panel: "#e5e3de",
         scheme: "light",
-        composer: "#5b4c74",
-        composerIcon: "rgba(255,255,255,0.8)",
-        composerActionBg: "rgba(246, 242, 252, 0.95)",
-        composerActionColor: "#2d2340"
+        composer: "#989187",
+        composerIcon: "rgba(46,42,37,0.72)",
+        composerActionBg: "rgba(59, 55, 50, 0.94)",
+        composerActionColor: "#f6f3ee",
+        text: "#2f2c28",
+        mutedText: "rgba(47,44,40,0.82)",
+        activeText: "#26221d"
     }
 ];
 const DEFAULT_UI_SETTINGS = {
