@@ -2251,10 +2251,36 @@
             display: none;
         }
         .media-stage {
+            position: relative;
             display: none;
             flex: 1;
             min-height: 0;
             padding: 6px 16px 16px;
+            isolation: isolate;
+        }
+        .media-stage::before,
+        .media-stage::after {
+            content: "";
+            position: absolute;
+            border-radius: 999px;
+            pointer-events: none;
+            filter: blur(34px);
+            opacity: 0.78;
+            z-index: -1;
+        }
+        .media-stage::before {
+            width: 220px;
+            height: 220px;
+            top: 8px;
+            right: 8px;
+            background: radial-gradient(circle, rgba(255, 170, 94, 0.28) 0%, rgba(255, 170, 94, 0) 72%);
+        }
+        .media-stage::after {
+            width: 240px;
+            height: 240px;
+            left: -40px;
+            bottom: 40px;
+            background: radial-gradient(circle, rgba(108, 138, 255, 0.24) 0%, rgba(108, 138, 255, 0) 74%);
         }
         .chat-card.is-media-mode .media-stage {
             display: flex;
@@ -2270,6 +2296,7 @@
         .media-reels.is-active {
             display: flex;
             flex-direction: column;
+            animation: mediaPanelFadeIn 0.38s cubic-bezier(.22,1,.36,1);
         }
         .media-topbar {
             display: flex;
@@ -2281,7 +2308,7 @@
         .media-topbar-title {
             color: var(--main-text);
             font-size: 18px;
-            font-weight: 700;
+            font-weight: 800;
             letter-spacing: 0.01em;
         }
         .media-back-btn {
@@ -2298,6 +2325,142 @@
             justify-content: center;
             cursor: pointer;
         }
+        .media-home-hero {
+            position: relative;
+            display: grid;
+            grid-template-columns: minmax(0, 1.3fr) minmax(220px, 0.7fr);
+            gap: 14px;
+            margin-bottom: 14px;
+            padding: 18px;
+            border-radius: 30px;
+            overflow: hidden;
+            background:
+                linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.06) 44%, rgba(255,255,255,0.03) 100%),
+                radial-gradient(circle at top right, rgba(255, 175, 96, 0.2), transparent 38%),
+                radial-gradient(circle at bottom left, rgba(107, 132, 255, 0.18), transparent 36%);
+            border: 1px solid rgba(255,255,255,0.14);
+            box-shadow: 0 20px 44px rgba(0,0,0,0.2);
+        }
+        .media-home-hero::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, rgba(255,255,255,0.1) 0, rgba(255,255,255,0) 22%, rgba(255,255,255,0) 78%, rgba(255,255,255,0.08) 100%);
+            pointer-events: none;
+        }
+        .media-home-copy {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .media-home-eyebrow {
+            display: inline-flex;
+            align-self: flex-start;
+            min-height: 24px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.16);
+            color: rgba(255,255,255,0.78);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+        }
+        .media-home-title {
+            color: #fff;
+            font-size: 33px;
+            font-weight: 900;
+            line-height: 0.98;
+            letter-spacing: -0.03em;
+            max-width: 9ch;
+        }
+        .media-home-desc {
+            color: rgba(255,255,255,0.76);
+            font-size: 14px;
+            line-height: 1.6;
+            max-width: 36ch;
+        }
+        .media-home-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .media-home-tag {
+            display: inline-flex;
+            align-items: center;
+            min-height: 28px;
+            padding: 0 12px;
+            border-radius: 999px;
+            background: rgba(10,10,12,0.28);
+            border: 1px solid rgba(255,255,255,0.12);
+            color: rgba(255,255,255,0.88);
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .media-home-visual {
+            position: relative;
+            min-height: 180px;
+        }
+        .media-home-ring,
+        .media-home-ring::before,
+        .media-home-ring::after {
+            position: absolute;
+            content: "";
+            border-radius: 999px;
+            border: 1px solid rgba(255,255,255,0.16);
+        }
+        .media-home-ring {
+            width: 170px;
+            height: 170px;
+            right: 4px;
+            top: 0;
+            background: radial-gradient(circle, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0.02) 62%, rgba(255,255,255,0) 100%);
+        }
+        .media-home-ring::before {
+            inset: 18px;
+        }
+        .media-home-ring::after {
+            inset: 42px;
+        }
+        .media-home-cardlet {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-height: 34px;
+            padding: 0 12px;
+            border-radius: 16px;
+            background: rgba(12,12,16,0.44);
+            border: 1px solid rgba(255,255,255,0.12);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 700;
+            backdrop-filter: blur(14px);
+        }
+        .media-home-cardlet::before {
+            content: "";
+            width: 7px;
+            height: 7px;
+            border-radius: 999px;
+            background: #ffb270;
+            box-shadow: 0 0 10px rgba(255,178,112,0.55);
+        }
+        .media-home-cardlet.is-secondary::before {
+            background: #88a6ff;
+            box-shadow: 0 0 10px rgba(136,166,255,0.55);
+        }
+        .media-home-cardlet.is-tour {
+            left: 6px;
+            bottom: 18px;
+            transform: rotate(-7deg);
+        }
+        .media-home-cardlet.is-knowledge {
+            right: 10px;
+            bottom: 54px;
+            transform: rotate(8deg);
+        }
         .media-home-grid {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2311,13 +2474,17 @@
         }
         .media-category-card {
             position: relative;
-            min-height: 280px;
+            min-height: 340px;
             border-radius: 26px;
             overflow: hidden;
             background: #0f0f12;
             border: 1px solid rgba(255,255,255,0.14);
             box-shadow: 0 16px 34px rgba(0,0,0,0.28);
             cursor: pointer;
+            transform: translateY(18px) scale(0.985);
+            opacity: 0;
+            animation: mediaCardRise 0.56s cubic-bezier(.2,.85,.25,1) forwards;
+            animation-delay: calc(var(--stagger, 0) * 90ms);
         }
         .media-category-preview {
             position: absolute;
@@ -2334,6 +2501,9 @@
         }
         .media-category-preview iframe {
             pointer-events: none;
+            transform: scale(1.18);
+            filter: saturate(1.12) contrast(1.04);
+            transition: transform 0.45s ease;
         }
         .media-category-fallback {
             display: flex;
@@ -2343,18 +2513,92 @@
             color: rgba(255,255,255,0.7);
             font-size: 12px;
         }
+        .media-category-card[data-category-style="tour"]::before,
+        .media-category-card[data-category-style="knowledge"]::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+        }
+        .media-category-card[data-category-style="tour"]::before {
+            background: radial-gradient(circle at top right, rgba(255, 149, 92, 0.22), transparent 32%);
+        }
+        .media-category-card[data-category-style="knowledge"]::before {
+            background: radial-gradient(circle at top right, rgba(124, 145, 255, 0.22), transparent 32%);
+        }
         .media-category-card::after {
             content: "";
             position: absolute;
             inset: 0;
-            background: linear-gradient(180deg, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.62) 62%, rgba(0,0,0,0.88) 100%);
+            background:
+                linear-gradient(180deg, rgba(0,0,0,0.04) 0%, rgba(0,0,0,0.34) 38%, rgba(0,0,0,0.86) 100%),
+                linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0));
             pointer-events: none;
+        }
+        .media-category-card:hover .media-category-preview iframe,
+        .media-category-card:focus-visible .media-category-preview iframe {
+            transform: scale(1.24);
+        }
+        .media-category-card:hover,
+        .media-category-card:focus-visible {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.34);
+        }
+        .media-category-card:focus-visible {
+            outline: 2px solid rgba(255,255,255,0.48);
+            outline-offset: 2px;
+        }
+        .media-category-chrome {
+            position: absolute;
+            inset: 14px 14px auto 14px;
+            z-index: 1;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .media-category-index {
+            min-width: 38px;
+            height: 38px;
+            border-radius: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(8,8,10,0.36);
+            border: 1px solid rgba(255,255,255,0.14);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 800;
+            backdrop-filter: blur(12px);
+        }
+        .media-category-live {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            min-height: 34px;
+            padding: 0 11px;
+            border-radius: 999px;
+            background: rgba(8,8,10,0.36);
+            border: 1px solid rgba(255,255,255,0.14);
+            color: rgba(255,255,255,0.92);
+            font-size: 11px;
+            font-weight: 700;
+            backdrop-filter: blur(12px);
+        }
+        .media-category-live::before {
+            content: "";
+            width: 7px;
+            height: 7px;
+            border-radius: 999px;
+            background: #ff9065;
+            box-shadow: 0 0 10px rgba(255,144,101,0.65);
         }
         .media-category-content {
             position: absolute;
             inset: auto 0 0 0;
             z-index: 1;
-            padding: 18px 18px 16px;
+            padding: 18px 18px 18px;
             display: flex;
             flex-direction: column;
             gap: 8px;
@@ -2372,16 +2616,64 @@
             font-size: 11px;
             font-weight: 700;
         }
+        .media-category-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .media-category-count,
+        .media-category-cta {
+            min-height: 24px;
+            padding: 0 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+        }
+        .media-category-count {
+            color: rgba(255,255,255,0.72);
+            background: rgba(255,255,255,0.08);
+        }
+        .media-category-cta {
+            color: #fff;
+            background: rgba(255, 151, 92, 0.22);
+            border: 1px solid rgba(255, 174, 118, 0.26);
+        }
         .media-category-title {
             color: #fff;
-            font-size: 22px;
+            font-size: 28px;
             font-weight: 800;
-            line-height: 1.1;
+            line-height: 1.04;
+            letter-spacing: -0.03em;
         }
         .media-category-desc {
             color: rgba(255,255,255,0.82);
             font-size: 13px;
-            line-height: 1.45;
+            line-height: 1.55;
+            max-width: 26ch;
+        }
+        .media-category-arrow {
+            position: absolute;
+            right: 18px;
+            bottom: 18px;
+            z-index: 1;
+            width: 44px;
+            height: 44px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.16);
+            color: #fff;
+            backdrop-filter: blur(14px);
+        }
+        .media-category-arrow svg {
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
         }
         .media-reels-frame {
             position: relative;
@@ -2392,6 +2684,8 @@
             background: #050505;
             border: 1px solid rgba(255,255,255,0.12);
             box-shadow: 0 18px 36px rgba(0,0,0,0.32);
+            transform-origin: center bottom;
+            animation: mediaReelsLift 0.42s cubic-bezier(.2,.9,.2,1);
         }
         .media-reels-player {
             position: absolute;
@@ -2415,7 +2709,9 @@
             justify-content: space-between;
             pointer-events: none;
             z-index: 2;
-            background: linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.08) 35%, rgba(0,0,0,0.45) 100%);
+            background:
+                linear-gradient(180deg, rgba(0,0,0,0.58) 0%, rgba(0,0,0,0.08) 32%, rgba(0,0,0,0.48) 100%),
+                linear-gradient(90deg, rgba(0,0,0,0.28) 0%, rgba(0,0,0,0) 24%, rgba(0,0,0,0) 76%, rgba(0,0,0,0.2) 100%);
         }
         .media-reels-actions,
         .media-reels-meta {
@@ -2457,6 +2753,24 @@
             font-size: 13px;
             line-height: 1.4;
         }
+        .media-reels-hint {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            min-height: 30px;
+            padding: 0 12px;
+            border-radius: 999px;
+            background: rgba(0,0,0,0.32);
+            border: 1px solid rgba(255,255,255,0.12);
+        }
+        .media-reels-hint::before {
+            content: "";
+            width: 6px;
+            height: 6px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.9);
+            box-shadow: 0 0 8px rgba(255,255,255,0.52);
+        }
         .media-reels-empty {
             display: flex;
             align-items: center;
@@ -2464,6 +2778,36 @@
             height: 100%;
             color: rgba(255,255,255,0.72);
             font-size: 14px;
+        }
+        @keyframes mediaPanelFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(14px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        @keyframes mediaCardRise {
+            from {
+                opacity: 0;
+                transform: translateY(18px) scale(0.982);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        @keyframes mediaReelsLift {
+            from {
+                opacity: 0;
+                transform: translateY(24px) scale(0.97);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
         }
         .chat-scroll-indicator {
             position: absolute;
@@ -2966,23 +3310,58 @@
                 padding: 4px 12px 12px;
             }
 
+            .media-home-hero {
+                grid-template-columns: 1fr;
+                gap: 10px;
+                padding: 16px;
+                border-radius: 24px;
+            }
+
+            .media-home-title {
+                font-size: 27px;
+                max-width: none;
+            }
+
+            .media-home-desc {
+                font-size: 12px;
+            }
+
+            .media-home-visual {
+                min-height: 132px;
+            }
+
+            .media-home-ring {
+                width: 132px;
+                height: 132px;
+                right: 4px;
+            }
+
+            .media-home-cardlet {
+                font-size: 11px;
+            }
+
             .media-home-grid {
                 grid-template-columns: 1fr;
                 gap: 12px;
             }
 
             .media-category-card {
-                min-height: 220px;
+                min-height: 260px;
             }
 
             .media-category-title {
-                font-size: 19px;
+                font-size: 24px;
             }
 
             .media-category-desc,
             .media-reels-subtitle,
             .media-reels-hint {
                 font-size: 12px;
+            }
+
+            .media-category-arrow {
+                width: 40px;
+                height: 40px;
             }
 
             .media-reels-frame {
@@ -3275,6 +3654,23 @@
                 <div class="media-topbar">
                     <div class="media-topbar-title">房地產影音</div>
                     <button type="button" class="media-back-btn press-glow" id="mediaBackToChatBtn">返 AI 對話匡</button>
+                </div>
+                <div class="media-home-hero">
+                    <div class="media-home-copy">
+                        <div class="media-home-eyebrow">VERTICAL PLAYLIST</div>
+                        <div class="media-home-title" id="mediaHomeHeroTitle">房地產影音入口</div>
+                        <div class="media-home-desc">先選想看的內容類型，再進入直式滑動播放。每一類都只會播放你自己的 YouTube 播放清單。</div>
+                        <div class="media-home-tags">
+                            <div class="media-home-tag">靜音預覽封面</div>
+                            <div class="media-home-tag">上下滑動切換</div>
+                            <div class="media-home-tag">只播你的內容</div>
+                        </div>
+                    </div>
+                    <div class="media-home-visual" aria-hidden="true">
+                        <div class="media-home-ring"></div>
+                        <div class="media-home-cardlet is-tour">開箱篇</div>
+                        <div class="media-home-cardlet is-knowledge is-secondary">知識篇</div>
+                    </div>
                 </div>
                 <div class="media-home-grid" id="mediaHomeGrid"></div>
             </div>
@@ -6387,6 +6783,8 @@ function getMediaCategories() {
             key: "tour",
             label: "開箱篇",
             desc: "空間開箱、屋況導覽、格局與採光重點。",
+            kicker: "ROOM TOUR",
+            entry: "空間導覽",
             playlistUrl: currentAgent.mediaPlaylistTour || "",
             playlistId: extractYouTubePlaylistId(currentAgent.mediaPlaylistTour || ""),
             previewUrl: currentAgent.mediaPlaylistTour || ""
@@ -6395,6 +6793,8 @@ function getMediaCategories() {
             key: "knowledge",
             label: "知識篇",
             desc: "買房知識、流程觀念、稅務與房市眉角。",
+            kicker: "KNOWLEDGE",
+            entry: "知識短片",
             playlistUrl: currentAgent.mediaPlaylistKnowledge || "",
             playlistId: extractYouTubePlaylistId(currentAgent.mediaPlaylistKnowledge || ""),
             previewUrl: currentAgent.mediaPlaylistKnowledge || ""
@@ -6413,20 +6813,36 @@ function buildCategoryPreviewEmbed(category) {
 function renderMediaHome() {
     const grid = document.getElementById('mediaHomeGrid');
     const titleEl = document.querySelector('#mediaHome .media-topbar-title');
+    const heroTitleEl = document.getElementById('mediaHomeHeroTitle');
     if (titleEl) titleEl.textContent = currentAgent.mediaTitle || DEFAULT_AGENT.mediaTitle || '房地產影音';
+    if (heroTitleEl) heroTitleEl.textContent = `${currentAgent.mediaTitle || DEFAULT_AGENT.mediaTitle || '房地產影音'} 入口`;
     if (!grid) return;
     const categories = getMediaCategories();
     if (!categories.length) {
         grid.innerHTML = `<div class="media-category-card"><div class="media-category-preview"><div class="media-category-fallback">請先在業務資訊裡設定 YouTube 播放清單</div></div><div class="media-category-content"><div class="media-category-pill">房地產影音</div><div class="media-category-title">尚未設定</div><div class="media-category-desc">請在業務登入後填入「開箱篇 / 知識篇」播放清單網址。</div></div></div>`;
         return;
     }
-    grid.innerHTML = categories.map((category) => `
-        <button type="button" class="media-category-card press-glow" data-media-category="${category.key}">
+    grid.innerHTML = categories.map((category, index) => `
+        <button type="button" class="media-category-card press-glow" data-media-category="${category.key}" data-category-style="${category.key}" style="--stagger:${index};">
             <div class="media-category-preview">${buildCategoryPreviewEmbed(category)}</div>
+            <div class="media-category-chrome">
+                <div class="media-category-index">0${index + 1}</div>
+                <div class="media-category-live">靜音預覽中</div>
+            </div>
             <div class="media-category-content">
-                <div class="media-category-pill">${escapeHtml(category.label)}</div>
+                <div class="media-category-pill">${escapeHtml(category.kicker || category.label)}</div>
                 <div class="media-category-title">${escapeHtml(category.label)}</div>
                 <div class="media-category-desc">${escapeHtml(category.desc)}</div>
+                <div class="media-category-meta">
+                    <div class="media-category-count">YouTube 播放清單</div>
+                    <div class="media-category-cta">${escapeHtml(category.entry || '立即播放')}</div>
+                </div>
+            </div>
+            <div class="media-category-arrow" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M5 12h14"></path>
+                    <path d="M13 6l6 6-6 6"></path>
+                </svg>
             </div>
         </button>
     `).join('');
