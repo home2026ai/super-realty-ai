@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="theme-color" content="#161616">
+    <meta name="theme-color" content="#000000">
     <meta name="color-scheme" content="light dark">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -13,7 +13,7 @@
             try {
                 var DEFAULT_BG = "noir";
                 var THEMES = {
-                    noir: { surface: "#161616", gradient: "linear-gradient(135deg, #161616 0%, #161616 100%)", scheme: "dark", composer: "#353535", composerIcon: "rgba(255,255,255,0.78)", composerActionBg: "rgba(238, 238, 238, 0.94)", composerActionColor: "#202020", text: "#f7f7f7", mutedText: "rgba(255,255,255,0.82)", activeText: "#2c2c2c" },
+                    noir: { surface: "#000000", gradient: "linear-gradient(135deg, #000000 0%, #000000 100%)", scheme: "dark", composer: "#353535", composerIcon: "rgba(255,255,255,0.78)", composerActionBg: "rgba(238, 238, 238, 0.94)", composerActionColor: "#202020", text: "#f7f7f7", mutedText: "rgba(255,255,255,0.82)", activeText: "#2c2c2c" },
                     mist: { surface: "#e5e3de", gradient: "linear-gradient(135deg, #e5e3de 0%, #e5e3de 100%)", scheme: "light", composer: "#989187", composerIcon: "rgba(46,42,37,0.72)", composerActionBg: "rgba(59, 55, 50, 0.94)", composerActionColor: "#f6f3ee", text: "#2f2c28", mutedText: "rgba(47,44,40,0.82)", activeText: "#26221d" }
                 };
                 var saved = JSON.parse(localStorage.getItem("ui_settings") || "{}");
@@ -49,11 +49,11 @@
             --ai-purple: #9b51e0;
             --accent-pink: #f06292;
             --main-blur: blur(25px);
-            --bg-gradient: linear-gradient(135deg, #161616 0%, #161616 100%);
-            --app-surface: #161616;
-            --panel-surface: #161616;
-            --chrome-surface: #161616;
-            --chrome-strong: #161616;
+            --bg-gradient: linear-gradient(135deg, #000000 0%, #000000 100%);
+            --app-surface: #000000;
+            --panel-surface: #000000;
+            --chrome-surface: #000000;
+            --chrome-strong: #000000;
             --composer-surface: #2a2a2a;
             --composer-icon: rgba(255, 255, 255, 0.75);
             --composer-action-bg: rgba(240, 240, 240, 0.92);
@@ -4673,9 +4673,9 @@ const BG_THEMES = [
     {
         id: "noir",
         label: "黑色",
-        gradient: "linear-gradient(135deg, #161616 0%, #161616 100%)",
-        surface: "#161616",
-        panel: "#161616",
+        gradient: "linear-gradient(135deg, #000000 0%, #000000 100%)",
+        surface: "#000000",
+        panel: "#000000",
         scheme: "dark",
         composer: "#353535",
         composerIcon: "rgba(255,255,255,0.78)",
