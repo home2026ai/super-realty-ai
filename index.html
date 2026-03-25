@@ -2174,8 +2174,13 @@ const toggleIcon = toggleBtn?.querySelector('.plus-icon');
 const menuLabel = document.getElementById('menuLabel');
 const drawerToggle = toggleBtn || menuLabel;
     const drawerMenu = document.getElementById('drawerMenu');
-    // 請確認這行改為 3000，確保與後端一致
-    const API_BASE = "http://localhost:3000";
+    const API_BASE = (() => {
+        const host = window.location.hostname;
+        if (host === "localhost" || host === "127.0.0.1") {
+            return "http://localhost:3000";
+        }
+        return "https://super-realty-ai-api.onrender.com";
+    })();
 const DEFAULT_COMMUNITY_DB = {
     "林口區": ["森聯摩天41", "遠雄九五", "長虹天際", "晴空樹"],
     "龜山區": ["鴻築捷市達", "遠雄新未來", "金捷市", "富宇敦峰", "禾悦花園", "皇翔歡喜城"]
