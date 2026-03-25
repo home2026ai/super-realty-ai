@@ -673,6 +673,14 @@
             background: transparent;
             border: none;
         }
+        .bookmark-icon {
+            width: 18px;
+            height: 18px;
+            display: block;
+            color: var(--main-text);
+            opacity: 0.9;
+            flex: 0 0 auto;
+        }
         .header-menu-btn {
             width: 38px;
             height: 38px;
@@ -703,23 +711,23 @@
             background: transparent;
         }
         .agent-bookmark {
-            min-width: 112px;
-            height: 42px;
-            background: color-mix(in srgb, var(--chrome-strong) 70%, transparent);
-            border: 1px solid rgba(255, 255, 255, 0.35);
-            color: var(--muted-text);
+            min-width: 0;
+            height: 34px;
+            background: transparent;
+            border: none;
+            color: var(--main-text);
             font-weight: 600;
             font-size: 13px;
-            padding: 0 16px;
-            border-radius: 999px;
+            padding: 0;
+            border-radius: 0;
             writing-mode: horizontal-tb;
-            text-align: center;
+            text-align: left;
             line-height: 1;
             letter-spacing: 0;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start;
             white-space: nowrap;
         }
         .agent-bookmark:hover {
@@ -727,7 +735,7 @@
         }
         .agent-bookmark.is-active {
             color: var(--active-text);
-            background: rgba(255, 255, 255, 0.7);
+            background: transparent;
         }
         .agent-overlay {
             position: fixed;
@@ -1277,12 +1285,12 @@
             .chat-header {
                 grid-template-columns: 36px minmax(0, 1fr) 112px;
                 padding: 12px 12px 6px;
-                gap: 10px;
+                gap: 6px;
             }
 
             .chat-header .chat-title {
                 min-width: 0;
-                text-align: center;
+                text-align: left;
                 font-size: clamp(18px, 5.2vw, 26px);
                 line-height: 1.15;
                 white-space: nowrap;
@@ -1298,9 +1306,9 @@
             }
 
             .agent-bookmark {
-                min-width: 104px;
-                height: 38px;
-                padding: 0 12px;
+                min-width: 0;
+                height: 34px;
+                padding: 0;
                 font-size: 12px;
                 white-space: nowrap;
             }
@@ -2141,7 +2149,7 @@
             display: grid;
             grid-template-columns: 42px minmax(0, 1fr) auto;
             align-items: center;
-            gap: 12px;
+            gap: 8px;
             background: var(--app-surface);
         }
         .chat-card.menu-shift .chat-header {
@@ -2151,7 +2159,7 @@
         .chat-header .chat-title {
             display: inline-block;
             white-space: nowrap;
-            text-align: center;
+            text-align: left;
         }
         .agent-cta-bar {
             display: flex;
@@ -2874,7 +2882,7 @@
 
             .chat-header .chat-title {
                 font-size: clamp(14px, 4.6vw, 19px);
-                padding-right: 6px;
+                padding-right: 0;
             }
 
             .agent-bookmark-group {
@@ -2884,10 +2892,10 @@
             }
 
             .agent-bookmark {
-                min-width: 96px;
-                height: 36px;
+                min-width: 0;
+                height: 34px;
                 font-size: 11px;
-                padding: 0 10px;
+                padding: 0;
             }
 
             .agent-cta-bar {
@@ -2933,7 +2941,6 @@
     </div>
     
     <div class="drawer-menu" id="drawerMenu">
-        <div class="drawer-btn press-glow ripple-btn" onclick="openUpload('doc')"><span>分析圖片</span></div>
         <div class="drawer-btn press-glow ripple-btn" onclick="openUpload('room')"><span>房屋變裝</span></div>
         <div class="drawer-btn press-glow ripple-btn" onclick="showFlow()"><span>交易流程</span></div>
         <div class="drawer-btn press-glow ripple-btn" onclick="showFeeOptions()"><span>交易費用</span></div>
@@ -2943,8 +2950,8 @@
         <div class="drawer-btn press-glow ripple-btn" onclick="openUnifiedTax()"><span>房地合一稅</span></div>
         <div class="drawer-btn press-glow ripple-btn" onclick="openCommunitySearch()"><span>社區資訊</span></div>
         <a class="drawer-btn press-glow ripple-btn" href="https://lvr.land.moi.gov.tw" target="_blank" rel="noopener"><span>實價登錄</span></a>
-        <div class="drawer-btn press-glow ripple-btn" onclick="openAgentPanel()"><span>業務資訊</span></div>
         <div class="drawer-spacer"></div>
+        <div class="drawer-btn press-glow ripple-btn" onclick="openAgentPanel()"><span>業務資訊</span></div>
         <div class="drawer-settings" id="drawerSettings">
             <button type="button" class="drawer-btn drawer-settings-toggle press-glow ripple-btn" id="settingsToggle">
                 <span class="settings-gear" aria-hidden="true">
@@ -2997,6 +3004,10 @@
             </button>
             <span class="chat-title">超級房仲 AI</span>
             <div class="agent-bookmark-group">
+                <svg class="bookmark-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M8.2 2.6c.5 2.5 1.5 4 3 4.6 1.2.5 2.8.8 4.8 1-.3 0-1 .1-1.9.3-2.8.5-4.7 2.3-5.4 5.2-.2.8-.4 1.4-.5 1.9-.1-.6-.3-1.2-.5-1.9-.7-2.9-2.6-4.7-5.4-5.2-.9-.2-1.6-.3-1.9-.3 2-.2 3.6-.5 4.8-1 1.5-.6 2.5-2.1 3-4.6Z"></path>
+                    <path d="M17.2 11.6c.3 1.5.9 2.4 1.8 2.8.8.3 1.8.5 3 .6-.2 0-.6.1-1.2.2-1.8.3-2.9 1.4-3.4 3.2-.1.5-.2.9-.3 1.2-.1-.3-.2-.7-.3-1.2-.4-1.8-1.6-2.9-3.4-3.2-.6-.1-1-.2-1.2-.2 1.2-.1 2.2-.3 3-.6.9-.4 1.5-1.3 1.8-2.8Z"></path>
+                </svg>
                 <button class="agent-bookmark press-glow" id="chatBookmark">瀏覽清單</button>
             </div>
         </div>
@@ -5118,7 +5129,6 @@ function renderListingCard(item, isMatch = true, baseMatch = isMatch) {
                     <div class="listing-line"><strong>格局</strong> ${rooms || "?"} 房 / ${halls || "?"} 廳 / ${baths || "?"} 衛</div>
                     <div class="listing-line"><strong>屋齡</strong> ${age}</div>
                     <div class="listing-line"><strong>樓層</strong> ${floorText}</div>
-                    <div class="listing-line"><strong>車位</strong> ${parking}</div>
                 </div>
                 <div class="listing-link">${link}</div>
             </div>
@@ -6138,8 +6148,7 @@ function renderDetailPanel(item, data) {
             { label: "建坪", value: areaValue },
             { label: "格局", value: roomLine ? roomLine.replace("房型：", "") : "不明" },
             { label: "屋齡", value: ageValue },
-            { label: "樓層", value: floorValue },
-            { label: "車位", value: parkingValue }
+            { label: "樓層", value: floorValue }
         ];
         summaryEl.innerHTML = `
             <div class="detail-summary-badge">精選物件</div>
