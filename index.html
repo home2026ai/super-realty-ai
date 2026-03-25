@@ -2493,6 +2493,17 @@
             inset: 0;
             overflow: hidden;
         }
+        .media-category-preview::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 1;
+            background:
+                radial-gradient(ellipse at top left, rgba(0,0,0,0.42), transparent 34%),
+                radial-gradient(ellipse at top right, rgba(0,0,0,0.42), transparent 34%),
+                linear-gradient(90deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.02) 10%, rgba(0,0,0,0.02) 90%, rgba(0,0,0,0.2) 100%);
+        }
         .media-category-preview iframe,
         .media-category-preview .media-category-fallback {
             position: absolute;
