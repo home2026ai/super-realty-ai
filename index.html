@@ -2,8 +2,8 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#5f746d">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#859791">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>超級房仲AI - 終極旗艦版</title>
     <style>
@@ -1516,13 +1516,13 @@
             -webkit-backdrop-filter: none;
             cursor: pointer;
             overflow: hidden;
-            transition: transform 0.25s ease, width 0.25s ease, height 0.25s ease, border-radius 0.25s ease, padding 0.25s ease, min-width 0.25s ease;
+            transition: none;
         }
         .agent-cta-text {
             display: inline-block;
             transform: translateX(0);
             opacity: 1;
-            transition: transform 0.25s ease 0.18s, opacity 0.25s ease 0.18s;
+            transition: none;
         }
         html[data-bg="forest"] .agent-cta-btn,
         html[data-bg="noir"] .agent-cta-btn {
@@ -1547,12 +1547,10 @@
         }
         .agent-cta-btn.has-items {
             box-shadow:
-                0 0 10px rgba(255, 200, 245, 0.7),
-                0 0 16px rgba(120, 220, 255, 0.6),
-                0 0 24px rgba(255, 220, 150, 0.5),
-                0 0 32px rgba(160, 255, 230, 0.45),
-                0 0 44px rgba(255, 170, 235, 0.4);
-            animation: eye-rainbow 1.2s linear infinite;
+                inset 0 0px 0 rgba(255, 255, 255, 0.7),
+                inset 0 -6px 12px rgba(30, 120, 80, 0.25),
+                0 6px 14px rgba(0, 0, 0, 0.18);
+            animation: none;
         }
         .chat-box { flex: 1; padding: 20px 20px 160px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; scrollbar-width: none; }
         .chat-box::-webkit-scrollbar { width: 0; height: 0; }
@@ -1722,6 +1720,14 @@
 
             body {
                 display: block;
+            }
+
+            body::before {
+                content: "";
+                position: fixed;
+                inset: 0;
+                background: #859791;
+                z-index: -1;
             }
 
             .phone-wrapper,
