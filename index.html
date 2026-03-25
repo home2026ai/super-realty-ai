@@ -14,7 +14,7 @@
                 var DEFAULT_BG = "noir";
                 var THEMES = {
                     noir: { surface: "#000000", gradient: "linear-gradient(135deg, #000000 0%, #000000 100%)", scheme: "dark", composer: "#353535", composerIcon: "rgba(255,255,255,0.78)", composerActionBg: "rgba(238, 238, 238, 0.94)", composerActionColor: "#202020", text: "#f7f7f7", mutedText: "rgba(255,255,255,0.82)", activeText: "#2c2c2c" },
-                    mist: { surface: "#e5e3de", gradient: "linear-gradient(135deg, #e5e3de 0%, #e5e3de 100%)", scheme: "light", composer: "#989187", composerIcon: "rgba(46,42,37,0.72)", composerActionBg: "rgba(59, 55, 50, 0.94)", composerActionColor: "#f6f3ee", text: "#2f2c28", mutedText: "rgba(47,44,40,0.82)", activeText: "#26221d" }
+                    mist: { surface: "#f2f2f7", gradient: "linear-gradient(135deg, #f2f2f7 0%, #f2f2f7 100%)", scheme: "light", composer: "#d9d9df", composerIcon: "rgba(60,60,67,0.68)", composerActionBg: "rgba(44, 44, 46, 0.96)", composerActionColor: "#f2f2f7", text: "#1c1c1e", mutedText: "rgba(28,28,30,0.72)", activeText: "#111113" }
                 };
                 var saved = JSON.parse(localStorage.getItem("ui_settings") || "{}");
                 var bgTheme = saved.bgTheme || localStorage.getItem("bg_theme") || DEFAULT_BG;
@@ -4688,17 +4688,17 @@ const BG_THEMES = [
     {
         id: "mist",
         label: "霧白",
-        gradient: "linear-gradient(135deg, #e5e3de 0%, #e5e3de 100%)",
-        surface: "#e5e3de",
-        panel: "#e5e3de",
+        gradient: "linear-gradient(135deg, #f2f2f7 0%, #f2f2f7 100%)",
+        surface: "#f2f2f7",
+        panel: "#f2f2f7",
         scheme: "light",
-        composer: "#989187",
-        composerIcon: "rgba(46,42,37,0.72)",
-        composerActionBg: "rgba(59, 55, 50, 0.94)",
-        composerActionColor: "#f6f3ee",
-        text: "#2f2c28",
-        mutedText: "rgba(47,44,40,0.82)",
-        activeText: "#26221d"
+        composer: "#d9d9df",
+        composerIcon: "rgba(60,60,67,0.68)",
+        composerActionBg: "rgba(44, 44, 46, 0.96)",
+        composerActionColor: "#f2f2f7",
+        text: "#1c1c1e",
+        mutedText: "rgba(28,28,30,0.72)",
+        activeText: "#111113"
     }
 ];
 const DEFAULT_UI_SETTINGS = {
