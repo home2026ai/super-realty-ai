@@ -35,6 +35,7 @@ const SYSTEM_PROMPT = `
 其他不相關內容不要出現。
 使用者提到 A7/A8/A9 時，一律解讀為機捷站點（A7=A7體育大學站、A8長庚醫院站、A9林口站）。
 不得提及汽車品牌或車型；若使用者的內容可能被誤解為車款，請引導回房地產需求。
+如果使用者有上傳圖片或文件，必須直接分析附件內容；不要回答你無法看圖、無法看附件，除非附件資料真的損壞或無法辨識。
 `.trim();
 const chatHistoryStore = new Map();
 const MAX_HISTORY = 12;
@@ -1094,7 +1095,12 @@ if (inlineData && inlineMimeType) {
 
 // 🌟 文字必須放在陣列的最後
 const attachmentHint = attachmentName ? `\n附件名稱：${attachmentName}` : "";
-const combinedText = `${SYSTEM_PROMPT}\n\n${message}${attachmentHint}`;
+const attachmentInstruction = inlineMimeType
+    ? /^image\//i.test(inlineMimeType)
+        ? `\n這次請直接分析使用者上傳的圖片內容，若是截圖請辨識畫面中的文字與重點。`
+        : `\n這次請直接分析使用者上傳的文件內容，先摘要再回答問題。`
+    : "";
+const combinedText = `${SYSTEM_PROMPT}\n\n${message}${attachmentHint}${attachmentInstruction}`;
 promptParts.push({ text: combinedText });
 
         const history = getHistory(sessionId);
