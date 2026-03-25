@@ -248,6 +248,14 @@
                 transparent 14px
             );
         }
+        .listing-card .listing-image {
+            width: 100%;
+            height: 140px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            display: block;
+        }
         .msg.listing-msg {
             max-width: min(96%, 760px);
             width: 100%;
@@ -466,34 +474,13 @@
             line-height: 1.4;
         }
         .agent-bookmark-group {
-            position: relative;
             z-index: 30;
-            display: inline-flex;
+            display: flex;
             align-items: center;
-            gap: 0;
+            gap: 8px;
             padding: 0;
-            border-radius: 19px;
-            background: var(--chrome-strong);
-            border: 1px solid rgba(255, 255, 255, 0.35);
-            backdrop-filter: none;
-        }
-        .agent-bookmark-group .bookmark-indicator {
-            position: absolute;
-            left: 4px;
-            top: 4px;
-            bottom: 4px;
-            width: calc((100% - 8px) / 2);
-            border-radius: 12px;
-            background: rgba(255, 255, 255, 0.7);
-            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
-            transition: transform 0.25s ease;
-            z-index: 0;
-        }
-        .agent-bookmark-group[data-mode="browse"] .bookmark-indicator {
-            transform: translateX(0%);
-        }
-        .agent-bookmark-group[data-mode="agent"] .bookmark-indicator {
-            transform: translateX(100%);
+            background: transparent;
+            border: none;
         }
         .header-menu-btn {
             width: 38px;
@@ -525,25 +512,30 @@
             background: transparent;
         }
         .agent-bookmark {
-            background: transparent;
-            border: none;
+            width: 58px;
+            height: 58px;
+            background: color-mix(in srgb, var(--chrome-strong) 70%, transparent);
+            border: 1px solid rgba(255, 255, 255, 0.35);
             color: var(--muted-text);
             font-weight: 600;
-            font-size: 12px;
-            padding: 8px 28px;
-            border-radius: 12px;
+            font-size: 10px;
+            padding: 8px 6px;
+            border-radius: 999px;
             writing-mode: horizontal-tb;
             text-align: center;
-            letter-spacing: 2px;
+            line-height: 1.15;
+            letter-spacing: 0;
             cursor: pointer;
-            position: relative;
-            z-index: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
         .agent-bookmark:hover {
             box-shadow: none;
         }
         .agent-bookmark.is-active {
             color: var(--active-text);
+            background: rgba(255, 255, 255, 0.7);
         }
         .agent-overlay {
             position: fixed;
@@ -995,28 +987,20 @@
             }
 
             .agent-bookmark-group {
-                display: inline-grid;
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-                width: 132px;
-                max-width: 132px;
-                border-radius: 16px;
-            }
-
-            .agent-bookmark-group .bookmark-indicator {
-                width: calc((100% - 8px) / 2);
-                border-radius: 10px;
+                display: flex;
+                width: auto;
+                max-width: none;
+                gap: 6px;
             }
 
             .agent-bookmark {
-                width: 100%;
-                min-width: 0;
-                padding: 8px 6px;
-                font-size: 11px;
-                letter-spacing: 0.5px;
+                width: 50px;
+                height: 50px;
+                min-width: 50px;
+                padding: 6px 4px;
+                font-size: 9px;
                 line-height: 1.1;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
+                white-space: normal;
             }
 
             .agent-cta-bar {
@@ -1034,6 +1018,90 @@
                 padding: 0 8px;
                 border-radius: 999px;
                 font-size: 11px;
+            }
+
+            .detail-panel {
+                padding: calc(var(--safe-top) + 10px) 12px calc(var(--safe-bottom) + 12px);
+                border-radius: 0;
+                gap: 10px;
+            }
+
+            .detail-top {
+                display: grid;
+                grid-template-columns: 78px minmax(0, 1fr) 88px;
+                align-items: start;
+                gap: 8px;
+                padding-top: 0;
+            }
+
+            .detail-top-left,
+            .detail-top-actions {
+                width: 100%;
+                min-width: 0;
+            }
+
+            .detail-top-left {
+                gap: 6px;
+            }
+
+            .detail-top-actions {
+                align-items: stretch;
+                gap: 6px;
+            }
+
+            .detail-top-title {
+                position: static;
+                transform: none;
+                min-width: 0;
+                align-self: center;
+                text-align: center;
+                font-size: 16px;
+                line-height: 1.1;
+                padding-top: 6px;
+            }
+
+            .detail-top-btn {
+                min-width: 0;
+                width: 100%;
+                height: 32px;
+                padding: 0 8px;
+                font-size: 11px;
+                line-height: 1.1;
+                white-space: normal;
+                text-align: center;
+            }
+
+            .detail-top-actions .detail-top-btn {
+                min-width: 0;
+            }
+
+            .browse-list {
+                min-height: 0;
+                padding: 10px;
+            }
+
+            .browse-item {
+                font-size: 11px;
+            }
+
+            .browse-item > div:first-child {
+                align-items: flex-start !important;
+                gap: 6px !important;
+            }
+
+            .browse-item > div:first-child > div:last-child {
+                flex: 0 0 72px !important;
+                width: 72px;
+                gap: 4px !important;
+            }
+
+            .browse-item button {
+                width: 100%;
+                min-width: 0 !important;
+                padding: 4px 6px !important;
+                font-size: 10px !important;
+                line-height: 1.15;
+                white-space: normal;
             }
 
             .agent-cta-text {
@@ -2350,11 +2418,31 @@
                 padding: 10px 8px 10px 10px;
             }
             .listing-card {
-                min-width: min(78vw, 280px);
-                max-width: min(78vw, 280px);
-                padding: 12px 12px 10px;
+                min-width: min(82vw, 300px);
+                max-width: min(82vw, 300px);
+                padding: 10px 10px 8px;
                 margin-right: 8px;
-                line-height: 1.1;
+                line-height: 1.02;
+            }
+            .listing-card .listing-image {
+                height: 120px;
+                margin-bottom: 6px;
+            }
+            .listing-card .listing-title {
+                margin: 2px 0 4px;
+                font-size: 13px;
+                line-height: 1.2;
+            }
+            .listing-card .listing-price {
+                font-size: 14px;
+                margin-bottom: 4px;
+            }
+            .listing-card .listing-line {
+                font-size: 11px;
+                margin-bottom: 0;
+            }
+            .listing-card .listing-link {
+                margin-top: 3px;
             }
 
             .chat-footer {
@@ -2428,14 +2516,17 @@
             }
 
             .agent-bookmark-group {
-                width: 124px;
-                min-width: 124px;
-                max-width: 124px;
+                width: auto;
+                min-width: 0;
+                max-width: none;
             }
 
             .agent-bookmark {
-                font-size: 9px;
-                padding: 8px 2px;
+                width: 46px;
+                height: 46px;
+                min-width: 46px;
+                font-size: 8px;
+                padding: 6px 2px;
             }
 
             .agent-cta-bar {
@@ -2544,7 +2635,6 @@
             </button>
             <span class="chat-title">超級房仲 AI</span>
             <div class="agent-bookmark-group">
-                <span class="bookmark-indicator" aria-hidden="true"></span>
                 <button class="agent-bookmark press-glow" id="chatBookmark">瀏覽清單</button>
                 <button class="agent-bookmark press-glow" id="agentBookmark">業務資訊</button>
             </div>
@@ -4598,7 +4688,7 @@ function renderListingCard(item, isMatch = true, baseMatch = isMatch) {
     }
     const parking = item.parking || "不明";
     const img = item.image
-        ? `<img src="${item.image}" style="width:100%;height:140px;object-fit:cover;border-radius:10px;margin-bottom:8px;">`
+        ? `<img class="listing-image" src="${item.image}">`
         : "";
     const link = item.id
         ? `<button class="press-glow detail-open-btn" data-sn="${item.id}" style="display:inline-block;padding:6px 10px;border-radius:10px;background:rgba(255,255,255,0.85);color:#333;border:none;cursor:pointer;">查看詳情</button>`
@@ -6015,6 +6105,10 @@ function renderListingNote() {
 }
 function renderCommunityDetailCards(name, details) {
     const cards = [];
+    const communityCardWidth = window.innerWidth <= 768
+        ? "min(82vw, 320px)"
+        : "200px";
+    const communityCardStyle = `min-width:${communityCardWidth};max-width:${communityCardWidth};background:#fff8e1;border-radius:12px;padding:10px 10px 12px;margin-right:8px;flex:0 0 auto;box-shadow:0 4px 12px rgba(0,0,0,0.12);border:1px solid rgba(0,0,0,0.06);position:relative;`;
     const usedLabels = new Set();
     COMMUNITY_DETAIL_GROUPS.forEach((group) => {
         group.labels.forEach((label) => usedLabels.add(label));
@@ -6034,7 +6128,7 @@ function renderCommunityDetailCards(name, details) {
             chunks.forEach((chunk, index) => {
                 const content = escapeHtml(chunk.join("")).replace(/。/g, "。<br>");
                 cards.push(`
-                    <div style="min-width:200px;max-width:200px;background:#fff8e1;border-radius:12px;padding:10px 10px 12px;margin-right:8px;flex:0 0 auto;box-shadow:0 4px 12px rgba(0,0,0,0.12);border:1px solid rgba(0,0,0,0.06);position:relative;">
+                    <div style="${communityCardStyle}">
                         <div style="text-align:center;font-weight:700;font-size:14px;letter-spacing:0.4px;margin-bottom:6px;color:#3b2f00;">${escapeHtml(group.title)} ${index + 1}</div>
                         <div style="font-size:11px;color:#4a3b1a;line-height:1.55;">${content}</div>
                         <div style="position:absolute;left:0;right:0;bottom:0;height:8px;background:linear-gradient(180deg, rgba(255,248,225,0) 0%, rgba(255,248,225,1) 100%);border-bottom-left-radius:12px;border-bottom-right-radius:12px;"></div>
@@ -6045,7 +6139,7 @@ function renderCommunityDetailCards(name, details) {
         }
         const formattedItems = items.map((item) => `<div><strong>${escapeHtml(item.label)}</strong>：${item.formatted}</div>`).join('');
         cards.push(`
-            <div style="min-width:200px;max-width:200px;background:#fff8e1;border-radius:12px;padding:10px 10px 12px;margin-right:8px;flex:0 0 auto;box-shadow:0 4px 12px rgba(0,0,0,0.12);border:1px solid rgba(0,0,0,0.06);position:relative;">
+            <div style="${communityCardStyle}">
                 <div style="text-align:center;font-weight:700;font-size:14px;letter-spacing:0.4px;margin-bottom:6px;color:#3b2f00;">${escapeHtml(group.title)}</div>
                 <div style="font-size:11px;color:#4a3b1a;line-height:1.55;display:grid;gap:5px;">${formattedItems}</div>
                 <div style="position:absolute;left:0;right:0;bottom:0;height:8px;background:linear-gradient(180deg, rgba(255,248,225,0) 0%, rgba(255,248,225,1) 100%);border-bottom-left-radius:12px;border-bottom-right-radius:12px;"></div>
@@ -6067,7 +6161,7 @@ function renderCommunityDetailCards(name, details) {
             .map((item) => `<div><strong>${escapeHtml(item.label)}</strong>：${item.formatted}</div>`)
             .join('');
         cards.push(`
-            <div style="min-width:200px;max-width:200px;background:#fff8e1;border-radius:12px;padding:10px 10px 12px;margin-right:8px;flex:0 0 auto;box-shadow:0 4px 12px rgba(0,0,0,0.12);border:1px solid rgba(0,0,0,0.06);position:relative;">
+            <div style="${communityCardStyle}">
                 <div style="text-align:center;font-weight:700;font-size:14px;letter-spacing:0.4px;margin-bottom:6px;color:#3b2f00;">補充資訊</div>
                 <div style="font-size:11px;color:#4a3b1a;line-height:1.55;display:grid;gap:5px;">${formattedItems}</div>
                 <div style="position:absolute;left:0;right:0;bottom:0;height:8px;background:linear-gradient(180deg, rgba(255,248,225,0) 0%, rgba(255,248,225,1) 100%);border-bottom-left-radius:12px;border-bottom-right-radius:12px;"></div>
