@@ -1241,45 +1241,45 @@
             text-align: center;
             font-size: 12px;
         }
-        .settings-rgb-group {
-            display: grid;
-            gap: 8px;
+        .settings-palette {
+            position: relative;
+            width: 100%;
+            height: 132px;
+            border-radius: 14px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            background: rgba(0, 0, 0, 0.16);
+            cursor: crosshair;
         }
-        .settings-rgb-row {
-            display: grid;
-            grid-template-columns: 14px minmax(0, 1fr) 40px;
-            gap: 8px;
+        .settings-palette-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        .settings-palette-marker {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            border-radius: 999px;
+            border: 2px solid rgba(255, 255, 255, 0.92);
+            box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.45);
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+        .settings-palette-marker.is-hidden {
+            opacity: 0;
+        }
+        .settings-preview {
+            display: flex;
             align-items: center;
+            gap: 8px;
         }
-        .settings-rgb-label {
-            font-size: 11px;
-            font-weight: 700;
-            color: rgba(255, 255, 255, 0.78);
-            text-align: center;
-        }
-        .settings-rgb-slider {
-            width: 100%;
-            margin: 0;
-            accent-color: #ffffff;
-        }
-        .settings-rgb-slider[data-channel="r"] {
-            accent-color: #ff5a5f;
-        }
-        .settings-rgb-slider[data-channel="g"] {
-            accent-color: #34c759;
-        }
-        .settings-rgb-slider[data-channel="b"] {
-            accent-color: #4f8cff;
-        }
-        .settings-rgb-number {
-            width: 100%;
-            height: 28px;
-            border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.14);
-            background: rgba(0, 0, 0, 0.18);
-            color: #fff;
-            text-align: center;
-            font-size: 11px;
+        .settings-preview-swatch {
+            width: 20px;
+            height: 20px;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            flex: 0 0 auto;
         }
         .settings-swatches {
             display: grid;
@@ -2162,48 +2162,28 @@
                 <div class="settings-row">
                     <div class="settings-head">
                         <span class="settings-label">文字顏色</span>
-                        <span class="settings-value" id="textColorValue">#FFFFFF</span>
+                        <div class="settings-preview">
+                            <span class="settings-preview-swatch" id="textColorSwatch"></span>
+                            <span class="settings-value" id="textColorValue">#FFFFFF</span>
+                        </div>
                     </div>
-                    <div class="settings-rgb-group" id="textColorControls">
-                        <div class="settings-rgb-row">
-                            <span class="settings-rgb-label">R</span>
-                            <input type="range" class="settings-rgb-slider" data-target="text" data-channel="r" min="0" max="255" step="1" value="255">
-                            <input type="number" class="settings-rgb-number" data-target="text" data-channel="r" min="0" max="255" step="1" value="255">
-                        </div>
-                        <div class="settings-rgb-row">
-                            <span class="settings-rgb-label">G</span>
-                            <input type="range" class="settings-rgb-slider" data-target="text" data-channel="g" min="0" max="255" step="1" value="255">
-                            <input type="number" class="settings-rgb-number" data-target="text" data-channel="g" min="0" max="255" step="1" value="255">
-                        </div>
-                        <div class="settings-rgb-row">
-                            <span class="settings-rgb-label">B</span>
-                            <input type="range" class="settings-rgb-slider" data-target="text" data-channel="b" min="0" max="255" step="1" value="255">
-                            <input type="number" class="settings-rgb-number" data-target="text" data-channel="b" min="0" max="255" step="1" value="255">
-                        </div>
+                    <div class="settings-palette" id="textPalette">
+                        <canvas class="settings-palette-canvas" id="textPaletteCanvas" width="320" height="132"></canvas>
+                        <span class="settings-palette-marker" id="textPaletteMarker"></span>
                     </div>
                 </div>
                 <div class="settings-row">
                     <div class="settings-head">
                         <span class="settings-label">個性化背景</span>
-                        <span class="settings-value" id="bgColorValue">黑 / 暗紫 / 自訂</span>
+                        <div class="settings-preview">
+                            <span class="settings-preview-swatch" id="bgColorSwatch"></span>
+                            <span class="settings-value" id="bgColorValue">黑 / 暗紫 / 自訂</span>
+                        </div>
                     </div>
                     <div class="settings-swatches" id="settingsBgSwatches"></div>
-                    <div class="settings-rgb-group" id="bgColorControls">
-                        <div class="settings-rgb-row">
-                            <span class="settings-rgb-label">R</span>
-                            <input type="range" class="settings-rgb-slider" data-target="bg" data-channel="r" min="0" max="255" step="1" value="0">
-                            <input type="number" class="settings-rgb-number" data-target="bg" data-channel="r" min="0" max="255" step="1" value="0">
-                        </div>
-                        <div class="settings-rgb-row">
-                            <span class="settings-rgb-label">G</span>
-                            <input type="range" class="settings-rgb-slider" data-target="bg" data-channel="g" min="0" max="255" step="1" value="0">
-                            <input type="number" class="settings-rgb-number" data-target="bg" data-channel="g" min="0" max="255" step="1" value="0">
-                        </div>
-                        <div class="settings-rgb-row">
-                            <span class="settings-rgb-label">B</span>
-                            <input type="range" class="settings-rgb-slider" data-target="bg" data-channel="b" min="0" max="255" step="1" value="0">
-                            <input type="number" class="settings-rgb-number" data-target="bg" data-channel="b" min="0" max="255" step="1" value="0">
-                        </div>
+                    <div class="settings-palette" id="bgPalette">
+                        <canvas class="settings-palette-canvas" id="bgPaletteCanvas" width="320" height="132"></canvas>
+                        <span class="settings-palette-marker" id="bgPaletteMarker"></span>
                     </div>
                 </div>
             </div>
@@ -4596,13 +4576,97 @@ function rgbToHex(rgb) {
     return `#${toHex(rgb.r)}${toHex(rgb.g)}${toHex(rgb.b)}`;
 }
 
-function syncRgbControls(target, color) {
-    const rgb = typeof color === "string" ? hexToRgb(color) : color;
-    ["r", "g", "b"].forEach((channel) => {
-        document.querySelectorAll(`[data-target="${target}"][data-channel="${channel}"]`).forEach((el) => {
-            el.value = String(clampRgb(rgb[channel]));
-        });
-    });
+function rgbToHsl(rgb) {
+    const r = clampRgb(rgb.r) / 255;
+    const g = clampRgb(rgb.g) / 255;
+    const b = clampRgb(rgb.b) / 255;
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+    let h = 0;
+    let s = 0;
+    const l = (max + min) / 2;
+    const d = max - min;
+    if (d !== 0) {
+        s = d / (1 - Math.abs(2 * l - 1));
+        switch (max) {
+            case r:
+                h = 60 * (((g - b) / d) % 6);
+                break;
+            case g:
+                h = 60 * (((b - r) / d) + 2);
+                break;
+            default:
+                h = 60 * (((r - g) / d) + 4);
+                break;
+        }
+    }
+    if (h < 0) h += 360;
+    return { h, s, l };
+}
+
+function hslToRgb(h, s, l) {
+    const hue = ((h % 360) + 360) % 360;
+    const sat = Math.max(0, Math.min(1, s));
+    const light = Math.max(0, Math.min(1, l));
+    const c = (1 - Math.abs(2 * light - 1)) * sat;
+    const x = c * (1 - Math.abs((hue / 60) % 2 - 1));
+    const m = light - c / 2;
+    let r1 = 0;
+    let g1 = 0;
+    let b1 = 0;
+    if (hue < 60) {
+        r1 = c; g1 = x;
+    } else if (hue < 120) {
+        r1 = x; g1 = c;
+    } else if (hue < 180) {
+        g1 = c; b1 = x;
+    } else if (hue < 240) {
+        g1 = x; b1 = c;
+    } else if (hue < 300) {
+        r1 = x; b1 = c;
+    } else {
+        r1 = c; b1 = x;
+    }
+    return {
+        r: Math.round((r1 + m) * 255),
+        g: Math.round((g1 + m) * 255),
+        b: Math.round((b1 + m) * 255)
+    };
+}
+
+function renderColorPalette(canvas) {
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    const width = canvas.width;
+    const height = canvas.height;
+    const image = ctx.createImageData(width, height);
+    const data = image.data;
+    for (let y = 0; y < height; y += 1) {
+        const lightness = 1 - (y / Math.max(1, height - 1));
+        for (let x = 0; x < width; x += 1) {
+            const hue = (x / Math.max(1, width - 1)) * 360;
+            const rgb = hslToRgb(hue, 1, lightness);
+            const idx = (y * width + x) * 4;
+            data[idx] = rgb.r;
+            data[idx + 1] = rgb.g;
+            data[idx + 2] = rgb.b;
+            data[idx + 3] = 255;
+        }
+    }
+    ctx.putImageData(image, 0, 0);
+}
+
+function setPaletteMarker(target, color) {
+    const marker = document.getElementById(`${target}PaletteMarker`);
+    const canvas = document.getElementById(`${target}PaletteCanvas`);
+    if (!marker || !canvas) return;
+    marker.classList.remove('is-hidden');
+    const { h, l } = rgbToHsl(hexToRgb(color));
+    const x = (h / 360) * canvas.clientWidth;
+    const y = (1 - l) * canvas.clientHeight;
+    marker.style.left = `${Math.max(0, Math.min(canvas.clientWidth, x))}px`;
+    marker.style.top = `${Math.max(0, Math.min(canvas.clientHeight, y))}px`;
 }
 
 function shouldScaleFont(el) {
@@ -4636,8 +4700,10 @@ function applyFontScale(scale, root = document.body) {
 function applyTextColor(color) {
     document.documentElement.style.setProperty('--ui-text-color', color);
     const valueEl = document.getElementById('textColorValue');
+    const swatchEl = document.getElementById('textColorSwatch');
     if (valueEl) valueEl.textContent = String(color || "").toUpperCase();
-    syncRgbControls("text", color);
+    if (swatchEl) swatchEl.style.background = color;
+    setPaletteMarker("text", color);
 }
 
 function applyCustomBackground(color) {
@@ -4659,8 +4725,10 @@ function applyCustomBackground(color) {
         btn.classList.toggle('is-active', btn.dataset.bg === 'custom');
     });
     const valueEl = document.getElementById('bgColorValue');
+    const swatchEl = document.getElementById('bgColorSwatch');
     if (valueEl) valueEl.textContent = rgbToHex(rgb).toUpperCase();
-    syncRgbControls("bg", rgb);
+    if (swatchEl) swatchEl.style.background = rgbToHex(rgb);
+    setPaletteMarker("bg", rgbToHex(rgb));
     uiSettings.bgTheme = 'custom';
     uiSettings.bgCustomColor = rgbToHex(rgb);
     saveUiSettings();
@@ -4686,7 +4754,11 @@ function applyBackground(themeId) {
         btn.classList.toggle('is-active', btn.dataset.bg === theme.id);
     });
     const valueEl = document.getElementById('bgColorValue');
+    const swatchEl = document.getElementById('bgColorSwatch');
+    const marker = document.getElementById('bgPaletteMarker');
     if (valueEl) valueEl.textContent = theme.label;
+    if (swatchEl) swatchEl.style.background = theme.gradient;
+    if (marker) marker.classList.add('is-hidden');
     uiSettings.bgTheme = theme.id;
     saveUiSettings();
 }
@@ -4716,7 +4788,11 @@ function initSettingsPanel() {
     const fontNumber = document.getElementById('fontSizeNumber');
     const fontValue = document.getElementById('fontSizeValue');
     const bgSwatches = document.getElementById('settingsBgSwatches');
-    if (!settingsRoot || !settingsToggle || !fontRange || !fontNumber || !fontValue || !bgSwatches) return;
+    const textPalette = document.getElementById('textPalette');
+    const textPaletteCanvas = document.getElementById('textPaletteCanvas');
+    const bgPalette = document.getElementById('bgPalette');
+    const bgPaletteCanvas = document.getElementById('bgPaletteCanvas');
+    if (!settingsRoot || !settingsToggle || !fontRange || !fontNumber || !fontValue || !bgSwatches || !textPalette || !textPaletteCanvas || !bgPalette || !bgPaletteCanvas) return;
 
     bgSwatches.innerHTML = [
         ...BG_THEMES.map((theme) => (
@@ -4749,24 +4825,46 @@ function initSettingsPanel() {
     fontNumber.addEventListener('change', (e) => {
         updateFontScale(e.target.value);
     });
-    document.querySelectorAll('[data-target="text"]').forEach((el) => {
-        const eventName = el.matches('input[type="range"]') ? 'input' : 'change';
-        el.addEventListener(eventName, (e) => {
-            const current = hexToRgb(uiSettings.textColor);
-            current[e.target.dataset.channel] = clampRgb(e.target.value);
-            uiSettings.textColor = rgbToHex(current);
-            applyTextColor(uiSettings.textColor);
-            saveUiSettings();
+    renderColorPalette(textPaletteCanvas);
+    renderColorPalette(bgPaletteCanvas);
+
+    const bindPalette = (target, container, canvas, onPick) => {
+        let isDragging = false;
+        const handlePick = (event) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = Math.max(0, Math.min(rect.width, event.clientX - rect.left));
+            const y = Math.max(0, Math.min(rect.height, event.clientY - rect.top));
+            const hue = (x / Math.max(1, rect.width)) * 360;
+            const lightness = 1 - (y / Math.max(1, rect.height));
+            const color = rgbToHex(hslToRgb(hue, 1, lightness));
+            onPick(color);
+            setPaletteMarker(target, color);
+        };
+        container.addEventListener('pointerdown', (event) => {
+            isDragging = true;
+            container.setPointerCapture(event.pointerId);
+            handlePick(event);
         });
+        container.addEventListener('pointermove', (event) => {
+            if (!isDragging) return;
+            handlePick(event);
+        });
+        container.addEventListener('pointerup', () => {
+            isDragging = false;
+        });
+        container.addEventListener('pointerleave', () => {
+            isDragging = false;
+        });
+    };
+
+    bindPalette("text", textPalette, textPaletteCanvas, (color) => {
+        uiSettings.textColor = color;
+        applyTextColor(uiSettings.textColor);
+        saveUiSettings();
     });
-    document.querySelectorAll('[data-target="bg"]').forEach((el) => {
-        const eventName = el.matches('input[type="range"]') ? 'input' : 'change';
-        el.addEventListener(eventName, (e) => {
-            const current = hexToRgb(uiSettings.bgCustomColor || DEFAULT_UI_SETTINGS.bgCustomColor);
-            current[e.target.dataset.channel] = clampRgb(e.target.value);
-            uiSettings.bgCustomColor = rgbToHex(current);
-            applyCustomBackground(uiSettings.bgCustomColor);
-        });
+    bindPalette("bg", bgPalette, bgPaletteCanvas, (color) => {
+        uiSettings.bgCustomColor = color;
+        applyCustomBackground(uiSettings.bgCustomColor);
     });
     bgSwatches.addEventListener('click', (e) => {
         const btn = e.target.closest('.settings-bg-btn');
@@ -4777,7 +4875,6 @@ function initSettingsPanel() {
     uiSettings = loadUiSettings();
     syncFontControls(Math.round(uiSettings.fontScale * 100));
     applyTextColor(uiSettings.textColor);
-    syncRgbControls("bg", uiSettings.bgCustomColor);
     applyBackground(uiSettings.bgTheme);
     applyFontScale(uiSettings.fontScale);
 
