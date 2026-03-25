@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors'); 
 const fs = require('fs');
 const path = require('path');
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+const { GoogleGenAI, Modality } = require("@google/genai");
 require('dotenv').config(); 
 
 // 1. 建立 app (只准出現這一次！)
@@ -28,7 +28,7 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 // --- 順序 3：初始化 AI ---
 const hasApiKey = Boolean(process.env.GEMINI_API_KEY);
 console.log(`🔑 GEMINI_API_KEY exists: ${hasApiKey}`);
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const genAI = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 const SYSTEM_PROMPT = `
 你是房地產專業助理。
 允許話題：房地產物件、房地產法規、房地產稅務、房地產租賃、房地產相關資訊。
@@ -735,6 +735,45 @@ function pushHistory(sessionId, role, parts) {
     }
 }
 
+function extractResponseText(response) {
+    if (!response) return "";
+    if (typeof response.text === "function") {
+        return response.text() || "";
+    }
+    if (typeof response.text === "string") {
+        return response.text;
+    }
+    const candidateText = (response.candidates || [])
+        .flatMap((cand) => cand?.content?.parts || [])
+        .filter((part) => typeof part?.text === "string")
+        .map((part) => part.text)
+        .join("\n")
+        .trim();
+    return candidateText;
+}
+
+async function generateGeminiContent(model, contents, config = undefined) {
+    return genAI.models.generateContent({
+        model,
+        contents,
+        ...(config ? { config } : {})
+    });
+}
+
+function getErrorDetails(error) {
+    return {
+        status: error?.status || error?.response?.status || error?.cause?.status || null,
+        message: error?.message || null,
+        responseBody:
+            error?.response?.data ||
+            error?.response?.body ||
+            error?.response ||
+            error?.error ||
+            error?.cause ||
+            null
+    };
+}
+
 app.post('/api/agents/login', (req, res) => {
     const { agentId, password } = req.body || {};
     if (!agentId || !password) {
@@ -1064,12 +1103,12 @@ promptParts.push({ text: combinedText });
             ? [
                 "gemini-2.5-flash-image",
                 "gemini-2.5-flash-image-preview",
-                "gemini-flash-latest"
+                "gemini-2.5-flash"
             ]
             : [
-                "gemini-flash-latest",
-                "gemini-pro-latest",
-                "gemini-2.5-flash"
+                "gemini-2.5-flash",
+                "gemini-2.0-flash",
+                "gemini-1.5-flash"
             ];
 
         let usedModel = null;
@@ -1078,12 +1117,8 @@ promptParts.push({ text: combinedText });
 
         for (const modelName of modelNames) {
             try {
-                const model = genAI.getGenerativeModel({ model: modelName });
-                const result = await model.generateContent({
-                    contents
-                });
-                const response = await result.response;
-                responseText = response.text();
+                const response = await generateGeminiContent(modelName, contents);
+                responseText = extractResponseText(response);
                 usedModel = modelName;
                 break;
             } catch (error) {
@@ -1093,15 +1128,7 @@ promptParts.push({ text: combinedText });
         }
 
         if (!responseText) {
-            const status = lastError?.status || lastError?.response?.status || null;
-            const message = lastError?.message || null;
-            const responseBody =
-                lastError?.response?.data ||
-                lastError?.response?.body ||
-                lastError?.response ||
-                lastError?.error ||
-                null;
-            console.error("❌ API 錯誤詳情:", { status, message, responseBody });
+            console.error("❌ API 錯誤詳情:", getErrorDetails(lastError));
             throw lastError || new Error("All models failed");
         }
 
@@ -1251,7 +1278,7 @@ app.post('/api/design', async (req, res) => {
             "gemini-2.5-flash-image",
             "gemini-2.5-flash-image-preview",
             "gemini-2.0-flash-exp-image-generation",
-            "gemini-flash-latest"
+            "gemini-2.5-flash"
         ];
 
         let usedModel = null;
@@ -1260,11 +1287,11 @@ app.post('/api/design', async (req, res) => {
 
         for (const modelName of modelNames) {
             try {
-                const model = genAI.getGenerativeModel({ model: modelName });
-                const result = await model.generateContent({
-                    contents: [{ role: 'user', parts: promptParts }]
-                });
-                const response = await result.response;
+                const response = await generateGeminiContent(
+                    modelName,
+                    [{ role: 'user', parts: promptParts }],
+                    { responseModalities: [Modality.TEXT, Modality.IMAGE] }
+                );
                 usedModel = modelName;
 
                 const candidates = response.candidates || [];
@@ -1288,7 +1315,7 @@ app.post('/api/design', async (req, res) => {
                     });
                 }
 
-                lastText = response.text();
+                lastText = extractResponseText(response);
                 console.warn(`⚠️ Model returned no image: ${modelName}`);
             } catch (error) {
                 lastError = error;
@@ -1296,15 +1323,7 @@ app.post('/api/design', async (req, res) => {
             }
         }
 
-        const status = lastError?.status || lastError?.response?.status || null;
-        const message = lastError?.message || null;
-        const responseBody =
-            lastError?.response?.data ||
-            lastError?.response?.body ||
-            lastError?.response ||
-            lastError?.error ||
-            null;
-        console.error("❌ Design API 錯誤詳情:", { status, message, responseBody });
+        console.error("❌ Design API 錯誤詳情:", getErrorDetails(lastError));
         res.status(500).json({ text: lastText || "房屋變裝失敗，請稍後再試。" });
     } catch (error) {
         console.error("❌ Design API 錯誤詳情:", error);
