@@ -235,7 +235,7 @@
             max-width: 248px;
             background: #ffffff;
             border-radius: 18px;
-            padding: 10px 10px 12px;
+            padding: 8px 8px 10px;
             margin-right: 10px;
             flex: 0 0 auto;
             position: relative;
@@ -246,16 +246,16 @@
         }
         .listing-card .listing-image {
             width: 100%;
-            height: 172px;
+            height: 160px;
             object-fit: cover;
             border-radius: 14px;
-            margin-bottom: 10px;
+            margin-bottom: 6px;
             display: block;
         }
         .listing-card .listing-body {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 5px;
         }
         .listing-card .listing-badge {
             display: inline-flex;
@@ -271,8 +271,14 @@
             letter-spacing: 0.01em;
         }
         .msg.listing-msg {
-            max-width: min(96%, 760px);
-            width: 100%;
+            max-width: none;
+            width: calc(100% + (var(--chat-side-pad, 20px) * 2));
+            margin-left: calc(var(--chat-side-pad, 20px) * -1);
+            padding: 0;
+            background: transparent;
+            border-radius: 0;
+            align-self: stretch;
+            overflow: visible;
         }
         .msg.community-msg {
             max-width: min(96%, 760px);
@@ -283,6 +289,22 @@
         }
         .msg.community-msg > div {
             width: 100%;
+        }
+        .listing-cards-row {
+            display: flex;
+            overflow-x: auto;
+            gap: 0;
+            width: 100%;
+            padding: 0 var(--chat-side-pad, 20px) 6px;
+            box-sizing: border-box;
+            scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
+            scroll-padding-left: var(--chat-side-pad, 20px);
+            scroll-padding-right: var(--chat-side-pad, 20px);
+        }
+        .listing-cards-row::-webkit-scrollbar {
+            width: 0;
+            height: 0;
         }
         .listing-card .listing-title {
             font-weight: 700;
@@ -389,50 +411,54 @@
         }
         .detail-top {
             display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding-top: 2px;
+        }
+        .detail-top-header {
+            display: flex;
             align-items: center;
             gap: 8px;
-            justify-content: space-between;
-            position: relative;
-            padding-top: 6px;
         }
         .detail-top-left {
             display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 6px;
+            align-items: center;
+            gap: 8px;
+            flex: 0 0 auto;
         }
         .detail-top-actions {
             display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 6px;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
         }
-        .detail-top-actions .detail-top-btn {
-            min-width: 104px;
+        .detail-top-header .detail-top-btn {
+            min-width: 68px;
         }
         .detail-top-title {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
+            flex: 1;
+            min-width: 0;
             text-align: center;
             font-weight: 700;
             color: #fff;
-            pointer-events: none;
+            font-size: 24px;
+            line-height: 1.1;
         }
         .detail-top-btn {
             border: none;
-            padding: 0 12px;
+            padding: 0 14px;
             border-radius: 999px;
             background: rgba(255, 255, 255, 0.9);
             color: #333;
             font-size: 12px;
             cursor: pointer;
-            min-width: 104px;
-            height: 32px;
+            min-width: 96px;
+            height: 34px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             text-decoration: none;
+            white-space: nowrap;
         }
         .detail-top-btn.detail-add-btn {
             text-align: center;
@@ -497,20 +523,20 @@
             color: #ff4d5a;
         }
         .detail-pages {
-            display: flex;
-            overflow-x: auto;
-            scroll-snap-type: x mandatory;
-            gap: 12px;
+            display: block;
+            overflow: hidden;
             padding-bottom: 4px;
         }
         .detail-page {
-            min-width: 100%;
+            width: 100%;
             max-width: 100%;
-            scroll-snap-align: start;
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 14px;
-            padding: 12px;
+            background: transparent;
+            border-radius: 0;
+            padding: 0;
             box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
         .detail-carousel {
             display: flex;
@@ -520,25 +546,27 @@
         }
         .detail-carousel img {
             width: 100%;
-            max-width: 260px;
-            height: 180px;
+            max-width: 300px;
+            height: 190px;
             object-fit: cover;
-            border-radius: 12px;
+            border-radius: 16px;
             scroll-snap-align: start;
         }
         .detail-section-title {
             font-weight: 700;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #1f1f1f;
         }
         .detail-list {
-            font-size: 12px;
-            line-height: 1.4;
+            font-size: 13px;
+            line-height: 1.5;
             color: #333;
         }
         .detail-text {
-            font-size: 12px;
-            color: #333;
-            line-height: 1.4;
+            font-size: 13px;
+            color: #444;
+            line-height: 1.6;
         }
         .agent-bookmark-group {
             z-index: 30;
@@ -579,23 +607,24 @@
             background: transparent;
         }
         .agent-bookmark {
-            width: 58px;
-            height: 58px;
+            min-width: 112px;
+            height: 42px;
             background: color-mix(in srgb, var(--chrome-strong) 70%, transparent);
             border: 1px solid rgba(255, 255, 255, 0.35);
             color: var(--muted-text);
             font-weight: 600;
-            font-size: 10px;
-            padding: 8px 6px;
+            font-size: 13px;
+            padding: 0 16px;
             border-radius: 999px;
             writing-mode: horizontal-tb;
             text-align: center;
-            line-height: 1.15;
+            line-height: 1;
             letter-spacing: 0;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
             justify-content: center;
+            white-space: nowrap;
         }
         .agent-bookmark:hover {
             box-shadow: none;
@@ -912,54 +941,95 @@
             cursor: pointer;
         }
         .detail-summary-card {
-            margin-top: 10px;
-            background: rgba(255, 255, 255, 0.92);
-            border-radius: 16px;
-            padding: 12px 14px;
-            box-shadow: 0 6px 18px rgba(0,0,0,0.12);
-            text-align: center;
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 14px 14px 16px;
+            box-shadow: 0 10px 24px rgba(0,0,0,0.12);
+            text-align: left;
             color: #333;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .detail-summary-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            align-self: flex-start;
+            min-height: 24px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: #fff2e7;
+            color: #ff7a00;
+            font-size: 11px;
+            font-weight: 700;
         }
         .detail-summary-title {
             font-weight: 700;
-            font-size: 14px;
-            margin-bottom: 4px;
+            font-size: 20px;
+            margin: 0;
+            color: #1f1f1f;
+            line-height: 1.35;
         }
         .detail-summary-price {
             font-weight: 700;
-            font-size: 16px;
-            color: #ff4d5a;
-            margin-bottom: 2px;
+            font-size: 28px;
+            color: #f24d2d;
+            margin: 0;
+            line-height: 1;
         }
         .detail-summary-address {
-            font-size: 12px;
+            font-size: 13px;
             color: #555;
+            line-height: 1.45;
+        }
+        .detail-summary-facts {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px 12px;
+            padding-top: 4px;
+        }
+        .detail-summary-fact {
+            background: #fff7f1;
+            border-radius: 12px;
+            padding: 10px 12px;
+            min-width: 0;
+        }
+        .detail-summary-fact-label {
+            font-size: 11px;
+            color: #8a6a57;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .detail-summary-fact-value {
+            font-size: 13px;
+            color: #202020;
+            font-weight: 600;
+            line-height: 1.35;
         }
         .detail-info-card {
-            margin-top: 10px;
-            background: rgba(255, 255, 255, 0.92);
-            border-radius: 14px;
-            padding: 12px;
-            box-shadow: 0 6px 18px rgba(0,0,0,0.12);
-            background-image: repeating-linear-gradient(
-                to bottom,
-                rgba(0, 0, 0, 0.06) 0px,
-                rgba(0, 0, 0, 0.06) 1px,
-                transparent 1px,
-                transparent 20px
-            );
+            background: rgba(255, 255, 255, 0.96);
+            border-radius: 18px;
+            padding: 14px;
+            box-shadow: 0 10px 24px rgba(0,0,0,0.12);
+            border: 1px solid rgba(0, 0, 0, 0.06);
         }
         .detail-info-card .detail-row {
-            font-size: 12px;
-            line-height: 1.4;
+            font-size: 13px;
+            line-height: 1.55;
             color: #333;
-            margin-bottom: 4px;
+            margin-bottom: 0;
+            word-break: break-word;
+        }
+        .detail-row strong {
+            color: #1f1f1f;
         }
         #detailAreaInfo,
         #detailOtherInfo {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 4px 12px;
+            gap: 8px 12px;
         }
         #detailAreaInfo .detail-row,
         #detailOtherInfo .detail-row {
@@ -1053,7 +1123,7 @@
             }
 
             .chat-header {
-                grid-template-columns: 36px minmax(0, 1fr) 132px;
+                grid-template-columns: 36px minmax(0, 1fr) 112px;
                 padding: 12px 12px 6px;
                 gap: 10px;
             }
@@ -1076,13 +1146,11 @@
             }
 
             .agent-bookmark {
-                width: 50px;
-                height: 50px;
-                min-width: 50px;
-                padding: 6px 4px;
-                font-size: 9px;
-                line-height: 1.1;
-                white-space: normal;
+                min-width: 104px;
+                height: 38px;
+                padding: 0 12px;
+                font-size: 12px;
+                white-space: nowrap;
             }
 
             .agent-cta-bar {
@@ -1109,16 +1177,17 @@
             }
 
             .detail-top {
-                display: grid;
-                grid-template-columns: 78px minmax(0, 1fr) 88px;
-                align-items: start;
+                gap: 8px;
+            }
+
+            .detail-top-header {
+                align-items: center;
                 gap: 8px;
                 padding-top: 0;
             }
 
             .detail-top-left,
             .detail-top-actions {
-                width: 100%;
                 min-width: 0;
             }
 
@@ -1127,34 +1196,55 @@
             }
 
             .detail-top-actions {
-                align-items: stretch;
+                justify-content: flex-start;
                 gap: 6px;
             }
 
             .detail-top-title {
-                position: static;
-                transform: none;
                 min-width: 0;
-                align-self: center;
                 text-align: center;
-                font-size: 16px;
+                font-size: 18px;
                 line-height: 1.1;
-                padding-top: 6px;
             }
 
             .detail-top-btn {
                 min-width: 0;
-                width: 100%;
-                height: 32px;
+                height: 34px;
                 padding: 0 8px;
                 font-size: 11px;
                 line-height: 1.1;
-                white-space: normal;
                 text-align: center;
             }
 
             .detail-top-actions .detail-top-btn {
-                min-width: 0;
+                min-width: calc((100% - 12px) / 3);
+                flex: 1 1 calc((100% - 12px) / 3);
+            }
+
+            .detail-carousel img {
+                max-width: 100%;
+                height: 180px;
+            }
+
+            .detail-summary-card,
+            .detail-info-card {
+                border-radius: 16px;
+                padding: 12px;
+            }
+
+            .detail-summary-title {
+                font-size: 17px;
+            }
+
+            .detail-summary-price {
+                font-size: 20px;
+            }
+
+            .detail-summary-facts,
+            #detailAreaInfo,
+            #detailOtherInfo {
+                grid-template-columns: 1fr;
+                gap: 8px;
             }
 
             .browse-list {
@@ -1986,7 +2076,7 @@
             box-shadow: none;
             animation: none;
         }
-        .chat-box { flex: 1; padding: 20px 20px 160px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; scrollbar-width: none; }
+        .chat-box { --chat-side-pad: 20px; flex: 1; padding: 20px 20px 160px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; scrollbar-width: none; }
         .chat-box::-webkit-scrollbar { width: 0; height: 0; }
         .chat-scroll-indicator {
             position: absolute;
@@ -2022,9 +2112,6 @@
         .ai table, .ai th, .ai td { color: var(--main-text); }
         .user { align-self: flex-end; padding: 10px 14px; border-radius: 18px; background: var(--ai-purple); color: white; }
         .listing-msg {
-            padding: 10px 14px;
-            border-radius: 18px;
-            background: rgba(255,255,255,0.25);
             color: var(--main-text);
         }
         .user-attachment {
@@ -2483,6 +2570,7 @@
             }
 
             .chat-box {
+                --chat-side-pad: 12px;
                 padding: 10px 12px 118px;
                 gap: 10px;
             }
@@ -2496,8 +2584,10 @@
                 padding: 10px 12px;
             }
             .msg.listing-msg {
-                max-width: calc(100% - 8px);
-                padding: 10px 8px 10px 10px;
+                width: calc(100% + (var(--chat-side-pad, 12px) * 2));
+                max-width: none;
+                margin-left: calc(var(--chat-side-pad, 12px) * -1);
+                padding: 0;
             }
             .msg.community-msg {
                 max-width: calc(100% - 8px);
@@ -2506,13 +2596,13 @@
             .listing-card {
                 min-width: min(84vw, 314px);
                 max-width: min(84vw, 314px);
-                padding: 10px 10px 12px;
+                padding: 8px 8px 10px;
                 margin-right: 8px;
                 line-height: 1.18;
             }
             .listing-card .listing-image {
-                height: 176px;
-                margin-bottom: 10px;
+                height: 148px;
+                margin-bottom: 6px;
             }
             .listing-card .listing-title {
                 font-size: 15px;
@@ -2527,7 +2617,7 @@
             }
             .listing-card .listing-summary {
                 font-size: 12px;
-                gap: 2px;
+                gap: 1px;
             }
             .listing-card .listing-line {
                 font-size: 12px;
@@ -2596,7 +2686,7 @@
 
         @media (max-width: 420px) {
             .chat-header {
-                grid-template-columns: 34px minmax(0, 1fr) 124px;
+                grid-template-columns: 34px minmax(0, 1fr) 104px;
                 gap: 0;
                 padding-left: 10px;
                 padding-right: 10px;
@@ -2614,11 +2704,10 @@
             }
 
             .agent-bookmark {
-                width: 46px;
-                height: 46px;
-                min-width: 46px;
-                font-size: 8px;
-                padding: 6px 2px;
+                min-width: 96px;
+                height: 36px;
+                font-size: 11px;
+                padding: 0 10px;
             }
 
             .agent-cta-bar {
@@ -2674,6 +2763,7 @@
         <div class="drawer-btn press-glow ripple-btn" onclick="openUnifiedTax()"><span>房地合一稅</span></div>
         <div class="drawer-btn press-glow ripple-btn" onclick="openCommunitySearch()"><span>社區資訊</span></div>
         <a class="drawer-btn press-glow ripple-btn" href="https://lvr.land.moi.gov.tw" target="_blank" rel="noopener"><span>實價登錄</span></a>
+        <div class="drawer-btn press-glow ripple-btn" onclick="openAgentPanel()"><span>業務資訊</span></div>
         <div class="drawer-spacer"></div>
         <div class="drawer-settings" id="drawerSettings">
             <button type="button" class="drawer-btn drawer-settings-toggle press-glow ripple-btn" id="settingsToggle">
@@ -2728,7 +2818,6 @@
             <span class="chat-title">超級房仲 AI</span>
             <div class="agent-bookmark-group">
                 <button class="agent-bookmark press-glow" id="chatBookmark">瀏覽清單</button>
-                <button class="agent-bookmark press-glow" id="agentBookmark">業務資訊</button>
             </div>
         </div>
         <div class="agent-cta-bar" id="agentCtaBar"></div>
@@ -2868,13 +2957,15 @@
     <div class="detail-overlay" id="listingDetailOverlay">
         <div class="detail-panel" id="listingDetailPanel">
             <div class="detail-top">
-                <div class="detail-top-left">
-                    <button class="detail-top-btn press-glow" id="detailBackBtn">返回</button>
-                    <button class="detail-top-btn press-glow" id="detailCommunityBtn">社區資訊</button>
+                <div class="detail-top-header">
+                    <div class="detail-top-left">
+                        <button class="detail-top-btn press-glow" id="detailBackBtn">返回</button>
+                        <button class="detail-top-btn press-glow" id="detailCommunityBtn">社區資訊</button>
+                    </div>
+                    <div class="detail-top-title">物件詳情</div>
                 </div>
-                <div class="detail-top-title">物件詳情</div>
                 <div class="detail-top-actions">
-                    <button class="detail-top-btn press-glow detail-add-btn" id="detailAddBtn">加入預覽</button>
+                    <button class="detail-top-btn press-glow detail-add-btn" id="detailAddBtn">加入瀏覽</button>
                     <a class="detail-top-btn press-glow" id="detailContactBtn" href="#">聯繫業務</a>
                     <button class="detail-top-btn press-glow" id="detailSendBtn">傳給業務</button>
                 </div>
@@ -4524,7 +4615,7 @@ function startListingSearch(query, pendingQuery, baseInput, loadingId) {
         holder.innerHTML = `
             <div id="${boxId}">
                 <div id="${statusId}" style="font-size:12px;color:#fff;margin-bottom:6px;">搜尋中...</div>
-                <div id="${cardsId}" style="display:flex;overflow-x:auto;gap:0;padding-bottom:4px;"></div>
+                <div id="${cardsId}" class="listing-cards-row"></div>
                 <div id="${noteId}" class="listing-note"></div>
             </div>
         `;
@@ -5735,14 +5826,15 @@ function setBookmarkMode(mode) {
     const group = document.querySelector('.agent-bookmark-group');
     const chatBtn = document.getElementById('chatBookmark');
     const agentBtn = document.getElementById('agentBookmark');
-    if (!group || !chatBtn || !agentBtn) return;
+    if (!group || !chatBtn) return;
     const safeMode = mode === 'agent' ? 'agent' : 'browse';
     group.setAttribute('data-mode', safeMode);
     chatBtn.classList.toggle('is-active', safeMode === 'browse');
-    agentBtn.classList.toggle('is-active', safeMode === 'agent');
+    if (agentBtn) agentBtn.classList.toggle('is-active', safeMode === 'agent');
 }
 
 function openAgentPanel() {
+    closeDrawer();
     document.getElementById('agentOverlay')?.classList.add('is-open');
     setChatVisibility(false);
     setBookmarkMode('agent');
@@ -5805,21 +5897,6 @@ function renderDetailPanel(item, data) {
         const num = Number(String(value).replace(/[^\d.]/g, ""));
         return Number.isFinite(num) && num > 0 ? `${num} 萬` : String(value);
     };
-    if (metaEl) metaEl.innerHTML = "";
-    if (summaryEl) {
-        summaryEl.innerHTML = `
-            <div class="detail-summary-title">${item.title || "未命名物件"}</div>
-            <div class="detail-summary-price">${formatPriceValue(item.price)}</div>
-            <div class="detail-summary-address">${item.address || ""}</div>
-        `;
-    }
-    const images = data && Array.isArray(data.images) ? data.images : (item.image ? [item.image] : []);
-    if (imagesEl) {
-        detailImageList = images.slice();
-        imagesEl.innerHTML = images.length
-            ? images.map((src, idx) => `<img src="${src}" alt="" data-idx="${idx}" class="detail-thumb">`).join('')
-            : `<div style="font-size:12px;color:#666;">暫無照片</div>`;
-    }
     const areaValue = item.area ? `${item.area} 坪` : (detailMap["建物面積"] || detailMap["建坪"] || "不明");
     const ageValue = item.ageYears ? `${item.ageYears} 年` : (detailMap["屋齡"] || "不明");
     const floorValue = item.totalFloor
@@ -5832,6 +5909,37 @@ function renderDetailPanel(item, data) {
     const roomLine = (roomsValue === null || hallsValue === null || bathsValue === null)
         ? null
         : `房型：${roomsValue} 房(室) ${hallsValue} 廳 ${bathsValue} 衛`;
+    if (metaEl) metaEl.innerHTML = "";
+    if (summaryEl) {
+        const factItems = [
+            { label: "建坪", value: areaValue },
+            { label: "格局", value: roomLine ? roomLine.replace("房型：", "") : "不明" },
+            { label: "屋齡", value: ageValue },
+            { label: "樓層", value: floorValue },
+            { label: "車位", value: parkingValue }
+        ];
+        summaryEl.innerHTML = `
+            <div class="detail-summary-badge">精選物件</div>
+            <div class="detail-summary-title">${item.title || "未命名物件"}</div>
+            <div class="detail-summary-price">${formatPriceValue(item.price)}</div>
+            <div class="detail-summary-address">${item.address || ""}</div>
+            <div class="detail-summary-facts">
+                ${factItems.map((item) => `
+                    <div class="detail-summary-fact">
+                        <div class="detail-summary-fact-label">${item.label}</div>
+                        <div class="detail-summary-fact-value">${item.value}</div>
+                    </div>
+                `).join("")}
+            </div>
+        `;
+    }
+    const images = data && Array.isArray(data.images) ? data.images : (item.image ? [item.image] : []);
+    if (imagesEl) {
+        detailImageList = images.slice();
+        imagesEl.innerHTML = images.length
+            ? images.map((src, idx) => `<img src="${src}" alt="" data-idx="${idx}" class="detail-thumb">`).join('')
+            : `<div style="font-size:12px;color:#666;">暫無照片</div>`;
+    }
     const baseLines = [
         `建坪：${areaValue}`,
         roomLine,
@@ -5876,7 +5984,7 @@ function renderDetailPanel(item, data) {
     if (addBtn) {
         const list = getBrowseList();
         const added = list.some((x) => x.sn === currentDetailSn);
-        addBtn.textContent = added ? "已加入" : "加入預覽";
+        addBtn.textContent = added ? "已加入" : "加入瀏覽";
     }
 }
 document.addEventListener('click', (e) => {
@@ -6282,7 +6390,7 @@ function renderListings(data) {
     const note = renderListingNote();
     return `
         <div>
-            <div style="display:flex;overflow-x:auto;gap:0;padding-bottom:4px;">
+            <div class="listing-cards-row">
                 ${cards}
             </div>
             ${note}
