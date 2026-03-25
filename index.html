@@ -677,8 +677,8 @@
             width: 18px;
             height: 18px;
             display: block;
-            color: var(--main-text);
-            opacity: 0.9;
+            color: #fff;
+            opacity: 1;
             flex: 0 0 auto;
         }
         .header-menu-btn {
@@ -715,9 +715,9 @@
             height: 34px;
             background: transparent;
             border: none;
-            color: var(--main-text);
+            color: #fff;
             font-weight: 600;
-            font-size: 13px;
+            font-size: 15px;
             padding: 0;
             border-radius: 0;
             writing-mode: horizontal-tb;
@@ -734,7 +734,7 @@
             box-shadow: none;
         }
         .agent-bookmark.is-active {
-            color: var(--active-text);
+            color: #fff;
             background: transparent;
         }
         .agent-overlay {
@@ -1283,14 +1283,15 @@
             }
 
             .chat-header {
-                grid-template-columns: 36px minmax(0, 1fr) 112px;
+                grid-template-columns: 36px minmax(0, 1fr) 104px;
                 padding: 12px 12px 6px;
-                gap: 6px;
+                gap: 4px;
             }
 
             .chat-header .chat-title {
                 min-width: 0;
                 text-align: left;
+                justify-self: start;
                 font-size: clamp(18px, 5.2vw, 26px);
                 line-height: 1.15;
                 white-space: nowrap;
@@ -1309,7 +1310,7 @@
                 min-width: 0;
                 height: 34px;
                 padding: 0;
-                font-size: 12px;
+                font-size: 13px;
                 white-space: nowrap;
             }
 
@@ -2244,6 +2245,226 @@
         }
         .chat-box { --chat-side-pad: 20px; flex: 1; padding: 20px 20px 160px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; scrollbar-width: none; }
         .chat-box::-webkit-scrollbar { width: 0; height: 0; }
+        .chat-card.is-media-mode .chat-box,
+        .chat-card.is-media-mode .chat-footer,
+        .chat-card.is-media-mode .chat-scroll-indicator {
+            display: none;
+        }
+        .media-stage {
+            display: none;
+            flex: 1;
+            min-height: 0;
+            padding: 6px 16px 16px;
+        }
+        .chat-card.is-media-mode .media-stage {
+            display: flex;
+            flex-direction: column;
+        }
+        .media-home,
+        .media-reels {
+            display: none;
+            flex: 1;
+            min-height: 0;
+        }
+        .media-home.is-active,
+        .media-reels.is-active {
+            display: flex;
+            flex-direction: column;
+        }
+        .media-topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 4px 0 12px;
+        }
+        .media-topbar-title {
+            color: var(--main-text);
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 0.01em;
+        }
+        .media-back-btn {
+            border: 1px solid rgba(255,255,255,0.22);
+            background: rgba(255,255,255,0.08);
+            color: var(--main-text);
+            border-radius: 999px;
+            min-height: 36px;
+            padding: 0 14px;
+            font-size: 12px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .media-home-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+            overflow-y: auto;
+            padding-right: 2px;
+        }
+        .media-home-grid::-webkit-scrollbar {
+            width: 0;
+            height: 0;
+        }
+        .media-category-card {
+            position: relative;
+            min-height: 280px;
+            border-radius: 26px;
+            overflow: hidden;
+            background: #0f0f12;
+            border: 1px solid rgba(255,255,255,0.14);
+            box-shadow: 0 16px 34px rgba(0,0,0,0.28);
+            cursor: pointer;
+        }
+        .media-category-preview {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+        }
+        .media-category-preview iframe,
+        .media-category-preview .media-category-fallback {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .media-category-preview iframe {
+            pointer-events: none;
+        }
+        .media-category-fallback {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
+            color: rgba(255,255,255,0.7);
+            font-size: 12px;
+        }
+        .media-category-card::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.62) 62%, rgba(0,0,0,0.88) 100%);
+            pointer-events: none;
+        }
+        .media-category-content {
+            position: absolute;
+            inset: auto 0 0 0;
+            z-index: 1;
+            padding: 18px 18px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .media-category-pill {
+            align-self: flex-start;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 24px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.16);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        .media-category-title {
+            color: #fff;
+            font-size: 22px;
+            font-weight: 800;
+            line-height: 1.1;
+        }
+        .media-category-desc {
+            color: rgba(255,255,255,0.82);
+            font-size: 13px;
+            line-height: 1.45;
+        }
+        .media-reels-frame {
+            position: relative;
+            flex: 1;
+            min-height: 0;
+            border-radius: 28px;
+            overflow: hidden;
+            background: #050505;
+            border: 1px solid rgba(255,255,255,0.12);
+            box-shadow: 0 18px 36px rgba(0,0,0,0.32);
+        }
+        .media-reels-player {
+            position: absolute;
+            inset: 0;
+        }
+        .media-reels-player iframe,
+        .media-reels-player > div {
+            width: 100%;
+            height: 100%;
+        }
+        .media-reels-swipe {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+        }
+        .media-reels-overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            pointer-events: none;
+            z-index: 2;
+            background: linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.08) 35%, rgba(0,0,0,0.45) 100%);
+        }
+        .media-reels-actions,
+        .media-reels-meta {
+            padding: 16px;
+            display: flex;
+            gap: 8px;
+            pointer-events: auto;
+        }
+        .media-reels-actions {
+            justify-content: space-between;
+            align-items: center;
+        }
+        .media-chip {
+            border: 1px solid rgba(255,255,255,0.24);
+            background: rgba(0,0,0,0.34);
+            color: #fff;
+            border-radius: 999px;
+            min-height: 34px;
+            padding: 0 12px;
+            font-size: 12px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .media-reels-meta {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .media-reels-title {
+            color: #fff;
+            font-size: 22px;
+            font-weight: 800;
+            line-height: 1.1;
+        }
+        .media-reels-subtitle,
+        .media-reels-hint {
+            color: rgba(255,255,255,0.78);
+            font-size: 13px;
+            line-height: 1.4;
+        }
+        .media-reels-empty {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: rgba(255,255,255,0.72);
+            font-size: 14px;
+        }
         .chat-scroll-indicator {
             position: absolute;
             right: -2px;
@@ -2741,6 +2962,42 @@
                 gap: 10px;
             }
 
+            .media-stage {
+                padding: 4px 12px 12px;
+            }
+
+            .media-home-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .media-category-card {
+                min-height: 220px;
+            }
+
+            .media-category-title {
+                font-size: 19px;
+            }
+
+            .media-category-desc,
+            .media-reels-subtitle,
+            .media-reels-hint {
+                font-size: 12px;
+            }
+
+            .media-reels-frame {
+                border-radius: 22px;
+            }
+
+            .media-reels-actions,
+            .media-reels-meta {
+                padding: 12px;
+            }
+
+            .media-reels-title {
+                font-size: 18px;
+            }
+
             .msg {
                 max-width: min(86%, 320px);
                 font-size: 14px;
@@ -2881,6 +3138,7 @@
             }
 
             .chat-header .chat-title {
+                justify-self: start;
                 font-size: clamp(14px, 4.6vw, 19px);
                 padding-right: 0;
             }
@@ -2894,7 +3152,7 @@
             .agent-bookmark {
                 min-width: 0;
                 height: 34px;
-                font-size: 11px;
+                font-size: 12px;
                 padding: 0;
             }
 
@@ -3012,6 +3270,36 @@
             </div>
         </div>
         <div class="agent-cta-bar" id="agentCtaBar"></div>
+        <div class="media-stage" id="mediaStage">
+            <div class="media-home is-active" id="mediaHome">
+                <div class="media-topbar">
+                    <div class="media-topbar-title">房地產影音</div>
+                    <button type="button" class="media-back-btn press-glow" id="mediaBackToChatBtn">返 AI 對話匡</button>
+                </div>
+                <div class="media-home-grid" id="mediaHomeGrid"></div>
+            </div>
+            <div class="media-reels" id="mediaReels">
+                <div class="media-topbar">
+                    <button type="button" class="media-back-btn press-glow" id="mediaBackToHomeBtn">返回分類</button>
+                    <button type="button" class="media-back-btn press-glow" id="mediaBackToChatBtnSecondary">返 AI 對話匡</button>
+                </div>
+                <div class="media-reels-frame" id="mediaReelsFrame">
+                    <div class="media-reels-player" id="mediaReelsPlayer"></div>
+                    <div class="media-reels-swipe" id="mediaReelsSwipe"></div>
+                    <div class="media-reels-overlay">
+                        <div class="media-reels-actions">
+                            <div class="media-chip" id="mediaReelsCategoryChip">房地產影音</div>
+                            <div class="media-chip" id="mediaReelsCounter">1 / 1</div>
+                        </div>
+                        <div class="media-reels-meta">
+                            <div class="media-reels-title" id="mediaReelsTitle">影音播放</div>
+                            <div class="media-reels-subtitle" id="mediaReelsSubtitle">上下滑動切換下一支影片</div>
+                            <div class="media-reels-hint">向上滑下一支，向下滑上一支</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="chat-box" id="chatBox">
             <div class="msg ai"><strong>你好，我是你的 AI 房產助理 👋
 專門幫你快速搞懂 林口 / 龜山的房子值不值得買
@@ -3140,6 +3428,8 @@
                 <input type="text" id="agentEditFeaturedUrl" placeholder="推薦精選物件網址">
                 <input type="text" id="agentEditMediaTitle" placeholder="房地產影音標題（可自訂）">
                 <input type="text" id="agentEditMediaUrl" placeholder="房地產影音網址">
+                <input type="text" id="agentEditMediaPlaylistTour" placeholder="開箱篇 YouTube 播放清單網址">
+                <input type="text" id="agentEditMediaPlaylistKnowledge" placeholder="知識篇 YouTube 播放清單網址">
                 <button class="agent-save" id="agentSaveBtn">儲存</button>
             </div>
         </div>
@@ -3650,12 +3940,21 @@
         phoneNumber: "0900390735",
         featuredUrl: "",
         mediaTitle: "房地產影音",
-        mediaUrl: ""
+        mediaUrl: "",
+        mediaPlaylistTour: "",
+        mediaPlaylistKnowledge: ""
     };
     let currentAgentId = null;
     let currentAgent = { ...DEFAULT_AGENT };
     let agentPassword = null;
     let agentStatsVisible = false;
+    let mediaMode = "chat";
+    let mediaCategoryKey = "";
+    let mediaTouchStartY = 0;
+    let mediaPlayerReady = false;
+    let mediaPlayer = null;
+    let mediaPlaylistIds = [];
+    let mediaPlayerApiLoading = null;
 
     function getSessionId() {
         let id = localStorage.getItem('chat_session_id');
@@ -5739,7 +6038,8 @@ function updateAgentLinks() {
     const featuredTool = document.getElementById('composerToolFeatured');
     const mediaTool = document.getElementById('composerToolMedia');
     const featuredUrl = currentAgent.featuredUrl || DEFAULT_AGENT.featuredUrl;
-    const mediaUrl = currentAgent.mediaUrl || DEFAULT_AGENT.mediaUrl;
+    const mediaTitle = currentAgent.mediaTitle || DEFAULT_AGENT.mediaTitle || "房地產影音";
+    const hasMediaPlaylists = getMediaCategories().length > 0;
     if (lineEl) lineEl.href = lineUrl || "#";
     if (phoneEl) phoneEl.href = phoneNumber ? `tel:${phoneNumber}` : "#";
     if (detailPhoneEl) detailPhoneEl.href = phoneNumber ? `tel:${phoneNumber}` : "#";
@@ -5749,10 +6049,9 @@ function updateAgentLinks() {
         featuredTool.classList.toggle('is-disabled', !featuredUrl);
     }
     if (mediaTool) {
-        mediaTool.dataset.href = mediaUrl || "";
-        mediaTool.classList.toggle('is-disabled', !mediaUrl);
-        mediaTool.title = currentAgent.mediaTitle || DEFAULT_AGENT.mediaTitle || "房地產影音";
-        mediaTool.setAttribute('aria-label', currentAgent.mediaTitle || DEFAULT_AGENT.mediaTitle || "房地產影音");
+        mediaTool.classList.toggle('is-disabled', !hasMediaPlaylists);
+        mediaTool.title = mediaTitle;
+        mediaTool.setAttribute('aria-label', mediaTitle);
     }
     document.querySelectorAll('.agent-line-link').forEach((el) => {
         el.href = lineUrl || "#";
@@ -5786,6 +6085,8 @@ function applyAgentData(agentId, data) {
     const editFeaturedUrl = document.getElementById('agentEditFeaturedUrl');
     const editMediaTitle = document.getElementById('agentEditMediaTitle');
     const editMediaUrl = document.getElementById('agentEditMediaUrl');
+    const editMediaPlaylistTour = document.getElementById('agentEditMediaPlaylistTour');
+    const editMediaPlaylistKnowledge = document.getElementById('agentEditMediaPlaylistKnowledge');
     if (editName) editName.value = currentAgent.name || "";
     if (editBio) editBio.value = currentAgent.bio || "";
     if (editPhoto) editPhoto.value = currentAgent.photoUrl || "";
@@ -5794,6 +6095,8 @@ function applyAgentData(agentId, data) {
     if (editFeaturedUrl) editFeaturedUrl.value = currentAgent.featuredUrl || "";
     if (editMediaTitle) editMediaTitle.value = currentAgent.mediaTitle || "";
     if (editMediaUrl) editMediaUrl.value = currentAgent.mediaUrl || "";
+    if (editMediaPlaylistTour) editMediaPlaylistTour.value = currentAgent.mediaPlaylistTour || "";
+    if (editMediaPlaylistKnowledge) editMediaPlaylistKnowledge.value = currentAgent.mediaPlaylistKnowledge || "";
     setAgentPhotoStatus(currentAgent.photoUrl);
     const chatTitle = document.querySelector('#chatHeader .chat-title');
     if (chatTitle) {
@@ -6049,6 +6352,202 @@ function getAgentParam() {
     return params.get('agent');
 }
 
+function extractYouTubePlaylistId(url) {
+    const raw = String(url || "").trim();
+    if (!raw) return "";
+    try {
+        const parsed = new URL(raw);
+        return parsed.searchParams.get('list') || "";
+    } catch (error) {
+        const match = raw.match(/[?&]list=([A-Za-z0-9_-]+)/);
+        return match ? match[1] : "";
+    }
+}
+
+function extractYouTubeVideoId(url) {
+    const raw = String(url || "").trim();
+    if (!raw) return "";
+    try {
+        const parsed = new URL(raw);
+        if (parsed.hostname.includes('youtu.be')) {
+            return parsed.pathname.replace(/\//g, '').trim();
+        }
+        if (parsed.searchParams.get('v')) return parsed.searchParams.get('v');
+        const embedMatch = parsed.pathname.match(/\/embed\/([A-Za-z0-9_-]+)/);
+        return embedMatch ? embedMatch[1] : "";
+    } catch (error) {
+        const match = raw.match(/[?&]v=([A-Za-z0-9_-]+)/) || raw.match(/youtu\.be\/([A-Za-z0-9_-]+)/);
+        return match ? match[1] : "";
+    }
+}
+
+function getMediaCategories() {
+    return [
+        {
+            key: "tour",
+            label: "開箱篇",
+            desc: "空間開箱、屋況導覽、格局與採光重點。",
+            playlistUrl: currentAgent.mediaPlaylistTour || "",
+            playlistId: extractYouTubePlaylistId(currentAgent.mediaPlaylistTour || ""),
+            previewUrl: currentAgent.mediaPlaylistTour || ""
+        },
+        {
+            key: "knowledge",
+            label: "知識篇",
+            desc: "買房知識、流程觀念、稅務與房市眉角。",
+            playlistUrl: currentAgent.mediaPlaylistKnowledge || "",
+            playlistId: extractYouTubePlaylistId(currentAgent.mediaPlaylistKnowledge || ""),
+            previewUrl: currentAgent.mediaPlaylistKnowledge || ""
+        }
+    ].filter((item) => item.playlistId);
+}
+
+function buildCategoryPreviewEmbed(category) {
+    const playlistId = category.playlistId;
+    if (!playlistId) {
+        return `<div class="media-category-fallback">尚未設定播放清單</div>`;
+    }
+    return `<iframe src="https://www.youtube.com/embed/videoseries?list=${encodeURIComponent(playlistId)}&autoplay=1&mute=1&controls=0&loop=1&playsinline=1&rel=0&modestbranding=1&iv_load_policy=3" title="${escapeHtml(category.label)} 預覽" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`;
+}
+
+function renderMediaHome() {
+    const grid = document.getElementById('mediaHomeGrid');
+    const titleEl = document.querySelector('#mediaHome .media-topbar-title');
+    if (titleEl) titleEl.textContent = currentAgent.mediaTitle || DEFAULT_AGENT.mediaTitle || '房地產影音';
+    if (!grid) return;
+    const categories = getMediaCategories();
+    if (!categories.length) {
+        grid.innerHTML = `<div class="media-category-card"><div class="media-category-preview"><div class="media-category-fallback">請先在業務資訊裡設定 YouTube 播放清單</div></div><div class="media-category-content"><div class="media-category-pill">房地產影音</div><div class="media-category-title">尚未設定</div><div class="media-category-desc">請在業務登入後填入「開箱篇 / 知識篇」播放清單網址。</div></div></div>`;
+        return;
+    }
+    grid.innerHTML = categories.map((category) => `
+        <button type="button" class="media-category-card press-glow" data-media-category="${category.key}">
+            <div class="media-category-preview">${buildCategoryPreviewEmbed(category)}</div>
+            <div class="media-category-content">
+                <div class="media-category-pill">${escapeHtml(category.label)}</div>
+                <div class="media-category-title">${escapeHtml(category.label)}</div>
+                <div class="media-category-desc">${escapeHtml(category.desc)}</div>
+            </div>
+        </button>
+    `).join('');
+}
+
+function setMediaMode(nextMode) {
+    mediaMode = nextMode;
+    const card = document.querySelector('.chat-card');
+    const home = document.getElementById('mediaHome');
+    const reels = document.getElementById('mediaReels');
+    if (!card || !home || !reels) return;
+    card.classList.toggle('is-media-mode', nextMode !== 'chat');
+    home.classList.toggle('is-active', nextMode === 'home');
+    reels.classList.toggle('is-active', nextMode === 'reels');
+}
+
+function exitMediaMode() {
+    setMediaMode('chat');
+    mediaCategoryKey = "";
+    if (mediaPlayer && typeof mediaPlayer.stopVideo === 'function') {
+        try { mediaPlayer.stopVideo(); } catch (error) {}
+    }
+}
+
+function openMediaHome() {
+    closeDrawer();
+    renderMediaHome();
+    setMediaMode('home');
+}
+
+function ensureYouTubePlayerApi() {
+    if (window.YT && window.YT.Player) return Promise.resolve(window.YT);
+    if (mediaPlayerApiLoading) return mediaPlayerApiLoading;
+    mediaPlayerApiLoading = new Promise((resolve) => {
+        const previousReady = window.onYouTubeIframeAPIReady;
+        window.onYouTubeIframeAPIReady = () => {
+            if (typeof previousReady === 'function') previousReady();
+            resolve(window.YT);
+        };
+        const script = document.createElement('script');
+        script.src = 'https://www.youtube.com/iframe_api';
+        script.async = true;
+        document.head.appendChild(script);
+    });
+    return mediaPlayerApiLoading;
+}
+
+function updateMediaReelsMeta(category) {
+    const titleEl = document.getElementById('mediaReelsTitle');
+    const subtitleEl = document.getElementById('mediaReelsSubtitle');
+    const chipEl = document.getElementById('mediaReelsCategoryChip');
+    const counterEl = document.getElementById('mediaReelsCounter');
+    if (titleEl) titleEl.textContent = category?.label || '房地產影音';
+    if (subtitleEl) subtitleEl.textContent = category?.desc || '上下滑動切換下一支影片';
+    if (chipEl) chipEl.textContent = category?.label || '房地產影音';
+    if (counterEl) {
+        const total = mediaPlaylistIds.length || 1;
+        let index = 0;
+        if (mediaPlayerReady && mediaPlayer && typeof mediaPlayer.getPlaylistIndex === 'function') {
+            try { index = mediaPlayer.getPlaylistIndex() || 0; } catch (error) {}
+        }
+        counterEl.textContent = `${Math.max(index + 1, 1)} / ${total}`;
+    }
+}
+
+async function openMediaReels(categoryKey) {
+    const categories = getMediaCategories();
+    const category = categories.find((item) => item.key === categoryKey);
+    if (!category || !category.playlistId) {
+        alert('此分類尚未設定播放清單');
+        return;
+    }
+    mediaCategoryKey = categoryKey;
+    setMediaMode('reels');
+    updateMediaReelsMeta(category);
+    const playerHolder = document.getElementById('mediaReelsPlayer');
+    if (!playerHolder) return;
+    playerHolder.innerHTML = '';
+    mediaPlayerReady = false;
+    mediaPlaylistIds = [];
+    await ensureYouTubePlayerApi();
+    mediaPlayer = new window.YT.Player('mediaReelsPlayer', {
+        width: '100%',
+        height: '100%',
+        playerVars: {
+            autoplay: 1,
+            controls: 0,
+            rel: 0,
+            playsinline: 1,
+            modestbranding: 1,
+            fs: 0,
+            iv_load_policy: 3,
+            listType: 'playlist',
+            list: category.playlistId
+        },
+        events: {
+            onReady: (event) => {
+                mediaPlayerReady = true;
+                try {
+                    event.target.mute();
+                    event.target.playVideo();
+                    mediaPlaylistIds = event.target.getPlaylist() || [];
+                } catch (error) {}
+                updateMediaReelsMeta(category);
+            },
+            onStateChange: () => {
+                updateMediaReelsMeta(category);
+            }
+        }
+    });
+}
+
+function handleMediaSwipe(deltaY) {
+    if (!mediaPlayerReady || !mediaPlayer) return;
+    if (Math.abs(deltaY) < 44) return;
+    try {
+        if (deltaY < 0 && typeof mediaPlayer.nextVideo === 'function') mediaPlayer.nextVideo();
+        if (deltaY > 0 && typeof mediaPlayer.previousVideo === 'function') mediaPlayer.previousVideo();
+    } catch (error) {}
+}
+
 function setChatVisibility(isVisible) {
     const card = document.querySelector('.chat-card');
     if (!card) return;
@@ -6296,9 +6795,30 @@ document.getElementById('composerToolFeatured')?.addEventListener('click', () =>
     if (href) window.open(href, '_blank', 'noopener');
 });
 document.getElementById('composerToolMedia')?.addEventListener('click', () => {
-    const href = document.getElementById('composerToolMedia')?.dataset.href;
-    if (href) window.open(href, '_blank', 'noopener');
+    if (!getMediaCategories().length) {
+        alert('請先在業務資訊裡設定房地產影音播放清單');
+        return;
+    }
+    openMediaHome();
 });
+document.getElementById('mediaBackToChatBtn')?.addEventListener('click', exitMediaMode);
+document.getElementById('mediaBackToChatBtnSecondary')?.addEventListener('click', exitMediaMode);
+document.getElementById('mediaBackToHomeBtn')?.addEventListener('click', () => {
+    renderMediaHome();
+    setMediaMode('home');
+});
+document.getElementById('mediaHomeGrid')?.addEventListener('click', (event) => {
+    const card = event.target.closest('[data-media-category]');
+    if (!card) return;
+    openMediaReels(card.dataset.mediaCategory || '');
+});
+document.getElementById('mediaReelsSwipe')?.addEventListener('touchstart', (event) => {
+    mediaTouchStartY = event.touches?.[0]?.clientY || 0;
+}, { passive: true });
+document.getElementById('mediaReelsSwipe')?.addEventListener('touchend', (event) => {
+    const endY = event.changedTouches?.[0]?.clientY || 0;
+    handleMediaSwipe(endY - mediaTouchStartY);
+}, { passive: true });
 document.getElementById('browseBackBtn')?.addEventListener('click', closeBrowseList);
 document.getElementById('browseSendBtn')?.addEventListener('click', sendBrowseListToLine);
 document.getElementById('detailAddBtn')?.addEventListener('click', () => {
@@ -6486,7 +7006,9 @@ document.getElementById('agentSaveBtn')?.addEventListener('click', async () => {
         phoneNumber: document.getElementById('agentEditPhone')?.value.trim(),
         featuredUrl: document.getElementById('agentEditFeaturedUrl')?.value.trim(),
         mediaTitle: document.getElementById('agentEditMediaTitle')?.value.trim(),
-        mediaUrl: document.getElementById('agentEditMediaUrl')?.value.trim()
+        mediaUrl: document.getElementById('agentEditMediaUrl')?.value.trim(),
+        mediaPlaylistTour: document.getElementById('agentEditMediaPlaylistTour')?.value.trim(),
+        mediaPlaylistKnowledge: document.getElementById('agentEditMediaPlaylistKnowledge')?.value.trim()
     };
     try {
         const updated = await saveAgentProfile(currentAgentId, agentPassword, payload);
@@ -6564,7 +7086,6 @@ function renderListingNote() {
 }
 function renderCommunityDetailCards(name, details) {
     const cards = [];
-    const address = cleanCommunityValue(details?.["地址"]) || "";
     const usedLabels = new Set();
     COMMUNITY_DETAIL_GROUPS.forEach((group) => {
         group.labels.forEach((label) => usedLabels.add(label));
@@ -6585,8 +7106,6 @@ function renderCommunityDetailCards(name, details) {
             cards.push(`
                 <div class="community-card">
                     <div class="community-badge">${escapeHtml(group.title)}${chunks.length > 1 ? ` ${index + 1}` : ""}</div>
-                    <div class="community-title">${escapeHtml(name)}</div>
-                    <div class="community-address">${escapeHtml(address)}</div>
                     <div class="community-summary">${content}</div>
                 </div>
             `);
@@ -6611,8 +7130,6 @@ function renderCommunityDetailCards(name, details) {
             cards.push(`
                 <div class="community-card">
                     <div class="community-badge">補充資訊${chunks.length > 1 ? ` ${index + 1}` : ""}</div>
-                    <div class="community-title">${escapeHtml(name)}</div>
-                    <div class="community-address">${escapeHtml(address)}</div>
                     <div class="community-summary">${content}</div>
                 </div>
             `);
