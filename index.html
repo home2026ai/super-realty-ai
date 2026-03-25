@@ -18,6 +18,8 @@
             --bg-gradient: linear-gradient(135deg, #7b2ff7 0%, #2196f3 30%, #f06292 70%, #ffb74d 100%);
             --app-surface: rgba(255, 255, 255, 0.15);
             --panel-surface: #2f2f2f;
+            --chrome-surface: rgba(255, 255, 255, 0.16);
+            --chrome-strong: rgba(255, 255, 255, 0.22);
             --ui-font-scale: 1;
             --ui-text-color: #ffffff;
             --safe-top: env(safe-area-inset-top, 0px);
@@ -431,7 +433,7 @@
             gap: 0;
             padding: 0;
             border-radius: 19px;
-            background: rgba(255, 255, 255, 0.16);
+            background: var(--chrome-strong);
             border: 1px solid rgba(255, 255, 255, 0.35);
             backdrop-filter: none;
         }
@@ -1079,12 +1081,17 @@
             align-items: stretch;
             justify-content: flex-start;
             gap: 6px;
-            padding: 16px 12px;
+            padding: 16px 12px calc(var(--safe-bottom) + 18px);
             transition: transform 0.35s ease, opacity 0.35s ease;
             transform: translateX(-100%);
             opacity: 0;
             visibility: hidden;
+            overflow-y: auto;
+            overscroll-behavior: contain;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
         }
+        .drawer-menu::-webkit-scrollbar { width: 0; height: 0; }
         .drawer-menu.active { transform: translateX(0); opacity: 1; visibility: visible; }
         .drawer-menu > * { --i: 0; opacity: 0; transform: translateX(-10px); }
         .drawer-menu.active > * { animation: menu-slide-in 0.45s ease forwards; animation-delay: calc(var(--i) * 70ms); }
@@ -1652,6 +1659,7 @@
             align-items: center;
             justify-content: center;
             gap: 12px;
+            background: var(--chrome-surface);
         }
         .chat-card.menu-shift .chat-header {
             padding-left: 0;
@@ -1670,6 +1678,7 @@
             padding-top: 15px;
             padding-bottom: 7px;
             transition: transform 0.25s ease;
+            background: var(--chrome-surface);
         }
         .chat-card.menu-shift .agent-cta-bar {
             transform: translateX(0px);
@@ -1683,8 +1692,8 @@
             height: 24px;
             padding: 0 14px;
             border-radius: 999px;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.362), rgba(51, 82, 141, 0.192));
-            color: #333;
+            background: color-mix(in srgb, var(--chrome-strong) 78%, rgba(255, 255, 255, 0.08));
+            color: var(--ui-text-color);
             font-size: 12px;
             font-weight: 400;
             text-decoration: none;
@@ -1775,15 +1784,15 @@
             color: #fff;
         }
 
-        .chat-footer { position: absolute; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; gap: 6px; padding-bottom: 12px; --input-offset: 0px; }
-        .input-area { padding: 12px 20px 0; margin-top: 0; display: flex; align-items: flex-end; gap: 10px; transform: translateY(var(--input-offset)); }
+        .chat-footer { position: absolute; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; gap: 6px; padding-bottom: 12px; --input-offset: 0px; background: var(--chrome-surface); }
+        .input-area { padding: 12px 20px 0; margin-top: 0; display: flex; align-items: flex-end; gap: 10px; transform: translateY(var(--input-offset)); background: var(--chrome-strong); }
         .text-input {
             flex: 1;
             padding: 12px 20px;
             border-radius: 30px;
             border: 1px solid rgba(255, 255, 255, 0.35);
             outline: none;
-            background: rgba(255, 255, 255, 0.18);
+            background: color-mix(in srgb, var(--chrome-strong) 78%, transparent);
             color: #fff;
             font-size: 15px;
             backdrop-filter: none;
@@ -1903,7 +1912,7 @@
                 width: 100%;
                 max-width: 100%;
                 overflow-x: hidden;
-                background: #859791 !important;
+                background: var(--bg-gradient) !important;
             }
 
             body {
@@ -1914,7 +1923,7 @@
                 content: "";
                 position: fixed;
                 inset: 0;
-                background: #859791;
+                background: var(--bg-gradient);
                 z-index: -1;
             }
 
@@ -2041,13 +2050,13 @@
             .chat-footer {
                 gap: 0;
                 padding-bottom: calc(var(--safe-bottom) + 6px);
-                background: var(--app-surface);
+                background: var(--chrome-surface);
             }
 
             .input-area {
                 padding: 6px 12px 0;
                 gap: 8px;
-                background: #859791;
+                background: var(--chrome-strong);
             }
 
             .text-input {
@@ -4710,10 +4719,14 @@ function applyCustomBackground(color) {
     const rgb = hexToRgb(color);
     const soft = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.92)`;
     const deep = `rgba(${Math.max(0, rgb.r - 18)}, ${Math.max(0, rgb.g - 18)}, ${Math.max(0, rgb.b - 18)}, 0.98)`;
+    const chrome = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.72)`;
+    const chromeStrong = `rgba(${Math.max(0, rgb.r - 10)}, ${Math.max(0, rgb.g - 10)}, ${Math.max(0, rgb.b - 10)}, 0.84)`;
     const gradient = `linear-gradient(135deg, rgb(${rgb.r}, ${rgb.g}, ${rgb.b}) 0%, rgb(${rgb.r}, ${rgb.g}, ${rgb.b}) 100%)`;
     document.documentElement.style.setProperty('--bg-gradient', gradient);
     document.documentElement.style.setProperty('--app-surface', soft);
     document.documentElement.style.setProperty('--panel-surface', deep);
+    document.documentElement.style.setProperty('--chrome-surface', chrome);
+    document.documentElement.style.setProperty('--chrome-strong', chromeStrong);
     document.documentElement.setAttribute('data-bg', 'custom');
     localStorage.setItem(BG_STORAGE_KEY, 'custom');
     const preview = document.getElementById('bgPreview');
@@ -4743,6 +4756,8 @@ function applyBackground(themeId) {
     document.documentElement.style.setProperty('--bg-gradient', theme.gradient);
     document.documentElement.style.setProperty('--app-surface', theme.surface);
     document.documentElement.style.setProperty('--panel-surface', theme.panel);
+    document.documentElement.style.setProperty('--chrome-surface', `color-mix(in srgb, ${theme.surface} 78%, transparent)`);
+    document.documentElement.style.setProperty('--chrome-strong', `color-mix(in srgb, ${theme.panel} 72%, ${theme.surface} 28%)`);
     document.documentElement.setAttribute('data-bg', theme.id);
     localStorage.setItem(BG_STORAGE_KEY, theme.id);
     const preview = document.getElementById('bgPreview');
