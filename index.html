@@ -16,6 +16,10 @@
             --accent-pink: #f06292;
             --main-blur: blur(25px);
             --bg-gradient: linear-gradient(135deg, #7b2ff7 0%, #2196f3 30%, #f06292 70%, #ffb74d 100%);
+            --app-surface: rgba(255, 255, 255, 0.15);
+            --panel-surface: #2f2f2f;
+            --ui-font-scale: 1;
+            --ui-text-color: #ffffff;
             --safe-top: env(safe-area-inset-top, 0px);
             --safe-right: env(safe-area-inset-right, 0px);
             --safe-bottom: env(safe-area-inset-bottom, 0px);
@@ -249,8 +253,8 @@
             top: 0;
             width: 100%;
             height: 100%;
-            padding: 12px 16px 20px;
-            background: #2f2f2f;
+            padding: calc(var(--safe-top) + 12px) calc(var(--safe-right) + 16px) calc(var(--safe-bottom) + 20px) calc(var(--safe-left) + 16px);
+            background: var(--panel-surface);
             border-left: 1px solid rgba(255, 255, 255, 0.35);
             border-radius: 22px 0 0 22px;
             backdrop-filter: none;
@@ -496,7 +500,7 @@
             width: auto;
             height: auto;
             padding: 16px 16px 20px;
-            background: rgba(255, 255, 255, 0.16);
+            background: var(--app-surface);
             border: 1.5px solid rgba(255, 255, 255, 0.35);
             border-radius: 24px;
             backdrop-filter: none;
@@ -1066,7 +1070,7 @@
             bottom: 0;
             width: 220px;
             height: 100dvh;
-            background: #2f2f2f;
+            background: var(--panel-surface);
             border-right: 1px solid rgba(255, 255, 255, 0.18);
             border-radius: 0 18px 18px 0;
             z-index: 20;
@@ -1094,6 +1098,8 @@
         .drawer-menu > :nth-child(8) { --i: 7; }
         .drawer-menu > :nth-child(9) { --i: 8; }
         .drawer-menu > :nth-child(10) { --i: 9; }
+        .drawer-menu > :nth-child(11) { --i: 10; }
+        .drawer-menu > :nth-child(12) { --i: 11; }
         @keyframes menu-pop {
             0% { opacity: 0; transform: scale(0.2); filter: blur(3px); }
             55% { opacity: 1; transform: scale(1.18); filter: blur(0); }
@@ -1165,6 +1171,137 @@
         }
         .drawer-preview-item:first-child::after { top: 2px; }
         .drawer-preview-item:last-child::after { bottom: 2px; }
+        .drawer-spacer {
+            flex: 1 1 auto;
+            min-height: 6px;
+        }
+        .drawer-settings {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding-top: 6px;
+            border-top: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        .drawer-settings-toggle {
+            justify-content: flex-start;
+            gap: 8px;
+        }
+        .drawer-settings-toggle .settings-gear {
+            font-size: 14px;
+        }
+        .drawer-settings-panel {
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+            padding: 10px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        .drawer-settings.is-open .drawer-settings-panel {
+            display: flex;
+        }
+        .settings-row {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .settings-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+        .settings-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.92);
+        }
+        .settings-value {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.75);
+        }
+        .settings-size-controls {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 58px;
+            gap: 8px;
+            align-items: center;
+        }
+        .settings-range {
+            width: 100%;
+            accent-color: #f3d37a;
+        }
+        .settings-number {
+            width: 100%;
+            height: 34px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            background: rgba(0, 0, 0, 0.18);
+            color: #fff;
+            text-align: center;
+            font-size: 12px;
+        }
+        .settings-color-input {
+            width: 100%;
+            height: 40px;
+            border: none;
+            border-radius: 10px;
+            background: transparent;
+            padding: 0;
+            cursor: pointer;
+        }
+        .settings-swatches {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 8px;
+        }
+        .settings-bg-btn {
+            min-height: 42px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: transparent;
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .settings-bg-btn.is-active {
+            box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.75);
+        }
+        .drawer-menu,
+        .drawer-menu .drawer-btn,
+        .drawer-menu .drawer-preview-item,
+        .drawer-menu .settings-label,
+        .drawer-menu .settings-value,
+        .chat-header,
+        .chat-header .chat-title,
+        .chat-box,
+        .ai,
+        .bg-toggle,
+        .text-input,
+        .agent-bookmark,
+        .menu-label,
+        .agent-cta-btn,
+        .agent-cta-text,
+        .agent-panel,
+        .agent-title,
+        .agent-name,
+        .agent-bio,
+        .agent-links a,
+        .agent-stats-card,
+        .agent-stats-title,
+        .agent-stats-empty,
+        .agent-stats-list,
+        .detail-panel,
+        .detail-top-title,
+        .detail-meta,
+        .detail-section-title,
+        .detail-text {
+            color: var(--ui-text-color);
+        }
+        .text-input::placeholder {
+            color: color-mix(in srgb, var(--ui-text-color) 65%, transparent);
+        }
 
         .plus-box {
             --menu-top: 71px;
@@ -1289,7 +1426,7 @@
             width: 100%;
             height: var(--chat-height, 100dvh);
             min-height: 100vh;
-            background: var(--glass-bg);
+            background: var(--app-surface);
             backdrop-filter: none;
             border-radius: 0;
             border: none;
@@ -1624,6 +1761,7 @@
         }
         .text-input::placeholder {
             color: rgba(255, 255, 255, 0.75);
+            color: color-mix(in srgb, var(--ui-text-color) 65%, transparent);
         }
         .send-stack {
             display: flex;
@@ -1767,7 +1905,7 @@
             .chat-card {
                 height: 100dvh;
                 min-height: 100dvh;
-                background: #859791;
+                background: var(--app-surface);
             }
 
             .chat-card::before,
@@ -1872,7 +2010,7 @@
             .chat-footer {
                 gap: 0;
                 padding-bottom: calc(var(--safe-bottom) + 6px);
-                background: #859791;
+                background: var(--app-surface);
             }
 
             .input-area {
@@ -1973,6 +2111,39 @@
         <div class="drawer-btn press-glow ripple-btn" onclick="openUnifiedTax()"><span>房地合一稅</span></div>
         <div class="drawer-btn press-glow ripple-btn" onclick="openCommunitySearch()"><span>社區資訊</span></div>
         <a class="drawer-btn press-glow ripple-btn" href="https://lvr.land.moi.gov.tw" target="_blank" rel="noopener"><span>實價登錄</span></a>
+        <div class="drawer-spacer"></div>
+        <div class="drawer-settings" id="drawerSettings">
+            <button type="button" class="drawer-btn drawer-settings-toggle press-glow ripple-btn" id="settingsToggle">
+                <span class="settings-gear">⚙</span>
+                <span>設定</span>
+            </button>
+            <div class="drawer-settings-panel" id="settingsPanel">
+                <div class="settings-row">
+                    <div class="settings-head">
+                        <span class="settings-label">文字大小</span>
+                        <span class="settings-value" id="fontSizeValue">100%</span>
+                    </div>
+                    <div class="settings-size-controls">
+                        <input type="range" class="settings-range" id="fontSizeRange" min="80" max="160" step="5" value="100">
+                        <input type="number" class="settings-number" id="fontSizeNumber" min="80" max="160" step="5" value="100">
+                    </div>
+                </div>
+                <div class="settings-row">
+                    <div class="settings-head">
+                        <span class="settings-label">文字顏色</span>
+                        <span class="settings-value" id="textColorValue">#FFFFFF</span>
+                    </div>
+                    <input type="color" class="settings-color-input" id="textColorInput" value="#ffffff">
+                </div>
+                <div class="settings-row">
+                    <div class="settings-head">
+                        <span class="settings-label">個性化背景</span>
+                        <span class="settings-value">黑 / 白 / 暗紫</span>
+                    </div>
+                    <div class="settings-swatches" id="settingsBgSwatches"></div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="chat-card is-full-bleed">
@@ -4271,15 +4442,119 @@ function updateBrowseIndicator(count) {
 }
 
 const BG_STORAGE_KEY = "bg_theme";
+const UI_SETTINGS_STORAGE_KEY = "ui_settings";
 const BG_THEMES = [
-    { id: "aurora", gradient: "linear-gradient(135deg, #7b2ff7 0%, #2196f3 30%, #f06292 70%, #ffb74d 100%)" },
-    { id: "forest", gradient: "linear-gradient(135deg, #1f3a33 0%, #2d4b43 35%, #3f6b5f 70%, #5fa08d 100%)" },
-    { id: "noir", gradient: "linear-gradient(135deg, #000000 0%, #000000 50%, #000000 100%)" }
+    {
+        id: "aurora",
+        label: "幻彩",
+        gradient: "linear-gradient(135deg, #7b2ff7 0%, #2196f3 30%, #f06292 70%, #ffb74d 100%)",
+        surface: "rgba(255, 255, 255, 0.15)",
+        panel: "#2f2f2f"
+    },
+    {
+        id: "forest",
+        label: "森林",
+        gradient: "linear-gradient(135deg, #1f3a33 0%, #2d4b43 35%, #3f6b5f 70%, #5fa08d 100%)",
+        surface: "rgba(33, 54, 49, 0.86)",
+        panel: "#1f312d"
+    },
+    {
+        id: "noir",
+        label: "黑色",
+        gradient: "linear-gradient(135deg, #000000 0%, #000000 50%, #000000 100%)",
+        surface: "rgba(8, 8, 8, 0.94)",
+        panel: "#000000"
+    },
+    {
+        id: "paper",
+        label: "白色",
+        gradient: "linear-gradient(135deg, #ffffff 0%, #f1f1f1 100%)",
+        surface: "rgba(255, 255, 255, 0.94)",
+        panel: "#ececec"
+    },
+    {
+        id: "amethyst",
+        label: "暗紫",
+        gradient: "linear-gradient(135deg, #120b1f 0%, #241239 52%, #3b1d59 100%)",
+        surface: "rgba(28, 14, 46, 0.92)",
+        panel: "#1a102a"
+    }
 ];
+const DEFAULT_UI_SETTINGS = {
+    fontScale: 1,
+    textColor: "#ffffff",
+    bgTheme: "noir"
+};
+let uiSettings = { ...DEFAULT_UI_SETTINGS };
+
+function clampFontPercent(value) {
+    const num = Number(value);
+    if (!Number.isFinite(num)) return 100;
+    return Math.min(160, Math.max(80, Math.round(num / 5) * 5));
+}
+
+function saveUiSettings() {
+    localStorage.setItem(UI_SETTINGS_STORAGE_KEY, JSON.stringify(uiSettings));
+}
+
+function loadUiSettings() {
+    try {
+        const saved = JSON.parse(localStorage.getItem(UI_SETTINGS_STORAGE_KEY) || "{}");
+        const bgTheme = saved.bgTheme || localStorage.getItem(BG_STORAGE_KEY) || DEFAULT_UI_SETTINGS.bgTheme;
+        return {
+            fontScale: clampFontPercent((saved.fontScale || 1) * 100) / 100,
+            textColor: saved.textColor || DEFAULT_UI_SETTINGS.textColor,
+            bgTheme
+        };
+    } catch (error) {
+        return {
+            ...DEFAULT_UI_SETTINGS,
+            bgTheme: localStorage.getItem(BG_STORAGE_KEY) || DEFAULT_UI_SETTINGS.bgTheme
+        };
+    }
+}
+
+function shouldScaleFont(el) {
+    if (!el || el.nodeType !== 1) return false;
+    if (["SCRIPT", "STYLE", "CANVAS"].includes(el.tagName)) return false;
+    return true;
+}
+
+function applyFontScale(scale, root = document.body) {
+    if (!root) return;
+    const nodes = [];
+    if (root.nodeType === 1 && shouldScaleFont(root)) nodes.push(root);
+    if (root.querySelectorAll) {
+        root.querySelectorAll('*').forEach((el) => {
+            if (shouldScaleFont(el)) nodes.push(el);
+        });
+    }
+    nodes.forEach((el) => {
+        if (!el.dataset.baseFontSize) {
+            const computedSize = parseFloat(window.getComputedStyle(el).fontSize);
+            if (!Number.isFinite(computedSize) || computedSize <= 0) return;
+            el.dataset.baseFontSize = computedSize.toFixed(2);
+        }
+        const base = parseFloat(el.dataset.baseFontSize || "");
+        if (!Number.isFinite(base) || base <= 0) return;
+        const nextSize = Math.max(9, Math.min(48, base * scale));
+        el.style.fontSize = `${nextSize.toFixed(2)}px`;
+    });
+}
+
+function applyTextColor(color) {
+    document.documentElement.style.setProperty('--ui-text-color', color);
+    const valueEl = document.getElementById('textColorValue');
+    const inputEl = document.getElementById('textColorInput');
+    if (valueEl) valueEl.textContent = String(color || "").toUpperCase();
+    if (inputEl && inputEl.value !== color) inputEl.value = color;
+}
 
 function applyBackground(themeId) {
     const theme = BG_THEMES.find((item) => item.id === themeId) || BG_THEMES[0];
     document.documentElement.style.setProperty('--bg-gradient', theme.gradient);
+    document.documentElement.style.setProperty('--app-surface', theme.surface);
+    document.documentElement.style.setProperty('--panel-surface', theme.panel);
     document.documentElement.setAttribute('data-bg', theme.id);
     localStorage.setItem(BG_STORAGE_KEY, theme.id);
     const preview = document.getElementById('bgPreview');
@@ -4287,6 +4562,11 @@ function applyBackground(themeId) {
     document.querySelectorAll('.bg-swatch').forEach((btn) => {
         btn.classList.toggle('is-active', btn.dataset.bg === theme.id);
     });
+    document.querySelectorAll('.settings-bg-btn').forEach((btn) => {
+        btn.classList.toggle('is-active', btn.dataset.bg === theme.id);
+    });
+    uiSettings.bgTheme = theme.id;
+    saveUiSettings();
 }
 
 function initBackgroundPicker() {
@@ -4305,8 +4585,71 @@ function initBackgroundPicker() {
     toggle.addEventListener('click', () => {
         picker.classList.toggle('is-collapsed');
     });
-    const saved = localStorage.getItem(BG_STORAGE_KEY);
-    applyBackground(saved || "noir");
+}
+
+function initSettingsPanel() {
+    const settingsRoot = document.getElementById('drawerSettings');
+    const settingsToggle = document.getElementById('settingsToggle');
+    const fontRange = document.getElementById('fontSizeRange');
+    const fontNumber = document.getElementById('fontSizeNumber');
+    const fontValue = document.getElementById('fontSizeValue');
+    const textColorInput = document.getElementById('textColorInput');
+    const bgSwatches = document.getElementById('settingsBgSwatches');
+    if (!settingsRoot || !settingsToggle || !fontRange || !fontNumber || !fontValue || !textColorInput || !bgSwatches) return;
+
+    bgSwatches.innerHTML = BG_THEMES.map((theme) => (
+        `<button type="button" class="settings-bg-btn press-glow" data-bg="${theme.id}" style="background:${theme.gradient};">${theme.label}</button>`
+    )).join('');
+
+    settingsToggle.addEventListener('click', () => {
+        settingsRoot.classList.toggle('is-open');
+    });
+
+    const syncFontControls = (percent) => {
+        fontRange.value = String(percent);
+        fontNumber.value = String(percent);
+        fontValue.textContent = `${percent}%`;
+    };
+
+    const updateFontScale = (value) => {
+        const percent = clampFontPercent(value);
+        uiSettings.fontScale = percent / 100;
+        syncFontControls(percent);
+        applyFontScale(uiSettings.fontScale);
+        saveUiSettings();
+    };
+
+    fontRange.addEventListener('input', (e) => {
+        updateFontScale(e.target.value);
+    });
+    fontNumber.addEventListener('change', (e) => {
+        updateFontScale(e.target.value);
+    });
+    textColorInput.addEventListener('input', (e) => {
+        uiSettings.textColor = e.target.value;
+        applyTextColor(uiSettings.textColor);
+        saveUiSettings();
+    });
+    bgSwatches.addEventListener('click', (e) => {
+        const btn = e.target.closest('.settings-bg-btn');
+        if (!btn) return;
+        applyBackground(btn.dataset.bg);
+    });
+
+    uiSettings = loadUiSettings();
+    syncFontControls(Math.round(uiSettings.fontScale * 100));
+    applyTextColor(uiSettings.textColor);
+    applyBackground(uiSettings.bgTheme);
+    applyFontScale(uiSettings.fontScale);
+
+    const observer = new MutationObserver((records) => {
+        records.forEach((record) => {
+            record.addedNodes.forEach((node) => {
+                if (node.nodeType === 1) applyFontScale(uiSettings.fontScale, node);
+            });
+        });
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
 }
 
 
@@ -4846,6 +5189,7 @@ document.getElementById('detailAddBtn')?.addEventListener('click', () => {
 });
 updateBrowseIndicator(getBrowseList().length);
 initBackgroundPicker();
+initSettingsPanel();
 bindRocDateInput('unifiedBuyDate');
 bindRocDateInput('unifiedSellDate');
 document.getElementById('unifiedSellPrice')?.addEventListener('input', updateUnifiedPretaxDiff);
