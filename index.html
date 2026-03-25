@@ -281,8 +281,14 @@
             overflow: visible;
         }
         .msg.community-msg {
-            max-width: min(96%, 760px);
-            width: 100%;
+            max-width: none;
+            width: calc(100% + (var(--chat-side-pad, 20px) * 2));
+            margin-left: calc(var(--chat-side-pad, 20px) * -1);
+            padding: 0;
+            background: transparent;
+            border-radius: 0;
+            align-self: stretch;
+            overflow: visible;
         }
         .msg.listing-msg > div {
             width: 100%;
@@ -305,6 +311,93 @@
         .listing-cards-row::-webkit-scrollbar {
             width: 0;
             height: 0;
+        }
+        .community-cards-row {
+            display: flex;
+            overflow-x: auto;
+            gap: 0;
+            width: 100%;
+            padding: 0 var(--chat-side-pad, 20px) 6px;
+            box-sizing: border-box;
+            scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
+            scroll-padding-left: var(--chat-side-pad, 20px);
+            scroll-padding-right: var(--chat-side-pad, 20px);
+        }
+        .community-cards-row::-webkit-scrollbar {
+            width: 0;
+            height: 0;
+        }
+        .community-card {
+            min-width: 248px;
+            max-width: 248px;
+            aspect-ratio: 1 / 1;
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 12px;
+            margin-right: 10px;
+            flex: 0 0 auto;
+            box-sizing: border-box;
+            box-shadow: 0 12px 26px rgba(0, 0, 0, 0.14);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .community-card .community-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            align-self: flex-start;
+            min-height: 24px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: #fff2e7;
+            color: #ff7a00;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.01em;
+        }
+        .community-card .community-title {
+            font-weight: 700;
+            text-align: left;
+            margin: 0;
+            color: #202020;
+            font-size: 16px;
+            line-height: 1.35;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .community-card .community-address {
+            color: #4b4b4b;
+            font-size: 13px;
+            line-height: 1.45;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            min-height: 36px;
+        }
+        .community-card .community-summary {
+            color: #4d4d4d;
+            font-size: 13px;
+            line-height: 1.55;
+            display: grid;
+            gap: 4px;
+            overflow: hidden;
+        }
+        .community-card .community-line {
+            font-size: 13px;
+            color: #666;
+            margin: 0;
+            word-break: break-word;
+        }
+        .community-card .community-line strong {
+            color: #1f1f1f;
+            font-weight: 700;
         }
         .listing-card .listing-title {
             font-weight: 700;
@@ -388,8 +481,7 @@
         }
         .detail-panel {
             position: absolute;
-            right: 0;
-            top: 0;
+            inset: 0;
             width: 100%;
             height: 100%;
             padding: calc(var(--safe-top) + 12px) calc(var(--safe-right) + 16px) calc(var(--safe-bottom) + 20px) calc(var(--safe-left) + 16px);
@@ -405,6 +497,9 @@
             box-sizing: border-box;
             overflow-y: auto;
             overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+            touch-action: pan-y;
         }
         .detail-overlay.is-open .detail-panel {
             transform: translateX(0);
@@ -430,7 +525,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            flex-wrap: wrap;
+            flex: 0 0 auto;
         }
         .detail-top-header .detail-top-btn {
             min-width: 68px;
@@ -526,6 +621,7 @@
             display: block;
             overflow: hidden;
             padding-bottom: 4px;
+            flex: 0 0 auto;
         }
         .detail-page {
             width: 100%;
@@ -1008,6 +1104,62 @@
             font-weight: 600;
             line-height: 1.35;
         }
+        .detail-summary-actions {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+            padding-top: 4px;
+        }
+        .detail-summary-action {
+            min-height: 42px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 122, 0, 0.45);
+            background: #fff7f1;
+            color: #ff7a00;
+            font-size: 14px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            cursor: pointer;
+            padding: 0 12px;
+        }
+        .detail-summary-action.is-secondary {
+            border-color: rgba(0, 0, 0, 0.1);
+            background: #f7f7f7;
+            color: #333;
+        }
+        .detail-contact-panel {
+            display: none;
+            grid-column: 1 / -1;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+        .detail-contact-panel.is-open {
+            display: grid;
+        }
+        .detail-contact-option {
+            min-height: 40px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(0,0,0,0.08);
+            cursor: pointer;
+        }
+        .detail-contact-option.line {
+            background: #06c755;
+            color: #fff;
+            border-color: transparent;
+        }
+        .detail-contact-option.phone {
+            background: #fff;
+            color: #333;
+        }
         .detail-info-card {
             background: rgba(255, 255, 255, 0.96);
             border-radius: 18px;
@@ -1193,11 +1345,13 @@
 
             .detail-top-left {
                 gap: 6px;
+                flex: 0 0 auto;
             }
 
             .detail-top-actions {
-                justify-content: flex-start;
+                justify-content: flex-end;
                 gap: 6px;
+                flex: 0 0 auto;
             }
 
             .detail-top-title {
@@ -1217,8 +1371,8 @@
             }
 
             .detail-top-actions .detail-top-btn {
-                min-width: calc((100% - 12px) / 3);
-                flex: 1 1 calc((100% - 12px) / 3);
+                min-width: 88px;
+                flex: 0 0 auto;
             }
 
             .detail-carousel img {
@@ -1245,6 +1399,10 @@
             #detailOtherInfo {
                 grid-template-columns: 1fr;
                 gap: 8px;
+            }
+            .detail-summary-actions,
+            .detail-contact-panel {
+                grid-template-columns: 1fr;
             }
 
             .browse-list {
@@ -2590,8 +2748,10 @@
                 padding: 0;
             }
             .msg.community-msg {
-                max-width: calc(100% - 8px);
-                padding: 8px 4px 8px 8px;
+                width: calc(100% + (var(--chat-side-pad, 12px) * 2));
+                max-width: none;
+                margin-left: calc(var(--chat-side-pad, 12px) * -1);
+                padding: 0;
             }
             .listing-card {
                 min-width: min(84vw, 314px);
@@ -2625,6 +2785,26 @@
             }
             .listing-card .listing-link {
                 margin-top: 6px;
+            }
+            .community-card {
+                min-width: min(84vw, 314px);
+                max-width: min(84vw, 314px);
+                padding: 12px;
+                margin-right: 8px;
+            }
+            .community-card .community-title {
+                font-size: 15px;
+            }
+            .community-card .community-address {
+                font-size: 12px;
+                min-height: 34px;
+            }
+            .community-card .community-summary {
+                font-size: 12px;
+                gap: 3px;
+            }
+            .community-card .community-line {
+                font-size: 12px;
             }
 
             .chat-footer {
@@ -2960,14 +3140,11 @@
                 <div class="detail-top-header">
                     <div class="detail-top-left">
                         <button class="detail-top-btn press-glow" id="detailBackBtn">返回</button>
-                        <button class="detail-top-btn press-glow" id="detailCommunityBtn">社區資訊</button>
                     </div>
                     <div class="detail-top-title">物件詳情</div>
-                </div>
-                <div class="detail-top-actions">
-                    <button class="detail-top-btn press-glow detail-add-btn" id="detailAddBtn">加入瀏覽</button>
-                    <a class="detail-top-btn press-glow" id="detailContactBtn" href="#">聯繫業務</a>
-                    <button class="detail-top-btn press-glow" id="detailSendBtn">傳給業務</button>
+                    <div class="detail-top-actions">
+                        <button class="detail-top-btn press-glow detail-add-btn" id="detailAddBtn">加入瀏覽</button>
+                    </div>
                 </div>
             </div>
             <div class="detail-meta" id="detailMeta"></div>
@@ -3768,6 +3945,50 @@ function chunkSentences(sentences, maxChars = 260, minItems = 2) {
         }
         current.push(sentence);
         count = nextLen;
+    });
+    if (current.length) chunks.push(current);
+    return chunks;
+}
+
+function splitCommunityValueToEntries(label, value, maxChars = 70) {
+    const safeLabel = String(label || "").trim();
+    const safeValue = String(value || "").trim();
+    if (!safeLabel || !safeValue) return [];
+    const full = `${safeLabel}：${safeValue}`;
+    if (full.length <= maxChars) return [{ label: safeLabel, value: safeValue }];
+    const sentences = splitSentences(safeValue);
+    if (sentences.length > 1) {
+        return chunkSentences(sentences, Math.max(54, maxChars - safeLabel.length - 2), 1).map((chunk, index) => ({
+            label: index === 0 ? safeLabel : `${safeLabel}（續）`,
+            value: chunk.join("")
+        }));
+    }
+    const parts = [];
+    for (let i = 0; i < safeValue.length; i += Math.max(26, maxChars - safeLabel.length - 4)) {
+        parts.push(safeValue.slice(i, i + Math.max(26, maxChars - safeLabel.length - 4)).trim());
+    }
+    return parts.map((part, index) => ({
+        label: index === 0 ? safeLabel : `${safeLabel}（續）`,
+        value: part
+    }));
+}
+
+function chunkCommunityEntries(entries, maxChars = 136, maxItems = 4) {
+    const chunks = [];
+    let current = [];
+    let count = 0;
+    entries.forEach((entry) => {
+        const length = `${entry.label}${entry.value}`.length;
+        const exceedItems = current.length >= maxItems;
+        const exceedChars = current.length > 0 && count + length > maxChars;
+        if (exceedItems || exceedChars) {
+            chunks.push(current);
+            current = [entry];
+            count = length;
+            return;
+        }
+        current.push(entry);
+        count += length;
     });
     if (current.length) chunks.push(current);
     return chunks;
@@ -5503,7 +5724,8 @@ function updateAgentLinks() {
     const phoneNumber = currentAgent.phoneNumber || DEFAULT_AGENT.phoneNumber;
     const lineEl = document.getElementById('agentLineLink');
     const phoneEl = document.getElementById('agentPhoneLink');
-    const detailPhoneEl = document.getElementById('detailContactBtn');
+    const detailPhoneEl = document.getElementById('detailPhoneOption');
+    const detailLineEl = document.getElementById('detailLineOption');
     const featuredTool = document.getElementById('composerToolFeatured');
     const mediaTool = document.getElementById('composerToolMedia');
     const featuredUrl = currentAgent.featuredUrl || DEFAULT_AGENT.featuredUrl;
@@ -5511,6 +5733,7 @@ function updateAgentLinks() {
     if (lineEl) lineEl.href = lineUrl || "#";
     if (phoneEl) phoneEl.href = phoneNumber ? `tel:${phoneNumber}` : "#";
     if (detailPhoneEl) detailPhoneEl.href = phoneNumber ? `tel:${phoneNumber}` : "#";
+    if (detailLineEl) detailLineEl.href = lineUrl || "#";
     if (featuredTool) {
         featuredTool.dataset.href = featuredUrl || "";
         featuredTool.classList.toggle('is-disabled', !featuredUrl);
@@ -5931,6 +6154,14 @@ function renderDetailPanel(item, data) {
                     </div>
                 `).join("")}
             </div>
+            <div class="detail-summary-actions">
+                <button type="button" class="detail-summary-action is-secondary" id="detailCommunityAction">社區資訊</button>
+                <button type="button" class="detail-summary-action" id="detailContactToggle">聯絡業務</button>
+                <div class="detail-contact-panel" id="detailContactPanel">
+                    <a class="detail-contact-option line" id="detailLineOption" href="#" target="_blank" rel="noopener">傳給業務 LINE</a>
+                    <a class="detail-contact-option phone" id="detailPhoneOption" href="#">聯繫業務 電話</a>
+                </div>
+            </div>
         `;
     }
     const images = data && Array.isArray(data.images) ? data.images : (item.image ? [item.image] : []);
@@ -5986,6 +6217,56 @@ function renderDetailPanel(item, data) {
         const added = list.some((x) => x.sn === currentDetailSn);
         addBtn.textContent = added ? "已加入" : "加入瀏覽";
     }
+    updateAgentLinks();
+    const contactPanel = document.getElementById('detailContactPanel');
+    const contactToggle = document.getElementById('detailContactToggle');
+    const communityAction = document.getElementById('detailCommunityAction');
+    if (contactPanel) contactPanel.classList.remove('is-open');
+    if (contactToggle) {
+        contactToggle.onclick = () => {
+            contactPanel?.classList.toggle('is-open');
+        };
+    }
+    if (communityAction) {
+        communityAction.onclick = async () => {
+            closeListingDetail();
+            openCommunitySearch();
+            if (communityLoadPromise) {
+                try { await communityLoadPromise; } catch (e) {}
+            }
+            const title = item.title || "";
+            const address = item.address || "";
+            const detailData = detailCache[currentDetailSn] || null;
+            let communityName = extractCommunityFromDetailData(detailData);
+            const combinedText = `${title} ${address} ${communityName}`;
+            if (!communityName) communityName = findCommunityBySubstring(combinedText);
+            let district = "";
+            if (communityName) {
+                const inLinkou = (communityDb["林口區"] || []).includes(communityName);
+                const inGuishan = (communityDb["龜山區"] || []).includes(communityName);
+                if (inLinkou) district = "林口區";
+                if (inGuishan) district = "龜山區";
+            }
+            if (!communityName) {
+                alert("找不到社區名稱，請手動輸入");
+                return;
+            }
+            if (!district) {
+                if (/龜山/.test(title)) district = "龜山區";
+                if (/林口/.test(title)) district = "林口區";
+            }
+            if (!district) {
+                alert("無法判斷社區區域，請手動選擇");
+                return;
+            }
+            selectDistrict(district);
+            const input = document.getElementById('targetCommunity');
+            if (input) input.value = communityName;
+            const section = document.getElementById('communityInputSection');
+            if (section) section.style.display = 'block';
+            submitCommunitySearch();
+        };
+    }
 }
 document.addEventListener('click', (e) => {
     const detailBtn = e.target.closest('.detail-open-btn');
@@ -5994,46 +6275,6 @@ document.addEventListener('click', (e) => {
     }
 });
 document.getElementById('detailBackBtn')?.addEventListener('click', closeListingDetail);
-document.getElementById('detailCommunityBtn')?.addEventListener('click', async () => {
-    closeListingDetail();
-    openCommunitySearch();
-    if (communityLoadPromise) {
-        try { await communityLoadPromise; } catch (e) {}
-    }
-    const item = listingCache[currentDetailSn] || {};
-    const title = item.title || "";
-    const address = item.address || "";
-    const detailData = detailCache[currentDetailSn] || null;
-    let communityName = extractCommunityFromDetailData(detailData);
-    const combinedText = `${title} ${address} ${communityName}`;
-    if (!communityName) communityName = findCommunityBySubstring(combinedText);
-    let district = "";
-    if (communityName) {
-        const inLinkou = (communityDb["林口區"] || []).includes(communityName);
-        const inGuishan = (communityDb["龜山區"] || []).includes(communityName);
-        if (inLinkou) district = "林口區";
-        if (inGuishan) district = "龜山區";
-    }
-    if (!communityName) {
-        alert("找不到社區名稱，請手動輸入");
-        return;
-    }
-    if (!district) {
-        if (/龜山/.test(title)) district = "龜山區";
-        if (/林口/.test(title)) district = "林口區";
-    }
-    if (!district) {
-        alert("無法判斷社區區域，請手動選擇");
-        return;
-    }
-    selectDistrict(district);
-    const input = document.getElementById('targetCommunity');
-    if (input) input.value = communityName;
-    const section = document.getElementById('communityInputSection');
-    if (section) section.style.display = 'block';
-    submitCommunitySearch();
-});
-document.getElementById('detailSendBtn')?.addEventListener('click', sendDetailToLine);
 document.getElementById('floatingEyeBtn')?.addEventListener('click', openBrowseList);
 document.getElementById('composerToolPlus')?.addEventListener('click', () => {
     document.getElementById('composerFileInput')?.click();
@@ -6314,10 +6555,7 @@ function renderListingNote() {
 }
 function renderCommunityDetailCards(name, details) {
     const cards = [];
-    const communityCardWidth = window.innerWidth <= 768
-        ? "min(88vw, 340px)"
-        : "200px";
-    const communityCardStyle = `min-width:${communityCardWidth};max-width:${communityCardWidth};background:#fff8e1;border-radius:12px;padding:10px 10px 12px;margin-right:8px;flex:0 0 auto;box-shadow:0 4px 12px rgba(0,0,0,0.12);border:1px solid rgba(0,0,0,0.06);position:relative;`;
+    const address = cleanCommunityValue(details?.["地址"]) || "";
     const usedLabels = new Set();
     COMMUNITY_DETAIL_GROUPS.forEach((group) => {
         group.labels.forEach((label) => usedLabels.add(label));
@@ -6326,34 +6564,24 @@ function renderCommunityDetailCards(name, details) {
         const items = group.labels.map((label) => {
             const value = cleanCommunityValue(details[label]);
             if (!value) return "";
-            const formatted = escapeHtml(value).replace(/。/g, "。<br>");
-            return { label, value, formatted };
+            return { label, value };
         }).filter(Boolean);
         if (!items.length) return;
-        if (group.title === "其他資訊") {
-            const combined = items.map((item) => `${item.label}：${item.value}`).join("\n");
-            const sentences = splitSentences(combined);
-            const chunks = chunkSentences(sentences);
-            chunks.forEach((chunk, index) => {
-                const content = escapeHtml(chunk.join("")).replace(/。/g, "。<br>");
-                cards.push(`
-                    <div style="${communityCardStyle}">
-                        <div style="text-align:center;font-weight:700;font-size:14px;letter-spacing:0.4px;margin-bottom:6px;color:#3b2f00;">${escapeHtml(group.title)} ${index + 1}</div>
-                        <div style="font-size:11px;color:#4a3b1a;line-height:1.55;">${content}</div>
-                        <div style="position:absolute;left:0;right:0;bottom:0;height:8px;background:linear-gradient(180deg, rgba(255,248,225,0) 0%, rgba(255,248,225,1) 100%);border-bottom-left-radius:12px;border-bottom-right-radius:12px;"></div>
-                    </div>
-                `);
-            });
-            return;
-        }
-        const formattedItems = items.map((item) => `<div><strong>${escapeHtml(item.label)}</strong>：${item.formatted}</div>`).join('');
-        cards.push(`
-            <div style="${communityCardStyle}">
-                <div style="text-align:center;font-weight:700;font-size:14px;letter-spacing:0.4px;margin-bottom:6px;color:#3b2f00;">${escapeHtml(group.title)}</div>
-                <div style="font-size:11px;color:#4a3b1a;line-height:1.55;display:grid;gap:5px;">${formattedItems}</div>
-                <div style="position:absolute;left:0;right:0;bottom:0;height:8px;background:linear-gradient(180deg, rgba(255,248,225,0) 0%, rgba(255,248,225,1) 100%);border-bottom-left-radius:12px;border-bottom-right-radius:12px;"></div>
-            </div>
-        `);
+        const expanded = items.flatMap((item) => splitCommunityValueToEntries(item.label, item.value));
+        const chunks = chunkCommunityEntries(expanded);
+        chunks.forEach((chunk, index) => {
+            const content = chunk.map((item) => `
+                <div class="community-line"><strong>${escapeHtml(item.label)}</strong>：${escapeHtml(item.value)}</div>
+            `).join("");
+            cards.push(`
+                <div class="community-card">
+                    <div class="community-badge">${escapeHtml(group.title)}${chunks.length > 1 ? ` ${index + 1}` : ""}</div>
+                    <div class="community-title">${escapeHtml(name)}</div>
+                    <div class="community-address">${escapeHtml(address)}</div>
+                    <div class="community-summary">${content}</div>
+                </div>
+            `);
+        });
     });
 
     const extraItems = Object.keys(details || {})
@@ -6361,25 +6589,29 @@ function renderCommunityDetailCards(name, details) {
         .map((label) => {
             const value = cleanCommunityValue(details[label]);
             if (!value) return null;
-            const formatted = escapeHtml(value).replace(/。/g, "。<br>");
-            return { label, formatted };
+            return { label, value };
         })
         .filter(Boolean);
     if (extraItems.length) {
-        const formattedItems = extraItems
-            .map((item) => `<div><strong>${escapeHtml(item.label)}</strong>：${item.formatted}</div>`)
-            .join('');
-        cards.push(`
-            <div style="${communityCardStyle}">
-                <div style="text-align:center;font-weight:700;font-size:14px;letter-spacing:0.4px;margin-bottom:6px;color:#3b2f00;">補充資訊</div>
-                <div style="font-size:11px;color:#4a3b1a;line-height:1.55;display:grid;gap:5px;">${formattedItems}</div>
-                <div style="position:absolute;left:0;right:0;bottom:0;height:8px;background:linear-gradient(180deg, rgba(255,248,225,0) 0%, rgba(255,248,225,1) 100%);border-bottom-left-radius:12px;border-bottom-right-radius:12px;"></div>
-            </div>
-        `);
+        const expanded = extraItems.flatMap((item) => splitCommunityValueToEntries(item.label, item.value));
+        const chunks = chunkCommunityEntries(expanded);
+        chunks.forEach((chunk, index) => {
+            const content = chunk.map((item) => `
+                <div class="community-line"><strong>${escapeHtml(item.label)}</strong>：${escapeHtml(item.value)}</div>
+            `).join("");
+            cards.push(`
+                <div class="community-card">
+                    <div class="community-badge">補充資訊${chunks.length > 1 ? ` ${index + 1}` : ""}</div>
+                    <div class="community-title">${escapeHtml(name)}</div>
+                    <div class="community-address">${escapeHtml(address)}</div>
+                    <div class="community-summary">${content}</div>
+                </div>
+            `);
+        });
     }
 
     return `
-        <div class="community-cards-row" style="display:flex;overflow-x:auto;gap:0;padding-bottom:4px;width:100%;">
+        <div class="community-cards-row">
             ${cards.join("")}
         </div>
     `;
