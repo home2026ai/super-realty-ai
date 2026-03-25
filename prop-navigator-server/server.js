@@ -47,6 +47,7 @@ const LISTING_HEADERS = {
     "Referer": "https://www.great-home.com.tw/buyhouse/"
 };
 const AGENTS_PATH = path.join(__dirname, 'agents.json');
+const ANALYTICS_PATH = path.join(__dirname, 'agent-analytics.json');
 const USE_LIST_HTML = false;
 const DETAIL_CONCURRENCY = 4;
 const CITY_TEMPLATES = {
@@ -105,6 +106,126 @@ function sanitizeAgent(agent) {
     if (!agent) return null;
     const { password, ...rest } = agent;
     return rest;
+}
+
+function loadAnalytics() {
+    try {
+        const raw = fs.readFileSync(ANALYTICS_PATH, 'utf-8');
+        return JSON.parse(raw);
+    } catch (err) {
+        return { agents: {} };
+    }
+}
+
+function saveAnalytics(data) {
+    fs.writeFileSync(ANALYTICS_PATH, JSON.stringify(data, null, 2), 'utf-8');
+}
+
+function createEmptyAgentAnalytics() {
+    return {
+        visitors: {
+            totalSessions: {},
+            dailySessions: {}
+        },
+        searches: {
+            totalCount: 0,
+            queries: {}
+        },
+        browse: {
+            items: {}
+        }
+    };
+}
+
+function ensureAgentAnalytics(store, agentId) {
+    if (!store.agents || typeof store.agents !== "object") {
+        store.agents = {};
+    }
+    if (!store.agents[agentId]) {
+        store.agents[agentId] = createEmptyAgentAnalytics();
+    }
+    return store.agents[agentId];
+}
+
+function getDayKey(date = new Date()) {
+    return date.toISOString().slice(0, 10);
+}
+
+function getIsoNow() {
+    return new Date().toISOString();
+}
+
+function recordVisit(agentId, sessionId) {
+    if (!agentId || !sessionId) return;
+    const store = loadAnalytics();
+    const agentStats = ensureAgentAnalytics(store, agentId);
+    const todayKey = getDayKey();
+    const now = getIsoNow();
+    agentStats.visitors.totalSessions[sessionId] = agentStats.visitors.totalSessions[sessionId] || now;
+    if (!agentStats.visitors.dailySessions[todayKey]) {
+        agentStats.visitors.dailySessions[todayKey] = {};
+    }
+    agentStats.visitors.dailySessions[todayKey][sessionId] = agentStats.visitors.dailySessions[todayKey][sessionId] || now;
+    saveAnalytics(store);
+}
+
+function recordListingSearch(agentId, sessionId, query) {
+    const safeQuery = String(query || "").trim();
+    if (!agentId || !sessionId || !safeQuery) return;
+    const store = loadAnalytics();
+    const agentStats = ensureAgentAnalytics(store, agentId);
+    agentStats.searches.totalCount += 1;
+    agentStats.searches.queries[safeQuery] = (agentStats.searches.queries[safeQuery] || 0) + 1;
+    saveAnalytics(store);
+}
+
+function recordBrowseAdd(agentId, sessionId, item) {
+    if (!agentId || !sessionId || !item || !item.sn) return;
+    const store = loadAnalytics();
+    const agentStats = ensureAgentAnalytics(store, agentId);
+    const items = agentStats.browse && agentStats.browse.items
+        ? agentStats.browse.items
+        : (agentStats.browse = { items: {} }).items;
+    const now = getIsoNow();
+    const sn = String(item.sn).trim();
+    const title = String(item.title || "").trim() || "未命名物件";
+    if (!items[sn]) {
+        items[sn] = {
+            sn,
+            title,
+            addCount: 0,
+            lastAddedAt: null
+        };
+    }
+    items[sn].title = title;
+    items[sn].addCount += 1;
+    items[sn].lastAddedAt = now;
+    saveAnalytics(store);
+}
+
+function getAgentStatsSummary(agentId) {
+    const store = loadAnalytics();
+    const agentStats = ensureAgentAnalytics(store, agentId);
+    const todayKey = getDayKey();
+    const todayVisitors = Object.keys(agentStats.visitors.dailySessions[todayKey] || {}).length;
+    const totalVisitors = Object.keys(agentStats.visitors.totalSessions || {}).length;
+    const totalSearches = agentStats.searches.totalCount || 0;
+    const topQueries = Object.entries(agentStats.searches.queries || {})
+        .map(([query, count]) => ({ query, count }))
+        .sort((a, b) => b.count - a.count || a.query.localeCompare(b.query, 'zh-Hant'))
+        .slice(0, 8);
+    const browseItems = Object.values((agentStats.browse && agentStats.browse.items) || {})
+        .sort((a, b) => {
+            if ((b.addCount || 0) !== (a.addCount || 0)) return (b.addCount || 0) - (a.addCount || 0);
+            return String(b.lastAddedAt || "").localeCompare(String(a.lastAddedAt || ""));
+        });
+    return {
+        todayVisitors,
+        totalVisitors,
+        totalSearches,
+        topQueries,
+        browseItems
+    };
 }
 
 function parseSearchQuery(text) {
@@ -628,6 +749,36 @@ app.post('/api/agents/login', (req, res) => {
     res.json({ agentId, agent: sanitizeAgent(agent) });
 });
 
+app.post('/api/analytics/visit', (req, res) => {
+    const { agentId, sessionId } = req.body || {};
+    if (!agentId || !sessionId) {
+        res.status(400).json({ error: "missing analytics payload" });
+        return;
+    }
+    recordVisit(String(agentId), String(sessionId));
+    res.json({ ok: true });
+});
+
+app.post('/api/analytics/listing-search', (req, res) => {
+    const { agentId, sessionId, query } = req.body || {};
+    if (!agentId || !sessionId || !query) {
+        res.status(400).json({ error: "missing analytics payload" });
+        return;
+    }
+    recordListingSearch(String(agentId), String(sessionId), String(query));
+    res.json({ ok: true });
+});
+
+app.post('/api/analytics/browse-add', (req, res) => {
+    const { agentId, sessionId, item } = req.body || {};
+    if (!agentId || !sessionId || !item || !item.sn) {
+        res.status(400).json({ error: "missing analytics payload" });
+        return;
+    }
+    recordBrowseAdd(String(agentId), String(sessionId), item);
+    res.json({ ok: true });
+});
+
 app.get('/api/agents/:agentId', (req, res) => {
     const agentId = req.params.agentId;
     const agents = loadAgents();
@@ -637,6 +788,25 @@ app.get('/api/agents/:agentId', (req, res) => {
         return;
     }
     res.json({ agentId, agent: sanitizeAgent(agent) });
+});
+
+app.get('/api/agents/:agentId/stats', (req, res) => {
+    const agentId = req.params.agentId;
+    const password = typeof req.query.password === "string" ? req.query.password : "";
+    if (!password) {
+        res.status(400).json({ error: "missing password" });
+        return;
+    }
+    const agents = loadAgents();
+    const agent = agents[agentId];
+    if (!agent || agent.password !== password) {
+        res.status(401).json({ error: "invalid credentials" });
+        return;
+    }
+    res.json({
+        agentId,
+        stats: getAgentStatsSummary(agentId)
+    });
 });
 
 app.post('/api/agents/:agentId', (req, res) => {

@@ -537,6 +537,21 @@
             font-size: 36px;
             cursor: pointer;
         }
+        .agent-top-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .agent-stats-btn {
+            border: none;
+            padding: 8px 14px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.92);
+            color: #2d3d38;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
         .agent-card {
             background: rgba(255, 255, 255, 0.9);
             border-radius: 16px;
@@ -625,6 +640,108 @@
             border-radius: 999px;
             font-size: 12px;
             cursor: pointer;
+        }
+        .agent-stats-card {
+            background: rgba(255,255,255,0.92);
+            border-radius: 16px;
+            padding: 14px;
+            display: none;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .agent-stats-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .agent-stats-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #24302c;
+        }
+        .agent-stats-refresh {
+            border: none;
+            border-radius: 999px;
+            background: rgba(45, 61, 56, 0.12);
+            color: #24302c;
+            font-size: 12px;
+            padding: 6px 12px;
+            cursor: pointer;
+        }
+        .agent-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+        .agent-stat-box {
+            border-radius: 14px;
+            padding: 12px;
+            background: linear-gradient(135deg, rgba(43, 67, 60, 0.95) 0%, rgba(93, 132, 117, 0.9) 100%);
+            color: #fff;
+        }
+        .agent-stat-label {
+            font-size: 11px;
+            opacity: 0.86;
+            margin-bottom: 6px;
+        }
+        .agent-stat-value {
+            font-size: 26px;
+            font-weight: 800;
+            line-height: 1;
+        }
+        .agent-stats-section {
+            background: rgba(35, 54, 49, 0.07);
+            border-radius: 14px;
+            padding: 12px;
+        }
+        .agent-stats-section-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #24302c;
+            margin-bottom: 8px;
+        }
+        .agent-stats-empty {
+            font-size: 12px;
+            color: #60706a;
+        }
+        .agent-stats-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .agent-stats-item {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(36, 48, 44, 0.1);
+        }
+        .agent-stats-item:last-child {
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+        .agent-stats-item-main {
+            min-width: 0;
+            flex: 1;
+            font-size: 12px;
+            color: #24302c;
+            word-break: break-word;
+        }
+        .agent-stats-item-sub {
+            font-size: 11px;
+            color: #60706a;
+            margin-top: 4px;
+        }
+        .agent-stats-badge {
+            flex: 0 0 auto;
+            background: rgba(43, 67, 60, 0.12);
+            color: #24302c;
+            border-radius: 999px;
+            padding: 4px 9px;
+            font-size: 11px;
+            font-weight: 700;
         }
         .agent-login {
             background: rgba(255,255,255,0.9);
@@ -757,6 +874,11 @@
         }
         .viewer-close {
             right: 12px;
+        }
+        @media (max-width: 640px) {
+            .agent-stats-grid {
+                grid-template-columns: 1fr;
+            }
         }
         .viewer-prev,
         .viewer-next {
@@ -1544,13 +1666,16 @@
             <div class="agent-top">
                 <button class="agent-top-btn press-glow" id="agentBackBtn">返回</button>
                 <div class="agent-title">業務資訊</div>
-                <button class="agent-share-btn press-glow" id="agentShareBtn" title="分享">⤴︎</button>
+                <div class="agent-top-actions">
+                    <button class="agent-stats-btn press-glow" id="agentStatsBtn" title="數據" style="display:none;">數據</button>
+                    <button class="agent-share-btn press-glow" id="agentShareBtn" title="分享">⤴︎</button>
+                </div>
             </div>
             <div id="agentView" class="agent-card">
                 <img id="agentPhoto" class="agent-photo" alt="">
                 <div class="agent-name" id="agentName">未設定</div>
                 <div class="agent-bio" id="agentBio">尚未填寫簡介</div>
-                <div class="agent-links">
+                <div class="agent-links" id="agentLinks" style="display:none;">
                     <a href="#" id="agentLineLink" target="_blank">LINE</a>
                     <a href="#" id="agentPhoneLink">撥打電話</a>
                 </div>
@@ -1559,6 +1684,38 @@
                 <input type="text" id="agentIdInput" placeholder="帳號 (agent01)">
                 <input type="password" id="agentPwdInput" placeholder="密碼">
                 <button id="agentLoginBtn">登入編輯</button>
+            </div>
+            <div id="agentStats" class="agent-stats-card">
+                <div class="agent-stats-head">
+                    <div class="agent-stats-title">使用數據</div>
+                    <button type="button" class="agent-stats-refresh press-glow" id="agentStatsRefreshBtn">重新整理</button>
+                </div>
+                <div class="agent-stats-grid">
+                    <div class="agent-stat-box">
+                        <div class="agent-stat-label">今日訪客</div>
+                        <div class="agent-stat-value" id="agentStatsToday">0</div>
+                    </div>
+                    <div class="agent-stat-box">
+                        <div class="agent-stat-label">總訪客量</div>
+                        <div class="agent-stat-value" id="agentStatsTotal">0</div>
+                    </div>
+                    <div class="agent-stat-box">
+                        <div class="agent-stat-label">物件查詢</div>
+                        <div class="agent-stat-value" id="agentStatsSearches">0</div>
+                    </div>
+                    <div class="agent-stat-box">
+                        <div class="agent-stat-label">加入瀏覽物件數</div>
+                        <div class="agent-stat-value" id="agentStatsBrowseCount">0</div>
+                    </div>
+                </div>
+                <div class="agent-stats-section">
+                    <div class="agent-stats-section-title">熱門查詢</div>
+                    <div id="agentStatsQueries" class="agent-stats-empty">尚無資料</div>
+                </div>
+                <div class="agent-stats-section">
+                    <div class="agent-stats-section-title">加入瀏覽物件統計</div>
+                    <div id="agentStatsBrowse" class="agent-stats-empty">尚無資料</div>
+                </div>
             </div>
             <div id="agentEdit" class="agent-form" style="display:none;">
                 <input type="text" id="agentEditName" placeholder="業務姓名">
@@ -1953,6 +2110,7 @@
     let currentAgentId = null;
     let currentAgent = { ...DEFAULT_AGENT };
     let agentPassword = null;
+    let agentStatsVisible = false;
 
     function getSessionId() {
         let id = localStorage.getItem('chat_session_id');
@@ -1973,6 +2131,33 @@
 
     function clearListingPending() {
         localStorage.removeItem('listing_pending_query');
+    }
+
+    function getTrackedAgentId() {
+        return getAgentParam() || "";
+    }
+
+    function formatStatsDate(value) {
+        if (!value) return "尚無紀錄";
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return "尚無紀錄";
+        return date.toLocaleString('zh-TW', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+
+    function escapeHtml(text) {
+        return String(text || "").replace(/[&<>"']/g, (char) => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+        }[char]));
     }
 
     const chatBox = document.getElementById('chatBox');
@@ -3042,6 +3227,7 @@ function submitAreaRange(minId, maxId, minValId, maxValId) {
 }
 
 function startListingSearch(query, pendingQuery, baseInput, loadingId) {
+    trackListingSearch(query);
     addBotMsg("🏠 正在搜尋物件...", loadingId);
     const communityName = extractCommunityNameFromQuery(query);
     const hasCityKeyword = /(桃園|新北|林口|龜山|A7|A8|A9)/i.test(query);
@@ -3596,7 +3782,7 @@ function addToBrowseList(sn) {
     const item = listingCache[sn] || {};
     const list = getBrowseList();
     if (!list.find((x) => x.sn === sn)) {
-        list.push({
+        const browseItem = {
             sn,
             title: item.title || "未命名物件",
             price: item.price || null,
@@ -3611,8 +3797,12 @@ function addToBrowseList(sn) {
             totalFloor: item.totalFloor || null,
             parking: item.parking || null,
             image: item.image || null
+        };
+        list.push({
+            ...browseItem
         });
         saveBrowseList(list);
+        trackBrowseAdd(browseItem);
     }
 }
 function removeFromBrowseList(sn) {
@@ -3827,6 +4017,91 @@ function applyAgentData(agentId, data) {
     refreshListingNotes();
 }
 
+function renderAgentStats(stats) {
+    const todayEl = document.getElementById('agentStatsToday');
+    const totalEl = document.getElementById('agentStatsTotal');
+    const searchesEl = document.getElementById('agentStatsSearches');
+    const browseCountEl = document.getElementById('agentStatsBrowseCount');
+    const queriesEl = document.getElementById('agentStatsQueries');
+    const browseEl = document.getElementById('agentStatsBrowse');
+    const topQueries = Array.isArray(stats.topQueries) ? stats.topQueries : [];
+    const browseItems = Array.isArray(stats.browseItems) ? stats.browseItems : [];
+    if (todayEl) todayEl.textContent = String(stats.todayVisitors || 0);
+    if (totalEl) totalEl.textContent = String(stats.totalVisitors || 0);
+    if (searchesEl) searchesEl.textContent = String(stats.totalSearches || 0);
+    if (browseCountEl) browseCountEl.textContent = String(browseItems.length);
+    if (queriesEl) {
+        if (!topQueries.length) {
+            queriesEl.className = 'agent-stats-empty';
+            queriesEl.innerHTML = '尚無物件查詢資料';
+        } else {
+            queriesEl.className = 'agent-stats-list';
+            queriesEl.innerHTML = topQueries.map((item) => `
+                <div class="agent-stats-item">
+                    <div class="agent-stats-item-main">${escapeHtml(item.query)}</div>
+                    <div class="agent-stats-badge">${item.count} 次</div>
+                </div>
+            `).join('');
+        }
+    }
+    if (browseEl) {
+        if (!browseItems.length) {
+            browseEl.className = 'agent-stats-empty';
+            browseEl.innerHTML = '尚無加入瀏覽資料';
+        } else {
+            browseEl.className = 'agent-stats-list';
+            browseEl.innerHTML = browseItems.map((item) => `
+                <div class="agent-stats-item">
+                    <div class="agent-stats-item-main">
+                        <div>${escapeHtml(item.title || '未命名物件')}</div>
+                        <div class="agent-stats-item-sub">編號：${escapeHtml(item.sn || '')}</div>
+                        <div class="agent-stats-item-sub">最近加入：${escapeHtml(formatStatsDate(item.lastAddedAt))}</div>
+                    </div>
+                    <div class="agent-stats-badge">${item.addCount || 0} 次</div>
+                </div>
+            `).join('');
+        }
+    }
+}
+
+async function refreshAgentStats() {
+    const statsBox = document.getElementById('agentStats');
+    const queriesEl = document.getElementById('agentStatsQueries');
+    const browseEl = document.getElementById('agentStatsBrowse');
+    if (!statsBox || !currentAgentId || !agentPassword) return;
+    if (queriesEl) {
+        queriesEl.className = 'agent-stats-empty';
+        queriesEl.textContent = '讀取中...';
+    }
+    if (browseEl) {
+        browseEl.className = 'agent-stats-empty';
+        browseEl.textContent = '讀取中...';
+    }
+    try {
+        const stats = await fetchAgentStats(currentAgentId, agentPassword);
+        renderAgentStats(stats);
+    } catch (e) {
+        if (queriesEl) {
+            queriesEl.className = 'agent-stats-empty';
+            queriesEl.textContent = '數據讀取失敗';
+        }
+        if (browseEl) {
+            browseEl.className = 'agent-stats-empty';
+            browseEl.textContent = '數據讀取失敗';
+        }
+    }
+}
+
+async function toggleAgentStats() {
+    const statsBox = document.getElementById('agentStats');
+    if (!statsBox) return;
+    agentStatsVisible = !agentStatsVisible;
+    statsBox.style.display = agentStatsVisible ? 'flex' : 'none';
+    if (!agentStatsVisible) return;
+    await refreshAgentStats();
+    statsBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
 function setAgentPhotoStatus(photoUrl) {
     const status = document.getElementById('agentPhotoStatus');
     if (!status) return;
@@ -3885,9 +4160,16 @@ function setAgentMode({ loggedIn, canEdit }) {
     const loginBox = document.getElementById('agentLogin');
     const editBox = document.getElementById('agentEdit');
     const shareBtn = document.getElementById('agentShareBtn');
+    const linksBox = document.getElementById('agentLinks');
+    const statsBtn = document.getElementById('agentStatsBtn');
+    const statsBox = document.getElementById('agentStats');
     if (loginBox) loginBox.style.display = loggedIn ? "none" : "flex";
     if (editBox) editBox.style.display = canEdit ? "flex" : "none";
     if (shareBtn) shareBtn.style.display = loggedIn ? "inline-flex" : "none";
+    if (linksBox) linksBox.style.display = loggedIn ? "flex" : "none";
+    if (statsBtn) statsBtn.style.display = canEdit ? "inline-flex" : "none";
+    if (statsBox && !canEdit) statsBox.style.display = "none";
+    if (!canEdit) agentStatsVisible = false;
 }
 
 async function fetchAgentProfile(agentId) {
@@ -3908,6 +4190,13 @@ async function loginAgent(agentId, password) {
     return data.agent;
 }
 
+async function fetchAgentStats(agentId, password) {
+    const resp = await fetch(`${API_BASE}/api/agents/${encodeURIComponent(agentId)}/stats?password=${encodeURIComponent(password)}`);
+    if (!resp.ok) throw new Error("stats failed");
+    const data = await resp.json();
+    return data.stats || {};
+}
+
 async function saveAgentProfile(agentId, password, payload) {
     const resp = await fetch(`${API_BASE}/api/agents/${encodeURIComponent(agentId)}`, {
         method: 'POST',
@@ -3917,6 +4206,50 @@ async function saveAgentProfile(agentId, password, payload) {
     if (!resp.ok) throw new Error("save failed");
     const data = await resp.json();
     return data.agent;
+}
+
+async function postAgentAnalytics(path, payload) {
+    try {
+        await fetch(`${API_BASE}${path}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+            keepalive: true
+        });
+    } catch (e) {}
+}
+
+function trackAgentVisit(agentId) {
+    const safeAgentId = String(agentId || "").trim();
+    if (!safeAgentId) return;
+    postAgentAnalytics('/api/analytics/visit', {
+        agentId: safeAgentId,
+        sessionId: getSessionId()
+    });
+}
+
+function trackListingSearch(query) {
+    const agentId = getTrackedAgentId();
+    const safeQuery = String(query || "").trim();
+    if (!agentId || !safeQuery) return;
+    postAgentAnalytics('/api/analytics/listing-search', {
+        agentId,
+        sessionId: getSessionId(),
+        query: safeQuery
+    });
+}
+
+function trackBrowseAdd(item) {
+    const agentId = getTrackedAgentId();
+    if (!agentId || !item || !item.sn) return;
+    postAgentAnalytics('/api/analytics/browse-add', {
+        agentId,
+        sessionId: getSessionId(),
+        item: {
+            sn: item.sn,
+            title: item.title || "未命名物件"
+        }
+    });
 }
 
 function getAgentParam() {
@@ -4280,6 +4613,8 @@ document.getElementById('agentBackBtn')?.addEventListener('click', closeAgentPan
 document.getElementById('chatBookmark')?.addEventListener('click', closeAgentPanel);
 document.getElementById('agentEditPhotoFile')?.addEventListener('change', handleAgentPhotoFile);
 document.getElementById('agentPhotoRemoveBtn')?.addEventListener('click', removeAgentPhoto);
+document.getElementById('agentStatsBtn')?.addEventListener('click', toggleAgentStats);
+document.getElementById('agentStatsRefreshBtn')?.addEventListener('click', refreshAgentStats);
 setBookmarkMode('chat');
 document.getElementById('agentLoginBtn')?.addEventListener('click', async () => {
     const agentId = document.getElementById('agentIdInput')?.value.trim();
@@ -4317,6 +4652,9 @@ document.getElementById('agentSaveBtn')?.addEventListener('click', async () => {
     try {
         const updated = await saveAgentProfile(currentAgentId, agentPassword, payload);
         applyAgentData(currentAgentId, updated);
+        if (agentStatsVisible) {
+            await refreshAgentStats();
+        }
         alert("已儲存");
     } catch (e) {
         alert("儲存失敗，請稍後再試");
@@ -4348,9 +4686,11 @@ document.getElementById('agentShareBtn')?.addEventListener('click', async () => 
                 const viewAgent = await fetchAgentProfile(urlAgent);
                 applyAgentData(urlAgent, viewAgent);
                 setAgentMode({ loggedIn: true, canEdit: false });
+                trackAgentVisit(urlAgent);
             } else {
                 applyAgentData(session.agentId, agent);
                 setAgentMode({ loggedIn: true, canEdit: true });
+                if (urlAgent) trackAgentVisit(urlAgent);
             }
             return;
         } catch (e) {
@@ -4362,6 +4702,7 @@ document.getElementById('agentShareBtn')?.addEventListener('click', async () => 
         try {
             const viewAgent = await fetchAgentProfile(urlAgent);
             applyAgentData(urlAgent, viewAgent);
+            trackAgentVisit(urlAgent);
         } catch (e) {
             applyAgentData(null, DEFAULT_AGENT);
         }
