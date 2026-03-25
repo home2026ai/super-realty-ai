@@ -1590,10 +1590,16 @@
             background: linear-gradient(180deg, rgba(255, 255, 255, 1) 0%, rgba(235, 245, 255, 0.8) 100%);
             box-shadow: 0 10px 24px rgba(255, 255, 255, 0.45);
         }
-        .msg { max-width: 92%; padding: 10px 14px; border-radius: 18px; font-size: 14px; line-height: 1.5; white-space: pre-line; }
-        .ai { align-self: flex-start; background: rgba(255,255,255,0.25); color: #fff; }
+        .msg { max-width: 92%; font-size: 14px; line-height: 1.5; white-space: pre-line; }
+        .ai { align-self: flex-start; background: transparent; color: #fff; }
         .ai table, .ai th, .ai td { color: #fff; }
-        .user { align-self: flex-end; background: var(--ai-purple); color: white; }
+        .user { align-self: flex-end; padding: 10px 14px; border-radius: 18px; background: var(--ai-purple); color: white; }
+        .listing-msg {
+            padding: 10px 14px;
+            border-radius: 18px;
+            background: rgba(255,255,255,0.25);
+            color: #fff;
+        }
 
         .chat-footer { position: absolute; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; gap: 6px; padding-bottom: 12px; --input-offset: 0px; }
         .input-area { padding: 12px 20px 0; margin-top: 0; display: flex; align-items: flex-end; gap: 10px; transform: translateY(var(--input-offset)); }
@@ -1840,9 +1846,11 @@
 
             .msg {
                 max-width: min(86%, 320px);
-                padding: 10px 12px;
                 font-size: 14px;
                 line-height: 1.5;
+            }
+            .msg.user {
+                padding: 10px 12px;
             }
             .msg.listing-msg {
                 max-width: calc(100% - 8px);
