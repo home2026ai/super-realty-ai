@@ -677,7 +677,7 @@
             width: 18px;
             height: 18px;
             display: block;
-            color: #fff;
+            color: var(--main-text);
             opacity: 1;
             flex: 0 0 auto;
         }
@@ -715,7 +715,7 @@
             height: 34px;
             background: transparent;
             border: none;
-            color: #fff;
+            color: var(--main-text);
             font-weight: 600;
             font-size: 15px;
             padding: 0;
@@ -734,7 +734,7 @@
             box-shadow: none;
         }
         .agent-bookmark.is-active {
-            color: #fff;
+            color: var(--main-text);
             background: transparent;
         }
         .agent-overlay {
@@ -2365,13 +2365,13 @@
             border-radius: 999px;
             background: rgba(255,255,255,0.12);
             border: 1px solid rgba(255,255,255,0.16);
-            color: rgba(255,255,255,0.78);
+            color: var(--muted-text);
             font-size: 11px;
             font-weight: 700;
             letter-spacing: 0.08em;
         }
         .media-home-title {
-            color: #fff;
+            color: var(--main-text);
             font-size: 33px;
             font-weight: 900;
             line-height: 0.98;
@@ -2379,7 +2379,7 @@
             max-width: 9ch;
         }
         .media-home-desc {
-            color: rgba(255,255,255,0.76);
+            color: var(--muted-text);
             font-size: 14px;
             line-height: 1.6;
             max-width: 36ch;
@@ -2397,7 +2397,7 @@
             border-radius: 999px;
             background: rgba(10,10,12,0.28);
             border: 1px solid rgba(255,255,255,0.12);
-            color: rgba(255,255,255,0.88);
+            color: var(--main-text);
             font-size: 12px;
             font-weight: 700;
         }
@@ -2476,7 +2476,7 @@
         }
         .media-category-card {
             position: relative;
-            min-height: 430px;
+            min-height: 448px;
             border-radius: 28px;
             overflow: hidden;
             background: transparent;
@@ -2503,10 +2503,10 @@
         }
         .media-category-preview iframe {
             pointer-events: none;
-            width: 218%;
-            height: 132%;
-            top: -16%;
-            left: -59%;
+            width: 234%;
+            height: 142%;
+            top: -21%;
+            left: -67%;
             transform: none;
             filter: saturate(1.12) contrast(1.04);
             transition: transform 0.45s ease, filter 0.45s ease;
@@ -2538,7 +2538,7 @@
             position: absolute;
             inset: 0;
             background:
-                linear-gradient(180deg, var(--app-surface) 0%, rgba(0,0,0,0.8) 9%, rgba(0,0,0,0.24) 24%, rgba(0,0,0,0.05) 42%, rgba(0,0,0,0.08) 58%, rgba(0,0,0,0.48) 78%, var(--app-surface) 100%),
+                linear-gradient(180deg, var(--app-surface) 0%, rgba(0,0,0,0.92) 12%, rgba(0,0,0,0.42) 28%, rgba(0,0,0,0.07) 44%, rgba(0,0,0,0.08) 56%, rgba(0,0,0,0.42) 74%, rgba(0,0,0,0.86) 90%, var(--app-surface) 100%),
                 linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0));
             pointer-events: none;
         }
@@ -3371,7 +3371,7 @@
             }
 
             .media-category-card {
-                min-height: 364px;
+                min-height: 388px;
                 border-radius: 24px;
             }
 
