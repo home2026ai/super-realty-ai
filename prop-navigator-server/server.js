@@ -1072,34 +1072,37 @@ logAvailableModels();
 app.post('/api/chat', async (req, res) => {
     // ... 處理邏輯 ...
     try {
-        const { message, imageData, sessionId } = req.body;
+        const { message, imageData, attachmentData, attachmentMimeType, attachmentName, sessionId } = req.body;
+        const inlineData = attachmentData || imageData || null;
+        const inlineMimeType = attachmentMimeType || (imageData ? "image/jpeg" : null);
         const messageLength = message ? message.length : 0;
-        const imageLength = imageData ? imageData.length : 0;
+        const imageLength = inlineData ? inlineData.length : 0;
 
         // 🌟 關鍵修正：確保 parts 裡面的每一個元素都是物件格式
         // server.js 第 27 行開始
 let promptParts = [];
 
-if (imageData) {
+if (inlineData && inlineMimeType) {
     // 🌟 確保這一塊被正確 push 進去
     promptParts.push({
         inlineData: {
-            data: imageData, // 🌟 確保這是在前端 handleFileSelect 壓縮後的純 Base64 字串
-            mimeType: "image/jpeg"
+            data: inlineData,
+            mimeType: inlineMimeType
         }
     });
 }
 
 // 🌟 文字必須放在陣列的最後
-const combinedText = `${SYSTEM_PROMPT}\n\n${message}`;
+const attachmentHint = attachmentName ? `\n附件名稱：${attachmentName}` : "";
+const combinedText = `${SYSTEM_PROMPT}\n\n${message}${attachmentHint}`;
 promptParts.push({ text: combinedText });
 
         const history = getHistory(sessionId);
         const contents = [...history, { role: 'user', parts: promptParts }];
 
-        console.log(`📩 message length: ${messageLength}, imageData length: ${imageLength}`);
+        console.log(`📩 message length: ${messageLength}, attachment length: ${imageLength}, mime: ${inlineMimeType || "none"}`);
 
-        const modelNames = imageData
+        const modelNames = inlineMimeType && /^image\//i.test(inlineMimeType)
             ? [
                 "gemini-2.5-flash-image",
                 "gemini-2.5-flash-image-preview",
