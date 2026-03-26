@@ -3445,6 +3445,137 @@
             opacity: 0.38;
             pointer-events: none;
         }
+        #composerToolMedia,
+        #composerToolMedia .composer-tool-label,
+        #composerToolMedia svg {
+            color: #ff8a3d;
+        }
+        #composerToolMedia:hover,
+        #composerToolMedia:active,
+        #composerToolMedia:focus-visible,
+        #composerToolMedia.is-pressed {
+            color: #ff8a3d;
+        }
+        .calendar-overlay {
+            position: absolute;
+            inset: 0;
+            z-index: 620;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(0,0,0,0.52);
+            backdrop-filter: blur(10px);
+        }
+        .calendar-overlay.is-open {
+            display: flex;
+        }
+        .calendar-panel {
+            width: min(100%, 420px);
+            border-radius: 24px;
+            border: 1px solid rgba(255,255,255,0.12);
+            background:
+                linear-gradient(180deg, rgba(30,30,32,0.94) 0%, rgba(12,12,14,0.96) 100%);
+            color: rgba(255,255,255,0.9);
+            box-shadow: 0 28px 60px rgba(0,0,0,0.34);
+            padding: 18px 18px 20px;
+        }
+        .calendar-panel-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+        .calendar-panel-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: rgba(255,255,255,0.96);
+            letter-spacing: 0.02em;
+        }
+        .calendar-panel-close {
+            border: none;
+            background: transparent;
+            color: rgba(255,255,255,0.76);
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            padding: 0;
+        }
+        .calendar-panel-close:hover,
+        .calendar-panel-close:active,
+        .calendar-panel-close:focus-visible {
+            background: transparent;
+            color: rgba(255,255,255,0.92);
+            box-shadow: none;
+            outline: none;
+            transform: none;
+        }
+        .calendar-panel-body {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .calendar-panel-copy {
+            font-size: 13px;
+            line-height: 1.7;
+            color: rgba(255,255,255,0.76);
+        }
+        .calendar-panel-card {
+            border-radius: 18px;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.05);
+            padding: 14px 14px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .calendar-panel-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        .calendar-panel-label {
+            color: rgba(255,255,255,0.54);
+            flex: 0 0 auto;
+        }
+        .calendar-panel-value {
+            color: rgba(255,255,255,0.9);
+            text-align: right;
+            min-width: 0;
+        }
+        .calendar-panel-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 4px;
+        }
+        .calendar-panel-btn {
+            min-height: 40px;
+            border-radius: 999px;
+            padding: 0 16px;
+            border: 1px solid rgba(255,255,255,0.16);
+            background: rgba(255,255,255,0.06);
+            color: rgba(255,255,255,0.9);
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .calendar-panel-btn.is-primary {
+            border-color: rgba(255,138,61,0.42);
+            background: rgba(255,138,61,0.16);
+            color: #ffd7bf;
+        }
+        .calendar-panel-btn:hover,
+        .calendar-panel-btn:active,
+        .calendar-panel-btn:focus-visible {
+            box-shadow: none;
+            outline: none;
+            transform: none;
+        }
         .send-stack {
             grid-column: 2;
             grid-row: 2 / span 2;
@@ -4332,6 +4463,15 @@
                             </svg>
                             <span class="composer-tool-label">房地產影音</span>
                         </button>
+                        <button type="button" class="composer-tool-btn" id="composerToolCalendar" aria-label="行事曆" title="行事曆">
+                            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M8 3V6"></path>
+                                <path d="M16 3V6"></path>
+                                <path d="M4 10H20"></path>
+                                <rect x="4" y="5" width="16" height="15" rx="2"></rect>
+                            </svg>
+                            <span class="composer-tool-label">行事曆</span>
+                        </button>
                     </div>
                     <div class="send-stack is-send" id="sendStack">
                         <div class="send-btn ripple-btn send-action" id="sendBtn">↑</div>
@@ -4349,6 +4489,31 @@
     </div>
     <div class="chat-scroll-indicator" id="chatScrollIndicator">
         <div class="chat-scroll-thumb"></div>
+    </div>
+    <div class="calendar-overlay" id="calendarOverlay">
+        <div class="calendar-panel" role="dialog" aria-modal="true" aria-labelledby="calendarPanelTitle">
+            <div class="calendar-panel-top">
+                <div class="calendar-panel-title" id="calendarPanelTitle">行事曆</div>
+                <button type="button" class="calendar-panel-close" id="calendarCloseBtn">關閉</button>
+            </div>
+            <div class="calendar-panel-body">
+                <div class="calendar-panel-copy">這裡會放你的行事曆安排視窗。現在先建立灰黑介面，之後可以再和 reels 或看房流程連動。</div>
+                <div class="calendar-panel-card">
+                    <div class="calendar-panel-row">
+                        <div class="calendar-panel-label">目前狀態</div>
+                        <div class="calendar-panel-value">待接新功能</div>
+                    </div>
+                    <div class="calendar-panel-row">
+                        <div class="calendar-panel-label">預計用途</div>
+                        <div class="calendar-panel-value">安排看房 / 行程提醒</div>
+                    </div>
+                </div>
+                <div class="calendar-panel-actions">
+                    <button type="button" class="calendar-panel-btn" id="calendarDismissBtn">稍後再說</button>
+                    <button type="button" class="calendar-panel-btn is-primary" id="calendarPlaceholderBtn">準備中</button>
+                </div>
+            </div>
+        </div>
     </div>
     <div class="agent-overlay" id="agentOverlay">
         <div class="agent-panel">
@@ -6795,6 +6960,13 @@ function closeBrowseList() {
     const plus = document.getElementById('toggleBtn');
     if (plus) plus.classList.remove('shifted');
 }
+function openCalendarOverlay() {
+    closeDrawer();
+    document.getElementById('calendarOverlay')?.classList.add('is-open');
+}
+function closeCalendarOverlay() {
+    document.getElementById('calendarOverlay')?.classList.remove('is-open');
+}
 function sendBrowseListToLine() {
     const list = getBrowseList();
     if (!list.length) return alert("目前沒有加入瀏覽的物件");
@@ -8398,12 +8570,19 @@ document.getElementById('composerToolFeatured')?.addEventListener('click', () =>
     const href = document.getElementById('composerToolFeatured')?.dataset.href;
     if (href) window.open(href, '_blank', 'noopener');
 });
+document.getElementById('composerToolCalendar')?.addEventListener('click', openCalendarOverlay);
 document.getElementById('composerToolMedia')?.addEventListener('click', () => {
     if (!getMediaCategories().length) {
         alert('請先在業務資訊裡設定房地產影音播放清單');
         return;
     }
     openMediaHome();
+});
+document.getElementById('calendarCloseBtn')?.addEventListener('click', closeCalendarOverlay);
+document.getElementById('calendarDismissBtn')?.addEventListener('click', closeCalendarOverlay);
+document.getElementById('calendarPlaceholderBtn')?.addEventListener('click', closeCalendarOverlay);
+document.getElementById('calendarOverlay')?.addEventListener('click', (event) => {
+    if (event.target?.id === 'calendarOverlay') closeCalendarOverlay();
 });
 document.getElementById('mediaBackToChatBtn')?.addEventListener('click', exitMediaMode);
 document.getElementById('mediaBackToChatBtnSecondary')?.addEventListener('click', exitMediaMode);
