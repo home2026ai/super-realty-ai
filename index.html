@@ -2752,8 +2752,8 @@
             pointer-events: none;
             z-index: 2;
             background:
-                linear-gradient(180deg, rgba(0,0,0,0.58) 0%, rgba(0,0,0,0.08) 32%, rgba(0,0,0,0.48) 100%),
-                linear-gradient(90deg, rgba(0,0,0,0.28) 0%, rgba(0,0,0,0) 24%, rgba(0,0,0,0) 76%, rgba(0,0,0,0.2) 100%);
+                linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.04) 34%, rgba(0,0,0,0.2) 100%),
+                linear-gradient(90deg, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0) 24%, rgba(0,0,0,0) 76%, rgba(0,0,0,0.08) 100%);
         }
         .media-reels-actions,
         .media-reels-meta {
@@ -7220,13 +7220,29 @@ function ensureYouTubePlayerApi() {
     return mediaPlayerApiLoading;
 }
 
+function getCurrentMediaVideoTitle() {
+    if (!mediaPlayerReady || !mediaPlayer || typeof mediaPlayer.getVideoData !== 'function') return '';
+    try {
+        const videoData = mediaPlayer.getVideoData() || {};
+        return String(videoData.title || '').trim();
+    } catch (error) {
+        return '';
+    }
+}
+
 function updateMediaReelsMeta(category) {
     const titleEl = document.getElementById('mediaReelsTitle');
     const subtitleEl = document.getElementById('mediaReelsSubtitle');
     const chipEl = document.getElementById('mediaReelsCategoryChip');
     const counterEl = document.getElementById('mediaReelsCounter');
-    if (titleEl) titleEl.textContent = category?.label || '房地產影音';
-    if (subtitleEl) subtitleEl.textContent = category?.desc || '上下滑動切換下一支影片';
+    const currentTitle = getCurrentMediaVideoTitle();
+    const nextTitle = currentTitle || category?.label || '房地產影音';
+    const nextSubtitle = currentTitle ? '' : (category?.desc || '上下滑動切換下一支影片');
+    if (titleEl) titleEl.textContent = nextTitle;
+    if (subtitleEl) {
+        subtitleEl.textContent = nextSubtitle;
+        subtitleEl.style.display = nextSubtitle ? '' : 'none';
+    }
     if (chipEl) chipEl.textContent = category?.label || '房地產影音';
     if (counterEl) {
         const total = mediaPlaylistIds.length || 1;
