@@ -2703,6 +2703,7 @@
             stroke: currentColor;
         }
         .media-reels-frame {
+            --media-controls-bottom: 24px;
             position: relative;
             flex: 1;
             min-height: 0;
@@ -2769,34 +2770,36 @@
         .media-reels-rail {
             position: absolute;
             right: 16px;
-            bottom: 76px;
+            bottom: 116px;
             z-index: 4;
             display: flex;
             flex-direction: column;
             align-items: flex-end;
-            gap: 12px;
+            gap: 16px;
             pointer-events: auto;
         }
         .media-reels-action-wrap {
             position: relative;
         }
         .media-reels-action-btn {
-            width: 48px;
-            height: 48px;
-            border: 1px solid rgba(255,255,255,0.24);
-            border-radius: 999px;
-            background: rgba(0,0,0,0.42);
+            width: auto;
+            height: auto;
+            padding: 0;
+            border: none;
+            border-radius: 0;
+            background: transparent;
             color: #fff;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            backdrop-filter: blur(16px);
+            backdrop-filter: none;
+            text-shadow: 0 4px 16px rgba(0,0,0,0.46);
             -webkit-tap-highlight-color: transparent;
         }
         .media-reels-action-btn svg {
-            width: 21px;
-            height: 21px;
+            width: 28px;
+            height: 28px;
             stroke: currentColor;
             fill: none;
             flex: 0 0 auto;
@@ -2896,13 +2899,13 @@
         .media-sound-btn {
             position: absolute;
             right: 16px;
-            bottom: 24px;
+            bottom: var(--media-controls-bottom);
             z-index: 4;
             border: 1px solid rgba(255,255,255,0.24);
             background: rgba(0,0,0,0.34);
             color: #fff;
             border-radius: 999px;
-            min-height: 34px;
+            height: 34px;
             padding: 0 12px;
             font-size: 12px;
             font-weight: 700;
@@ -2912,6 +2915,63 @@
             gap: 8px;
             cursor: pointer;
             pointer-events: auto;
+        }
+        .media-play-btn {
+            position: absolute;
+            right: 126px;
+            bottom: var(--media-controls-bottom);
+            z-index: 4;
+            border: 1px solid rgba(255,255,255,0.24);
+            background: rgba(0,0,0,0.34);
+            color: #fff;
+            border-radius: 999px;
+            height: 34px;
+            padding: 0 12px;
+            font-size: 12px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            pointer-events: auto;
+        }
+        .media-play-btn svg {
+            width: 15px;
+            height: 15px;
+            stroke: currentColor;
+            fill: none;
+            flex: 0 0 auto;
+        }
+        .media-play-btn:focus,
+        .media-play-btn:focus-visible {
+            outline: none;
+            box-shadow: none;
+        }
+        .media-inline-toast {
+            position: absolute;
+            left: 50%;
+            bottom: 78px;
+            transform: translateX(-50%);
+            z-index: 4;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            min-height: 38px;
+            padding: 0 16px;
+            border-radius: 999px;
+            border: 1px solid rgba(255,255,255,0.18);
+            background: rgba(8,8,10,0.72);
+            color: #fff;
+            font-size: 13px;
+            font-weight: 700;
+            backdrop-filter: blur(18px);
+            box-shadow: 0 14px 28px rgba(0,0,0,0.24);
+            white-space: nowrap;
+            pointer-events: none;
+        }
+        .media-inline-toast.is-visible {
+            display: inline-flex;
         }
         .media-sound-btn svg {
             width: 15px;
@@ -2957,27 +3017,32 @@
         .media-reels-meta {
             flex-direction: column;
             align-items: flex-start;
-            position: relative;
             padding-bottom: 58px;
+            max-width: min(72%, 28ch);
         }
         .media-reels-title {
-            color: #fff;
-            font-size: 22px;
-            font-weight: 800;
-            line-height: 1.1;
-            text-shadow: 0 3px 14px rgba(0,0,0,0.42);
+            color: rgba(255,255,255,0.9);
+            font-size: 16px;
+            font-weight: 650;
+            line-height: 1.18;
+            text-shadow: 0 1px 6px rgba(0,0,0,0.22);
+            max-width: min(100%, 24ch);
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
         }
         .media-reels-subtitle,
         .media-reels-hint {
-            color: rgba(255,255,255,0.96);
-            font-size: 15px;
-            font-weight: 600;
-            line-height: 1.6;
+            color: rgba(255,255,255,0.82);
+            font-size: 13px;
+            font-weight: 500;
+            line-height: 1.5;
             letter-spacing: 0.01em;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.4);
+            text-shadow: 0 1px 6px rgba(0,0,0,0.24);
         }
         .media-reels-subtitle {
-            max-width: min(100%, 34ch);
+            max-width: min(100%, 28ch);
             overflow: hidden;
             display: -webkit-box;
             -webkit-box-orient: vertical;
@@ -3016,15 +3081,16 @@
         .media-reels-hint {
             position: absolute;
             left: 16px;
-            bottom: 8px;
+            bottom: var(--media-controls-bottom);
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            min-height: 34px;
+            height: 34px;
             padding: 0 14px;
             border-radius: 999px;
             background: rgba(0,0,0,0.46);
             border: 1px solid rgba(255,255,255,0.12);
+            line-height: 1;
         }
         .media-reels-hint::before {
             content: "";
@@ -3717,17 +3783,25 @@
 
             .media-sound-btn {
                 right: 14px;
-                bottom: calc(var(--safe-bottom) + 24px);
+            }
+
+            .media-play-btn {
+                right: 122px;
+            }
+
+            .media-inline-toast {
+                bottom: calc(var(--safe-bottom) + 78px);
+                max-width: calc(100vw - 32px);
             }
 
             .media-reels-rail {
                 right: 12px;
-                bottom: calc(var(--safe-bottom) + 74px);
+                bottom: calc(var(--safe-bottom) + 112px);
             }
 
             .media-reels-action-btn {
-                width: 46px;
-                height: 46px;
+                width: auto;
+                height: auto;
             }
 
             .media-reels-action-menu {
@@ -3736,6 +3810,7 @@
             }
 
             .media-reels-frame {
+                --media-controls-bottom: calc(var(--safe-bottom) + 24px);
                 width: 100%;
                 max-width: none;
                 aspect-ratio: auto;
@@ -3752,15 +3827,15 @@
 
             .media-reels-meta {
                 padding-bottom: 56px;
+                max-width: min(72%, 24ch);
             }
 
             .media-reels-title {
-                font-size: 20px;
+                font-size: 15px;
             }
 
             .media-reels-hint {
                 left: 12px;
-                bottom: 12px;
             }
 
             .msg {
@@ -4088,6 +4163,14 @@
                         </svg>
                         <span id="mediaSoundToggleText">開聲音</span>
                     </button>
+                    <button type="button" class="media-play-btn press-glow" id="mediaPlayToggle" aria-label="暫停播放">
+                        <svg id="mediaPlayToggleIcon" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M10 19V5"></path>
+                            <path d="M14 19V5"></path>
+                        </svg>
+                        <span id="mediaPlayToggleText">暫停</span>
+                    </button>
+                    <div class="media-inline-toast" id="mediaInlineToast">已加入瀏覽</div>
                     <div class="media-reels-rail" id="mediaReelsRail">
                         <button type="button" class="media-reels-action-btn" id="mediaReelsShareBtn" aria-label="分享目前影片">
                             <svg viewBox="0 0 24 24" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -4815,6 +4898,8 @@
     let mediaPlayerApiLoading = null;
     let mediaMuted = true;
     let mediaActionsMenuOpen = false;
+    let mediaPaused = false;
+    let mediaToastTimer = null;
 
     function shouldShowMediaSoundHint() {
         return localStorage.getItem('media_sound_hint_seen') !== '1';
@@ -7405,8 +7490,11 @@ function resetMediaReelsPlayer() {
     mediaCategoryKey = "";
     mediaMuted = true;
     mediaActionsMenuOpen = false;
+    mediaPaused = false;
     updateMediaSoundButton();
+    updateMediaPlayButton();
     setMediaReelsMenuOpen(false);
+    hideMediaInlineToast();
     hideMediaSoundHint();
     mediaTouchStartY = 0;
     mediaTouchCurrentY = 0;
@@ -7455,6 +7543,16 @@ function getCurrentMediaVideoTitle() {
     }
 }
 
+function getCurrentMediaVideoId() {
+    if (!mediaPlayerReady || !mediaPlayer || typeof mediaPlayer.getVideoData !== 'function') return '';
+    try {
+        const videoData = mediaPlayer.getVideoData() || {};
+        return String(videoData.video_id || videoData.videoId || '').trim();
+    } catch (error) {
+        return '';
+    }
+}
+
 function getCurrentMediaIndex() {
     if (mediaPlayerReady && mediaPlayer && typeof mediaPlayer.getPlaylistIndex === 'function') {
         try {
@@ -7465,6 +7563,11 @@ function getCurrentMediaIndex() {
 }
 
 function getCurrentMediaMetaItem() {
+    const currentVideoId = getCurrentMediaVideoId();
+    if (currentVideoId) {
+        const matched = mediaPlaylistMeta.find((item) => item?.videoId === currentVideoId);
+        if (matched) return matched;
+    }
     const index = getCurrentMediaIndex();
     return mediaPlaylistMeta[index] || null;
 }
@@ -7527,6 +7630,28 @@ async function shareCurrentMedia() {
     window.prompt('請複製影片連結', payload.url);
 }
 
+function showMediaInlineToast(message) {
+    const toast = document.getElementById('mediaInlineToast');
+    if (!toast) return;
+    toast.textContent = message;
+    toast.classList.add('is-visible');
+    if (mediaToastTimer) window.clearTimeout(mediaToastTimer);
+    mediaToastTimer = window.setTimeout(() => {
+        toast.classList.remove('is-visible');
+        mediaToastTimer = null;
+    }, 1800);
+}
+
+function hideMediaInlineToast() {
+    const toast = document.getElementById('mediaInlineToast');
+    if (!toast) return;
+    toast.classList.remove('is-visible');
+    if (mediaToastTimer) {
+        window.clearTimeout(mediaToastTimer);
+        mediaToastTimer = null;
+    }
+}
+
 function getCurrentMediaBrowseItem() {
     const currentMeta = getCurrentMediaMetaItem();
     const category = getCurrentMediaCategory();
@@ -7546,15 +7671,15 @@ function getCurrentMediaBrowseItem() {
 
 function addCurrentMediaToBrowseList() {
     const browseItem = getCurrentMediaBrowseItem();
-    if (!browseItem) return alert('目前沒有可加入的影音');
+    if (!browseItem) return showMediaInlineToast('目前沒有可加入的影音');
     const list = getBrowseList();
-    if (list.some((item) => item.sn === browseItem.sn)) return alert('這支影音已在瀏覽清單');
+    if (list.some((item) => item.sn === browseItem.sn)) return showMediaInlineToast('這支影音已在瀏覽清單');
     list.push(browseItem);
     saveBrowseList(list);
     trackBrowseAdd(browseItem);
     updateBrowseIndicator(list.length);
     setMediaReelsMenuOpen(false);
-    alert('已加入瀏覽');
+    showMediaInlineToast('已加入瀏覽');
 }
 
 function sendCurrentMediaToLine() {
@@ -7702,6 +7827,20 @@ function updateMediaSoundButton() {
     if (btnEl) btnEl.setAttribute('aria-label', nextText);
 }
 
+function updateMediaPlayButton() {
+    const textEl = document.getElementById('mediaPlayToggleText');
+    const btnEl = document.getElementById('mediaPlayToggle');
+    const iconEl = document.getElementById('mediaPlayToggleIcon');
+    const nextText = mediaPaused ? '播放' : '暫停';
+    if (textEl) textEl.textContent = nextText;
+    if (btnEl) btnEl.setAttribute('aria-label', `${nextText}播放`);
+    if (iconEl) {
+        iconEl.innerHTML = mediaPaused
+            ? '<path d="M8 5L19 12L8 19Z"></path>'
+            : '<path d="M10 19V5"></path><path d="M14 19V5"></path>';
+    }
+}
+
 function getMediaReelsFrame() {
     return document.getElementById('mediaReelsFrame');
 }
@@ -7754,7 +7893,13 @@ function endMediaSwipe(clientY) {
     }
     mediaTouchCurrentY = clientY;
     mediaSwipeActive = false;
-    handleMediaSwipe(mediaTouchCurrentY - mediaTouchStartY);
+    const deltaY = mediaTouchCurrentY - mediaTouchStartY;
+    if (Math.abs(deltaY) < 12) {
+        resetMediaReelsDrag(true);
+        toggleMediaPlayback();
+        return;
+    }
+    handleMediaSwipe(deltaY);
 }
 
 function cancelMediaSwipe() {
@@ -7803,6 +7948,20 @@ function toggleMediaSound() {
     } catch (error) {}
 }
 
+function toggleMediaPlayback() {
+    if (!mediaPlayer || !mediaPlayerReady) return;
+    try {
+        if (mediaPaused) {
+            mediaPlayer.playVideo();
+            mediaPaused = false;
+        } else {
+            mediaPlayer.pauseVideo();
+            mediaPaused = true;
+        }
+        updateMediaPlayButton();
+    } catch (error) {}
+}
+
 async function openMediaReels(categoryKey, targetVideoId = '') {
     const categories = getMediaCategories();
     const category = categories.find((item) => item.key === categoryKey);
@@ -7848,11 +8007,23 @@ async function openMediaReels(categoryKey, targetVideoId = '') {
                     }
                 } catch (error) {}
                 mediaMuted = true;
+                mediaPaused = false;
                 updateMediaSoundButton();
+                updateMediaPlayButton();
                 showMediaSoundHint();
                 updateMediaReelsMeta(category);
             },
             onStateChange: (event) => {
+                if (window.YT) {
+                    if (event?.data === window.YT.PlayerState.PLAYING || event?.data === window.YT.PlayerState.BUFFERING) {
+                        mediaPaused = false;
+                        updateMediaPlayButton();
+                    }
+                    if (event?.data === window.YT.PlayerState.PAUSED) {
+                        mediaPaused = true;
+                        updateMediaPlayButton();
+                    }
+                }
                 if (window.YT && event?.data === window.YT.PlayerState.ENDED) {
                     try {
                         const currentIndex = typeof event.target.getPlaylistIndex === 'function'
@@ -7865,6 +8036,8 @@ async function openMediaReels(categoryKey, targetVideoId = '') {
                             event.target.playVideo();
                         }
                     } catch (error) {}
+                    mediaPaused = false;
+                    updateMediaPlayButton();
                 }
                 updateMediaReelsMeta(category);
             }
@@ -8152,6 +8325,7 @@ document.getElementById('composerToolMedia')?.addEventListener('click', () => {
 document.getElementById('mediaBackToChatBtn')?.addEventListener('click', exitMediaMode);
 document.getElementById('mediaBackToChatBtnSecondary')?.addEventListener('click', exitMediaMode);
 document.getElementById('mediaSoundToggle')?.addEventListener('click', toggleMediaSound);
+document.getElementById('mediaPlayToggle')?.addEventListener('click', toggleMediaPlayback);
 document.getElementById('mediaSoundHint')?.addEventListener('click', toggleMediaSound);
 document.getElementById('mediaReelsShareBtn')?.addEventListener('click', shareCurrentMedia);
 document.getElementById('mediaReelsMenuBtn')?.addEventListener('click', (event) => {
