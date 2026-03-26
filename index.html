@@ -2766,6 +2766,95 @@
             justify-content: space-between;
             align-items: center;
         }
+        .media-reels-rail {
+            position: absolute;
+            right: 16px;
+            bottom: 76px;
+            z-index: 4;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 12px;
+            pointer-events: auto;
+        }
+        .media-reels-action-wrap {
+            position: relative;
+        }
+        .media-reels-action-btn {
+            width: 48px;
+            height: 48px;
+            border: 1px solid rgba(255,255,255,0.24);
+            border-radius: 999px;
+            background: rgba(0,0,0,0.42);
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            backdrop-filter: blur(16px);
+            -webkit-tap-highlight-color: transparent;
+        }
+        .media-reels-action-btn svg {
+            width: 21px;
+            height: 21px;
+            stroke: currentColor;
+            fill: none;
+            flex: 0 0 auto;
+        }
+        .media-reels-action-btn:focus,
+        .media-reels-action-btn:focus-visible {
+            outline: none;
+            box-shadow: none;
+        }
+        .media-reels-action-menu {
+            position: absolute;
+            right: 60px;
+            bottom: 0;
+            width: min(220px, calc(100vw - 96px));
+            padding: 10px;
+            border-radius: 18px;
+            border: 1px solid rgba(255,255,255,0.14);
+            background: rgba(10,10,12,0.82);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 18px 40px rgba(0,0,0,0.34);
+            display: none;
+        }
+        .media-reels-action-menu.is-open {
+            display: block;
+        }
+        .media-reels-action-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .media-reels-action-item {
+            width: 100%;
+            border: none;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.06);
+            color: #fff;
+            padding: 11px 12px;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .media-reels-action-item svg {
+            width: 17px;
+            height: 17px;
+            stroke: currentColor;
+            fill: none;
+            flex: 0 0 auto;
+        }
+        .media-reels-action-item:focus,
+        .media-reels-action-item:focus-visible {
+            outline: none;
+            box-shadow: none;
+        }
         .media-chip {
             border: 1px solid rgba(255,255,255,0.24);
             background: rgba(0,0,0,0.34);
@@ -2868,18 +2957,24 @@
         .media-reels-meta {
             flex-direction: column;
             align-items: flex-start;
+            position: relative;
+            padding-bottom: 58px;
         }
         .media-reels-title {
             color: #fff;
             font-size: 22px;
             font-weight: 800;
             line-height: 1.1;
+            text-shadow: 0 3px 14px rgba(0,0,0,0.42);
         }
         .media-reels-subtitle,
         .media-reels-hint {
-            color: rgba(255,255,255,0.78);
-            font-size: 13px;
-            line-height: 1.4;
+            color: rgba(255,255,255,0.96);
+            font-size: 15px;
+            font-weight: 600;
+            line-height: 1.6;
+            letter-spacing: 0.01em;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.4);
         }
         .media-reels-subtitle {
             max-width: min(100%, 34ch);
@@ -2889,30 +2984,46 @@
             -webkit-line-clamp: 2;
             white-space: pre-wrap;
         }
+        .media-reels-subtitle.is-collapsible {
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .media-reels-subtitle.is-collapsible:focus,
+        .media-reels-subtitle.is-collapsible:focus-visible,
+        .media-reels-more:focus,
+        .media-reels-more:focus-visible {
+            outline: none;
+            box-shadow: none;
+        }
         .media-reels-subtitle.is-expanded {
             display: block;
             -webkit-line-clamp: initial;
             overflow: visible;
         }
         .media-reels-more {
-            margin-top: 4px;
+            margin-top: 6px;
             padding: 0;
             border: none;
             background: transparent;
-            color: rgba(255,255,255,0.92);
-            font-size: 12px;
-            font-weight: 700;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 800;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.36);
             cursor: pointer;
             pointer-events: auto;
+            -webkit-tap-highlight-color: transparent;
         }
         .media-reels-hint {
+            position: absolute;
+            left: 16px;
+            bottom: 8px;
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            min-height: 30px;
-            padding: 0 12px;
+            min-height: 34px;
+            padding: 0 14px;
             border-radius: 999px;
-            background: rgba(0,0,0,0.32);
+            background: rgba(0,0,0,0.46);
             border: 1px solid rgba(255,255,255,0.12);
         }
         .media-reels-hint::before {
@@ -3558,7 +3669,7 @@
             .media-category-desc,
             .media-reels-subtitle,
             .media-reels-hint {
-                font-size: 12px;
+                font-size: 14px;
             }
 
             .media-category-desc {
@@ -3609,6 +3720,21 @@
                 bottom: calc(var(--safe-bottom) + 24px);
             }
 
+            .media-reels-rail {
+                right: 12px;
+                bottom: calc(var(--safe-bottom) + 74px);
+            }
+
+            .media-reels-action-btn {
+                width: 46px;
+                height: 46px;
+            }
+
+            .media-reels-action-menu {
+                right: 54px;
+                width: min(210px, calc(100vw - 88px));
+            }
+
             .media-reels-frame {
                 width: 100%;
                 max-width: none;
@@ -3624,8 +3750,17 @@
                 padding: 12px;
             }
 
+            .media-reels-meta {
+                padding-bottom: 56px;
+            }
+
             .media-reels-title {
-                font-size: 18px;
+                font-size: 20px;
+            }
+
+            .media-reels-hint {
+                left: 12px;
+                bottom: 12px;
             }
 
             .msg {
@@ -3953,6 +4088,57 @@
                         </svg>
                         <span id="mediaSoundToggleText">開聲音</span>
                     </button>
+                    <div class="media-reels-rail" id="mediaReelsRail">
+                        <button type="button" class="media-reels-action-btn" id="mediaReelsShareBtn" aria-label="分享目前影片">
+                            <svg viewBox="0 0 24 24" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M22 2L11 13"></path>
+                                <path d="M22 2L15 22L11 13L2 9L22 2Z"></path>
+                            </svg>
+                        </button>
+                        <div class="media-reels-action-wrap">
+                            <button type="button" class="media-reels-action-btn" id="mediaReelsMenuBtn" aria-label="更多功能" aria-expanded="false">
+                                <svg viewBox="0 0 24 24" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <path d="M4 7H20"></path>
+                                    <path d="M4 12H20"></path>
+                                    <path d="M4 17H20"></path>
+                                </svg>
+                            </button>
+                            <div class="media-reels-action-menu" id="mediaReelsMenu" role="menu">
+                                <div class="media-reels-action-list">
+                                    <button type="button" class="media-reels-action-item" id="mediaReelsBrowseAction" role="menuitem">
+                                        <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                            <path d="M4 6H20"></path>
+                                            <path d="M4 12H20"></path>
+                                            <path d="M4 18H14"></path>
+                                        </svg>
+                                        <span>加入瀏覽</span>
+                                    </button>
+                                    <button type="button" class="media-reels-action-item" id="mediaReelsLineAction" role="menuitem">
+                                        <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                            <path d="M22 2L11 13"></path>
+                                            <path d="M22 2L15 22L11 13L2 9L22 2Z"></path>
+                                        </svg>
+                                        <span>傳 Line 給業務</span>
+                                    </button>
+                                    <button type="button" class="media-reels-action-item" id="mediaReelsContactAction" role="menuitem">
+                                        <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                            <path d="M22 16.92V19.92A2 2 0 0 1 19.82 22A19.86 19.86 0 0 1 11.18 18.86A19.5 19.5 0 0 1 5.14 12.82A19.86 19.86 0 0 1 2 4.08A2 2 0 0 1 4.07 1.9H7.07A2 2 0 0 1 9.07 3.62C9.2 4.62 9.44 5.61 9.78 6.56A2 2 0 0 1 9.33 8.67L8.06 9.94A16 16 0 0 0 14.06 15.94L15.33 14.67A2 2 0 0 1 17.44 14.22C18.39 14.56 19.38 14.8 20.38 14.93A2 2 0 0 1 22 16.92Z"></path>
+                                        </svg>
+                                        <span>聯繫業務</span>
+                                    </button>
+                                    <button type="button" class="media-reels-action-item" id="mediaReelsCalendarAction" role="menuitem">
+                                        <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                            <path d="M8 2V6"></path>
+                                            <path d="M16 2V6"></path>
+                                            <path d="M3 10H21"></path>
+                                            <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+                                        </svg>
+                                        <span>加入行事曆</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="media-reels-overlay">
                         <div class="media-reels-actions">
                         </div>
@@ -3960,7 +4146,7 @@
                             <div class="media-reels-title" id="mediaReelsTitle">影音播放</div>
                             <div class="media-reels-subtitle" id="mediaReelsSubtitle">上下滑動切換下一支影片</div>
                             <button type="button" class="media-reels-more" id="mediaReelsMoreBtn" hidden>展開</button>
-                            <div class="media-reels-hint">向上滑下一支，向下滑上一支</div>
+                            <div class="media-reels-hint" id="mediaReelsStats">載入影片數據中</div>
                         </div>
                     </div>
                 </div>
@@ -4628,6 +4814,7 @@
     let mediaDescriptionExpanded = false;
     let mediaPlayerApiLoading = null;
     let mediaMuted = true;
+    let mediaActionsMenuOpen = false;
 
     function shouldShowMediaSoundHint() {
         return localStorage.getItem('media_sound_hint_seen') !== '1';
@@ -6436,14 +6623,17 @@ function renderBrowseList() {
     listEl.innerHTML = list.map((item) => `
         <div class="browse-item">
             <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
-                <div><strong>${item.title}</strong> <span style="color:#777;">(${item.sn})</span></div>
+                <div><strong>${item.title}</strong> <span style="color:#777;">(${item.type === 'media' ? '影音' : item.sn})</span></div>
                 <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;">
                     <button class="press-glow" onclick="removeFromBrowseList('${item.sn}'); renderBrowseList(); updateBrowseIndicator(getBrowseList().length);" style="border:none;background:rgba(255,255,255,0.85);color:#333;padding:4px 8px;border-radius:999px;font-size:11px;cursor:pointer;">取消瀏覽</button>
-                    <button class="press-glow" onclick="closeBrowseList(); openListingDetail('${item.sn}');" style="border:none;background:rgba(255,255,255,0.85);color:#333;padding:4px 8px;border-radius:999px;font-size:11px;cursor:pointer;">查閱物件</button>
+                    <button class="press-glow" onclick="${item.type === 'media'
+                        ? `closeBrowseList(); openMediaReels('${item.mediaCategoryKey || ''}', '${item.videoId || ''}');`
+                        : `closeBrowseList(); openListingDetail('${item.sn}');`
+                    }" style="border:none;background:rgba(255,255,255,0.85);color:#333;padding:4px 8px;border-radius:999px;font-size:11px;cursor:pointer;">${item.type === 'media' ? '播放影音' : '查閱物件'}</button>
                 </div>
             </div>
-            <div>${formatPrice(item.price)}</div>
-            <div>${item.address || ""}</div>
+            <div>${item.type === 'media' ? '影音收藏' : formatPrice(item.price)}</div>
+            <div>${item.type === 'media' ? (item.link || '') : (item.address || "")}</div>
         </div>
     `).join('');
 }
@@ -6466,7 +6656,10 @@ function closeBrowseList() {
 function sendBrowseListToLine() {
     const list = getBrowseList();
     if (!list.length) return alert("目前沒有加入瀏覽的物件");
-    const text = list.map((item, i) => `${i + 1}. ${item.title} ${item.price} ${item.link || ""}`).join("\n");
+    const text = list.map((item, i) => item.type === 'media'
+        ? `${i + 1}. [影音] ${item.title} ${item.link || ""}`
+        : `${i + 1}. ${item.title} ${item.price} ${item.link || ""}`
+    ).join("\n");
     const url = `https://line.me/R/msg/text/?${encodeURIComponent(text)}`;
     window.open(url, "_blank");
 }
@@ -7211,7 +7404,9 @@ function resetMediaReelsPlayer() {
     mediaDescriptionExpanded = false;
     mediaCategoryKey = "";
     mediaMuted = true;
+    mediaActionsMenuOpen = false;
     updateMediaSoundButton();
+    setMediaReelsMenuOpen(false);
     hideMediaSoundHint();
     mediaTouchStartY = 0;
     mediaTouchCurrentY = 0;
@@ -7274,6 +7469,158 @@ function getCurrentMediaMetaItem() {
     return mediaPlaylistMeta[index] || null;
 }
 
+function getCurrentMediaCategory() {
+    const categories = getMediaCategories();
+    return categories.find((item) => item.key === mediaCategoryKey) || null;
+}
+
+function getCurrentMediaShareUrl() {
+    const currentMeta = getCurrentMediaMetaItem();
+    if (currentMeta?.videoId) return `https://www.youtube.com/shorts/${encodeURIComponent(currentMeta.videoId)}`;
+    const category = getCurrentMediaCategory();
+    if (category?.previewUrl) return category.previewUrl;
+    return window.location.href;
+}
+
+function getCurrentMediaSharePayload() {
+    const currentMeta = getCurrentMediaMetaItem();
+    const category = getCurrentMediaCategory();
+    const title = currentMeta?.title || category?.label || '房地產影音';
+    const url = getCurrentMediaShareUrl();
+    const description = String(currentMeta?.description || '').trim();
+    return {
+        title,
+        text: [title, description, url].filter(Boolean).join('\n'),
+        url
+    };
+}
+
+function setMediaReelsMenuOpen(isOpen) {
+    mediaActionsMenuOpen = Boolean(isOpen);
+    const menu = document.getElementById('mediaReelsMenu');
+    const btn = document.getElementById('mediaReelsMenuBtn');
+    if (menu) menu.classList.toggle('is-open', mediaActionsMenuOpen);
+    if (btn) btn.setAttribute('aria-expanded', mediaActionsMenuOpen ? 'true' : 'false');
+}
+
+async function shareCurrentMedia() {
+    const payload = getCurrentMediaSharePayload();
+    try {
+        if (navigator.share) {
+            await navigator.share({
+                title: payload.title,
+                text: payload.text,
+                url: payload.url
+            });
+            return;
+        }
+    } catch (error) {
+        if (error?.name === 'AbortError') return;
+    }
+    try {
+        if (navigator.clipboard?.writeText) {
+            await navigator.clipboard.writeText(payload.text);
+            alert('影片連結已複製');
+            return;
+        }
+    } catch (error) {}
+    window.prompt('請複製影片連結', payload.url);
+}
+
+function getCurrentMediaBrowseItem() {
+    const currentMeta = getCurrentMediaMetaItem();
+    const category = getCurrentMediaCategory();
+    if (!currentMeta?.videoId) return null;
+    return {
+        sn: `media:${currentMeta.videoId}`,
+        type: 'media',
+        videoId: currentMeta.videoId,
+        mediaCategoryKey: category?.key || '',
+        title: currentMeta.title || category?.label || '房地產影音',
+        price: null,
+        link: getCurrentMediaShareUrl(),
+        address: category?.label || '房地產影音',
+        image: currentMeta.thumbnail || ''
+    };
+}
+
+function addCurrentMediaToBrowseList() {
+    const browseItem = getCurrentMediaBrowseItem();
+    if (!browseItem) return alert('目前沒有可加入的影音');
+    const list = getBrowseList();
+    if (list.some((item) => item.sn === browseItem.sn)) return alert('這支影音已在瀏覽清單');
+    list.push(browseItem);
+    saveBrowseList(list);
+    trackBrowseAdd(browseItem);
+    updateBrowseIndicator(list.length);
+    setMediaReelsMenuOpen(false);
+    alert('已加入瀏覽');
+}
+
+function sendCurrentMediaToLine() {
+    const payload = getCurrentMediaSharePayload();
+    const category = getCurrentMediaCategory();
+    const agentName = currentAgent.name || DEFAULT_AGENT.name || '業務';
+    const text = [
+        `${agentName} 推薦影音`,
+        payload.title,
+        category?.label || '',
+        payload.url
+    ].filter(Boolean).join('\n');
+    window.open(`https://line.me/R/msg/text/?${encodeURIComponent(text)}`, '_blank');
+    setMediaReelsMenuOpen(false);
+}
+
+function contactAgentFromMedia() {
+    const phoneNumber = currentAgent.phoneNumber || DEFAULT_AGENT.phoneNumber;
+    const lineUrl = currentAgent.lineUrl || DEFAULT_AGENT.lineUrl;
+    setMediaReelsMenuOpen(false);
+    if (phoneNumber) return void (window.location.href = `tel:${phoneNumber}`);
+    if (lineUrl) return void window.open(lineUrl, '_blank', 'noopener');
+    alert('尚未設定業務聯繫方式');
+}
+
+function formatCalendarDate(date) {
+    return date.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}Z$/, 'Z');
+}
+
+function addCurrentMediaToCalendar() {
+    const payload = getCurrentMediaSharePayload();
+    const start = new Date();
+    start.setMinutes(0, 0, 0);
+    start.setHours(start.getHours() + 1);
+    const end = new Date(start.getTime() + 60 * 60 * 1000);
+    const details = [payload.title, payload.url].filter(Boolean).join('\n');
+    const calendarUrl = new URL('https://calendar.google.com/calendar/render');
+    calendarUrl.searchParams.set('action', 'TEMPLATE');
+    calendarUrl.searchParams.set('text', `觀看房產影音｜${payload.title}`);
+    calendarUrl.searchParams.set('details', details);
+    calendarUrl.searchParams.set('dates', `${formatCalendarDate(start)}/${formatCalendarDate(end)}`);
+    window.open(calendarUrl.toString(), '_blank', 'noopener');
+    setMediaReelsMenuOpen(false);
+}
+
+function formatMediaStatCount(value) {
+    const count = Number(value) || 0;
+    if (count >= 100000000) return `${(count / 100000000).toFixed(count >= 1000000000 ? 0 : 1).replace(/\.0$/, '')}億`;
+    if (count >= 10000) return `${(count / 10000).toFixed(count >= 100000 ? 0 : 1).replace(/\.0$/, '')}萬`;
+    return new Intl.NumberFormat('zh-TW').format(count);
+}
+
+function getMediaReelsStatsText(meta) {
+    if (!meta) return '暫無影片數據';
+    const segments = [];
+    if (Number(meta.viewCount) > 0) {
+        segments.push(`${formatMediaStatCount(meta.viewCount)} 次觀看`);
+    } else {
+        segments.push('觀看數未提供');
+    }
+    if (meta.likeCountVisible) {
+        segments.push(`${formatMediaStatCount(meta.likeCount)} 個讚`);
+    }
+    return segments.join(' ・ ');
+}
+
 async function fetchMediaPlaylistMeta(playlistId) {
     if (!playlistId) return [];
     if (Array.isArray(mediaMetaCache[playlistId])) {
@@ -7297,9 +7644,11 @@ function updateMediaReelsMeta(category) {
     const moreBtn = document.getElementById('mediaReelsMoreBtn');
     const chipEl = document.getElementById('mediaReelsCategoryChip');
     const counterEl = document.getElementById('mediaReelsCounter');
+    const statsEl = document.getElementById('mediaReelsStats');
     const currentMeta = getCurrentMediaMetaItem();
     const currentTitle = currentMeta?.title || getCurrentMediaVideoTitle();
     const currentDescription = String(currentMeta?.description || '').trim();
+    const canToggleDescription = currentDescription.length > 0;
     const nextTitle = currentTitle || category?.label || '房地產影音';
     const nextSubtitle = currentDescription || category?.desc || '上下滑動切換下一支影片';
     if (titleEl) titleEl.textContent = nextTitle;
@@ -7307,9 +7656,19 @@ function updateMediaReelsMeta(category) {
         subtitleEl.textContent = nextSubtitle;
         subtitleEl.style.display = nextSubtitle ? '' : 'none';
         subtitleEl.classList.toggle('is-expanded', Boolean(nextSubtitle) && mediaDescriptionExpanded);
+        subtitleEl.classList.toggle('is-collapsible', canToggleDescription);
+        if (canToggleDescription) {
+            subtitleEl.setAttribute('role', 'button');
+            subtitleEl.setAttribute('tabindex', '0');
+            subtitleEl.setAttribute('aria-expanded', String(Boolean(nextSubtitle) && mediaDescriptionExpanded));
+        } else {
+            subtitleEl.removeAttribute('role');
+            subtitleEl.removeAttribute('tabindex');
+            subtitleEl.removeAttribute('aria-expanded');
+        }
     }
     if (moreBtn) {
-        const shouldShow = currentDescription.length > 0;
+        const shouldShow = canToggleDescription;
         moreBtn.hidden = !shouldShow;
         moreBtn.textContent = mediaDescriptionExpanded ? '收起' : '展開';
     }
@@ -7322,6 +7681,17 @@ function updateMediaReelsMeta(category) {
         }
         counterEl.textContent = `${Math.max(index + 1, 1)} / ${total}`;
     }
+    if (statsEl) statsEl.textContent = getMediaReelsStatsText(currentMeta);
+}
+
+function toggleMediaReelsDescription() {
+    const currentMeta = getCurrentMediaMetaItem();
+    const currentDescription = String(currentMeta?.description || '').trim();
+    if (!currentDescription) return;
+    mediaDescriptionExpanded = !mediaDescriptionExpanded;
+    const categories = getMediaCategories();
+    const category = categories.find((item) => item.key === mediaCategoryKey) || null;
+    updateMediaReelsMeta(category);
 }
 
 function updateMediaSoundButton() {
@@ -7338,6 +7708,7 @@ function getMediaReelsFrame() {
 
 function beginMediaSwipe(clientY) {
     if (mediaSwipeLocked) return;
+    setMediaReelsMenuOpen(false);
     mediaTouchStartY = clientY;
     mediaTouchCurrentY = clientY;
     mediaSwipeActive = true;
@@ -7432,7 +7803,7 @@ function toggleMediaSound() {
     } catch (error) {}
 }
 
-async function openMediaReels(categoryKey) {
+async function openMediaReels(categoryKey, targetVideoId = '') {
     const categories = getMediaCategories();
     const category = categories.find((item) => item.key === categoryKey);
     if (!category || !category.playlistId) {
@@ -7442,6 +7813,7 @@ async function openMediaReels(categoryKey) {
     resetMediaReelsPlayer();
     mediaCategoryKey = categoryKey;
     mediaDescriptionExpanded = false;
+    setMediaReelsMenuOpen(false);
     mediaPlaylistMeta = await fetchMediaPlaylistMeta(category.playlistId);
     setMediaMode('reels');
     updateMediaReelsMeta(category);
@@ -7467,8 +7839,13 @@ async function openMediaReels(categoryKey) {
                 mediaPlayerReady = true;
                 try {
                     event.target.mute();
-                    event.target.playVideo();
                     mediaPlaylistIds = event.target.getPlaylist() || [];
+                    const targetIndex = targetVideoId ? mediaPlaylistIds.indexOf(targetVideoId) : -1;
+                    if (targetIndex > -1 && typeof event.target.playVideoAt === 'function') {
+                        event.target.playVideoAt(targetIndex);
+                    } else {
+                        event.target.playVideo();
+                    }
                 } catch (error) {}
                 mediaMuted = true;
                 updateMediaSoundButton();
@@ -7747,6 +8124,10 @@ document.addEventListener('click', (e) => {
     const detailBtn = e.target.closest('.detail-open-btn');
     if (detailBtn) {
         openListingDetail(detailBtn.dataset.sn);
+        return;
+    }
+    if (mediaActionsMenuOpen && !e.target.closest('#mediaReelsMenu') && !e.target.closest('#mediaReelsMenuBtn')) {
+        setMediaReelsMenuOpen(false);
     }
 });
 document.getElementById('detailBackBtn')?.addEventListener('click', closeListingDetail);
@@ -7772,12 +8153,22 @@ document.getElementById('mediaBackToChatBtn')?.addEventListener('click', exitMed
 document.getElementById('mediaBackToChatBtnSecondary')?.addEventListener('click', exitMediaMode);
 document.getElementById('mediaSoundToggle')?.addEventListener('click', toggleMediaSound);
 document.getElementById('mediaSoundHint')?.addEventListener('click', toggleMediaSound);
+document.getElementById('mediaReelsShareBtn')?.addEventListener('click', shareCurrentMedia);
+document.getElementById('mediaReelsMenuBtn')?.addEventListener('click', (event) => {
+    event.stopPropagation();
+    setMediaReelsMenuOpen(!mediaActionsMenuOpen);
+});
+document.getElementById('mediaReelsBrowseAction')?.addEventListener('click', addCurrentMediaToBrowseList);
+document.getElementById('mediaReelsLineAction')?.addEventListener('click', sendCurrentMediaToLine);
+document.getElementById('mediaReelsContactAction')?.addEventListener('click', contactAgentFromMedia);
+document.getElementById('mediaReelsCalendarAction')?.addEventListener('click', addCurrentMediaToCalendar);
 document.getElementById('mediaBackToHomeBtn')?.addEventListener('click', openMediaHome);
-document.getElementById('mediaReelsMoreBtn')?.addEventListener('click', () => {
-    mediaDescriptionExpanded = !mediaDescriptionExpanded;
-    const categories = getMediaCategories();
-    const category = categories.find((item) => item.key === mediaCategoryKey) || null;
-    updateMediaReelsMeta(category);
+document.getElementById('mediaReelsMoreBtn')?.addEventListener('click', toggleMediaReelsDescription);
+document.getElementById('mediaReelsSubtitle')?.addEventListener('click', toggleMediaReelsDescription);
+document.getElementById('mediaReelsSubtitle')?.addEventListener('keydown', (event) => {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    event.preventDefault();
+    toggleMediaReelsDescription();
 });
 document.getElementById('mediaHomeGrid')?.addEventListener('click', (event) => {
     const card = event.target.closest('[data-media-category]');
