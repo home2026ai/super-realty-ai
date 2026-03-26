@@ -1212,6 +1212,115 @@
             font-size: 12px;
             color: #333;
         }
+        .browse-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 10px;
+            padding: 10px 12px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.88);
+        }
+        .browse-toolbar-copy {
+            min-width: 0;
+        }
+        .browse-toolbar-title {
+            font-size: 13px;
+            font-weight: 800;
+            color: #222;
+        }
+        .browse-toolbar-desc {
+            margin-top: 2px;
+            font-size: 11px;
+            color: rgba(0, 0, 0, 0.56);
+        }
+        .browse-toolbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+        .browse-toolbar-btn {
+            min-height: 34px;
+            padding: 0 12px;
+            border: none;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.92);
+            color: #222;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .browse-toolbar-btn.is-primary {
+            background: rgba(226, 188, 117, 0.24);
+            color: #6a4a18;
+        }
+        .browse-toolbar-btn.is-secondary {
+            background: rgba(0,0,0,0.08);
+            color: #333;
+        }
+        .browse-toolbar-btn:disabled {
+            opacity: 0.4;
+            cursor: default;
+        }
+        .browse-item-row {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .browse-item-main {
+            min-width: 0;
+            flex: 1;
+        }
+        .browse-item-select {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+        }
+        .browse-select-circle {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 1.5px solid rgba(0,0,0,0.28);
+            background: rgba(255,255,255,0.96);
+            flex: 0 0 auto;
+            cursor: pointer;
+            position: relative;
+        }
+        .browse-select-circle.is-selected {
+            border-color: rgba(186, 137, 58, 0.9);
+            background: linear-gradient(180deg, rgba(236,214,168,0.96) 0%, rgba(215,176,101,0.96) 100%);
+        }
+        .browse-select-circle.is-selected::after {
+            content: "";
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(95, 66, 18, 0.94);
+        }
+        .browse-select-circle.is-disabled {
+            opacity: 0.35;
+            cursor: default;
+        }
+        .browse-item-actions {
+            display:flex;
+            flex-direction:column;
+            gap:6px;
+            align-items:flex-end;
+            flex: 0 0 auto;
+        }
+        .browse-empty-note {
+            font-size: 11px;
+            color: rgba(0,0,0,0.48);
+            margin-top: 6px;
+        }
         .image-viewer {
             position: absolute;
             inset: 0;
@@ -1423,18 +1532,28 @@
                 font-size: 11px;
             }
 
-            .browse-item > div:first-child {
-                align-items: flex-start !important;
-                gap: 6px !important;
+            .browse-toolbar {
+                align-items: flex-start;
+                flex-direction: column;
             }
 
-            .browse-item > div:first-child > div:last-child {
-                flex: 0 0 72px !important;
+            .browse-toolbar-actions {
+                width: 100%;
+                justify-content: flex-start;
+            }
+
+            .calendar-field-row {
+                grid-template-columns: 1fr;
+            }
+
+            .browse-item-actions {
+                flex: 0 0 72px;
                 width: 72px;
-                gap: 4px !important;
+                gap: 4px;
             }
 
-            .browse-item button {
+            .browse-item button,
+            .browse-toolbar-btn {
                 width: 100%;
                 min-width: 0 !important;
                 padding: 4px 6px !important;
@@ -2769,7 +2888,7 @@
         }
         .media-reels-rail {
             position: absolute;
-            right: 39px;
+            right: 28px;
             bottom: 268px;
             z-index: 4;
             display: flex;
@@ -3448,13 +3567,13 @@
         #composerToolMedia,
         #composerToolMedia .composer-tool-label,
         #composerToolMedia svg {
-            color: #ff8a3d;
+            color: #e3bf68;
         }
         #composerToolMedia:hover,
         #composerToolMedia:active,
         #composerToolMedia:focus-visible,
         #composerToolMedia.is-pressed {
-            color: #ff8a3d;
+            color: #e3bf68;
         }
         .calendar-overlay {
             position: absolute;
@@ -3474,11 +3593,20 @@
             width: min(100%, 420px);
             border-radius: 24px;
             border: 1px solid rgba(255,255,255,0.12);
-            background:
-                linear-gradient(180deg, rgba(30,30,32,0.94) 0%, rgba(12,12,14,0.96) 100%);
+            background: linear-gradient(180deg, rgba(30,30,32,0.94) 0%, rgba(12,12,14,0.96) 100%);
             color: rgba(255,255,255,0.9);
             box-shadow: 0 28px 60px rgba(0,0,0,0.34);
             padding: 18px 18px 20px;
+        }
+        html[data-bg="mist"] .calendar-overlay {
+            background: rgba(142, 127, 109, 0.18);
+            backdrop-filter: blur(12px);
+        }
+        html[data-bg="mist"] .calendar-panel {
+            border: 1px solid rgba(126, 102, 78, 0.18);
+            background: linear-gradient(180deg, rgba(255,248,242,0.96) 0%, rgba(228,210,191,0.94) 100%);
+            color: rgba(23,20,18,0.92);
+            box-shadow: 0 24px 52px rgba(120, 96, 72, 0.18);
         }
         .calendar-panel-top {
             display: flex;
@@ -3493,6 +3621,9 @@
             color: rgba(255,255,255,0.96);
             letter-spacing: 0.02em;
         }
+        html[data-bg="mist"] .calendar-panel-title {
+            color: rgba(27, 22, 18, 0.94);
+        }
         .calendar-panel-close {
             border: none;
             background: transparent;
@@ -3501,6 +3632,9 @@
             font-weight: 700;
             cursor: pointer;
             padding: 0;
+        }
+        html[data-bg="mist"] .calendar-panel-close {
+            color: rgba(48, 39, 32, 0.7);
         }
         .calendar-panel-close:hover,
         .calendar-panel-close:active,
@@ -3511,15 +3645,15 @@
             outline: none;
             transform: none;
         }
+        html[data-bg="mist"] .calendar-panel-close:hover,
+        html[data-bg="mist"] .calendar-panel-close:active,
+        html[data-bg="mist"] .calendar-panel-close:focus-visible {
+            color: rgba(27, 22, 18, 0.92);
+        }
         .calendar-panel-body {
             display: flex;
             flex-direction: column;
             gap: 12px;
-        }
-        .calendar-panel-copy {
-            font-size: 13px;
-            line-height: 1.7;
-            color: rgba(255,255,255,0.76);
         }
         .calendar-panel-card {
             border-radius: 18px;
@@ -3529,6 +3663,222 @@
             display: flex;
             flex-direction: column;
             gap: 10px;
+        }
+        html[data-bg="mist"] .calendar-panel-card {
+            border: 1px solid rgba(126, 102, 78, 0.14);
+            background: linear-gradient(180deg, rgba(255,255,255,0.62) 0%, rgba(231,214,196,0.64) 100%);
+        }
+        .calendar-monthbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .calendar-month-nav {
+            min-width: 34px;
+            height: 34px;
+            border: none;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.88);
+            font-size: 18px;
+            line-height: 1;
+            cursor: pointer;
+        }
+        html[data-bg="mist"] .calendar-month-nav {
+            background: rgba(154, 128, 102, 0.14);
+            color: rgba(32, 26, 21, 0.88);
+        }
+        .calendar-month-nav:hover,
+        .calendar-month-nav:active,
+        .calendar-month-nav:focus-visible {
+            box-shadow: none;
+            outline: none;
+            transform: none;
+        }
+        .calendar-month-label {
+            flex: 1;
+            text-align: center;
+            font-size: 16px;
+            font-weight: 800;
+            letter-spacing: 0.03em;
+            color: rgba(255,255,255,0.94);
+        }
+        html[data-bg="mist"] .calendar-month-label {
+            color: rgba(28, 22, 18, 0.92);
+        }
+        .calendar-weekdays,
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, minmax(0, 1fr));
+        }
+        .calendar-weekdays {
+            gap: 6px;
+            margin-top: 4px;
+        }
+        .calendar-weekday {
+            text-align: center;
+            font-size: 11px;
+            font-weight: 700;
+            color: rgba(255,255,255,0.48);
+            letter-spacing: 0.06em;
+        }
+        html[data-bg="mist"] .calendar-weekday {
+            color: rgba(84, 66, 52, 0.56);
+        }
+        .calendar-grid {
+            gap: 6px;
+        }
+        .calendar-day {
+            min-height: 42px;
+            border: 1px solid transparent;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.04);
+            color: rgba(255,255,255,0.88);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            font-size: 13px;
+            font-weight: 700;
+        }
+        .calendar-day.is-empty {
+            background: transparent;
+        }
+        .calendar-day.is-outside {
+            color: rgba(255,255,255,0.28);
+        }
+        .calendar-day.is-today {
+            border-color: rgba(227, 191, 104, 0.68);
+            background: linear-gradient(180deg, rgba(227,191,104,0.3) 0%, rgba(171,124,47,0.16) 100%);
+            color: rgba(255,248,229,0.98);
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
+        }
+        .calendar-day.is-selected {
+            border-color: rgba(255,255,255,0.28);
+            background: rgba(255,255,255,0.14);
+            color: rgba(255,255,255,0.98);
+        }
+        .calendar-day.is-today::after {
+            content: "";
+            position: absolute;
+            bottom: 6px;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            margin-left: -2.5px;
+            border-radius: 50%;
+            background: currentColor;
+            opacity: 0.92;
+        }
+        html[data-bg="mist"] .calendar-day {
+            background: rgba(255,255,255,0.42);
+            color: rgba(29, 23, 19, 0.9);
+        }
+        html[data-bg="mist"] .calendar-day.is-outside {
+            color: rgba(94, 74, 58, 0.34);
+        }
+        html[data-bg="mist"] .calendar-day.is-today {
+            border-color: rgba(186, 151, 114, 0.64);
+            background: linear-gradient(180deg, rgba(219,192,161,0.7) 0%, rgba(194,166,135,0.5) 100%);
+            color: rgba(24, 18, 14, 0.94);
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.4);
+        }
+        html[data-bg="mist"] .calendar-day.is-selected {
+            border-color: rgba(166, 133, 101, 0.28);
+            background: rgba(201, 175, 148, 0.4);
+            color: rgba(24, 18, 14, 0.94);
+        }
+        .calendar-panel-note {
+            font-size: 12px;
+            line-height: 1.6;
+            color: rgba(255,255,255,0.66);
+        }
+        html[data-bg="mist"] .calendar-panel-note {
+            color: rgba(72, 57, 45, 0.72);
+        }
+        .calendar-appointment-fields {
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .calendar-panel.is-appointment .calendar-appointment-fields {
+            display: flex;
+        }
+        .calendar-panel.is-appointment .calendar-panel-note.is-general,
+        .calendar-panel:not(.is-appointment) .calendar-panel-note.is-appointment {
+            display: none;
+        }
+        .calendar-field-row {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+        .calendar-field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .calendar-field-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: rgba(255,255,255,0.58);
+        }
+        html[data-bg="mist"] .calendar-field-label {
+            color: rgba(72, 57, 45, 0.68);
+        }
+        .calendar-field-input {
+            min-height: 40px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.06);
+            color: rgba(255,255,255,0.92);
+            padding: 0 12px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .calendar-field-input:focus,
+        .calendar-field-input:focus-visible {
+            outline: none;
+            box-shadow: none;
+        }
+        html[data-bg="mist"] .calendar-field-input {
+            border-color: rgba(126, 102, 78, 0.16);
+            background: rgba(255,255,255,0.56);
+            color: rgba(28, 22, 18, 0.92);
+        }
+        .calendar-appointment-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 136px;
+            overflow-y: auto;
+        }
+        .calendar-appointment-item {
+            border-radius: 12px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
+            padding: 10px 12px;
+        }
+        html[data-bg="mist"] .calendar-appointment-item {
+            background: rgba(255,255,255,0.44);
+            border-color: rgba(126, 102, 78, 0.12);
+        }
+        .calendar-appointment-item-title {
+            font-size: 12px;
+            font-weight: 800;
+            color: rgba(255,255,255,0.92);
+        }
+        .calendar-appointment-item-sub {
+            margin-top: 2px;
+            font-size: 11px;
+            color: rgba(255,255,255,0.62);
+        }
+        html[data-bg="mist"] .calendar-appointment-item-title {
+            color: rgba(28, 22, 18, 0.92);
+        }
+        html[data-bg="mist"] .calendar-appointment-item-sub {
+            color: rgba(72, 57, 45, 0.7);
         }
         .calendar-panel-row {
             display: flex;
@@ -3542,10 +3892,16 @@
             color: rgba(255,255,255,0.54);
             flex: 0 0 auto;
         }
+        html[data-bg="mist"] .calendar-panel-label {
+            color: rgba(72, 57, 45, 0.62);
+        }
         .calendar-panel-value {
             color: rgba(255,255,255,0.9);
             text-align: right;
             min-width: 0;
+        }
+        html[data-bg="mist"] .calendar-panel-value {
+            color: rgba(25, 20, 16, 0.9);
         }
         .calendar-panel-actions {
             display: flex;
@@ -3564,10 +3920,20 @@
             font-weight: 700;
             cursor: pointer;
         }
+        html[data-bg="mist"] .calendar-panel-btn {
+            border: 1px solid rgba(126, 102, 78, 0.18);
+            background: rgba(255,255,255,0.52);
+            color: rgba(29, 23, 19, 0.9);
+        }
         .calendar-panel-btn.is-primary {
             border-color: rgba(255,138,61,0.42);
             background: rgba(255,138,61,0.16);
             color: #ffd7bf;
+        }
+        html[data-bg="mist"] .calendar-panel-btn.is-primary {
+            border-color: rgba(166, 133, 101, 0.32);
+            background: rgba(201, 175, 148, 0.34);
+            color: rgba(28, 22, 18, 0.92);
         }
         .calendar-panel-btn:hover,
         .calendar-panel-btn:active,
@@ -3969,7 +4335,7 @@
             }
 
             .media-reels-rail {
-                right: 37px;
+                right: 26px;
                 bottom: calc(var(--safe-bottom) + 260px);
             }
 
@@ -4395,15 +4761,6 @@
                                         </svg>
                                         <span>聯繫業務</span>
                                     </button>
-                                    <button type="button" class="media-reels-action-item" id="mediaReelsCalendarAction" role="menuitem">
-                                        <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                            <path d="M8 2V6"></path>
-                                            <path d="M16 2V6"></path>
-                                            <path d="M3 10H21"></path>
-                                            <rect x="3" y="4" width="18" height="18" rx="2"></rect>
-                                        </svg>
-                                        <span>加入行事曆</span>
-                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -4497,20 +4854,45 @@
                 <button type="button" class="calendar-panel-close" id="calendarCloseBtn">關閉</button>
             </div>
             <div class="calendar-panel-body">
-                <div class="calendar-panel-copy">這裡會放你的行事曆安排視窗。現在先建立灰黑介面，之後可以再和 reels 或看房流程連動。</div>
                 <div class="calendar-panel-card">
-                    <div class="calendar-panel-row">
-                        <div class="calendar-panel-label">目前狀態</div>
-                        <div class="calendar-panel-value">待接新功能</div>
+                    <div class="calendar-monthbar">
+                        <button type="button" class="calendar-month-nav" id="calendarPrevBtn" aria-label="上個月">‹</button>
+                        <div class="calendar-month-label" id="calendarMonthLabel">2026 年 3 月</div>
+                        <button type="button" class="calendar-month-nav" id="calendarNextBtn" aria-label="下個月">›</button>
                     </div>
-                    <div class="calendar-panel-row">
-                        <div class="calendar-panel-label">預計用途</div>
-                        <div class="calendar-panel-value">安排看房 / 行程提醒</div>
+                    <div class="calendar-weekdays" aria-hidden="true">
+                        <div class="calendar-weekday">日</div>
+                        <div class="calendar-weekday">一</div>
+                        <div class="calendar-weekday">二</div>
+                        <div class="calendar-weekday">三</div>
+                        <div class="calendar-weekday">四</div>
+                        <div class="calendar-weekday">五</div>
+                        <div class="calendar-weekday">六</div>
+                    </div>
+                    <div class="calendar-grid" id="calendarGrid" aria-label="月曆"></div>
+                </div>
+                <div class="calendar-appointment-fields" id="calendarAppointmentFields">
+                    <div class="calendar-field-row">
+                        <label class="calendar-field">
+                            <span class="calendar-field-label">看房日期</span>
+                            <input type="date" class="calendar-field-input" id="calendarDateInput">
+                        </label>
+                        <label class="calendar-field">
+                            <span class="calendar-field-label">看房時間</span>
+                            <input type="time" class="calendar-field-input" id="calendarTimeInput">
+                        </label>
+                    </div>
+                    <div class="calendar-field">
+                        <span class="calendar-field-label">已選物件</span>
+                        <div class="calendar-appointment-list" id="calendarAppointmentList"></div>
                     </div>
                 </div>
+                <div class="calendar-panel-note is-general" id="calendarPanelNote">今天會自動標記。之後可再把看房、提醒或 reels 連動排進來。</div>
+                <div class="calendar-panel-note is-appointment" id="calendarAppointmentNote">請確認想預約看的物件，再填入看房日期和時間。</div>
                 <div class="calendar-panel-actions">
-                    <button type="button" class="calendar-panel-btn" id="calendarDismissBtn">稍後再說</button>
-                    <button type="button" class="calendar-panel-btn is-primary" id="calendarPlaceholderBtn">準備中</button>
+                    <button type="button" class="calendar-panel-btn" id="calendarDismissBtn">取消</button>
+                    <button type="button" class="calendar-panel-btn" id="calendarTodayBtn">今天</button>
+                    <button type="button" class="calendar-panel-btn is-primary" id="calendarConfirmBtn" style="display:none;">儲存並傳給業務</button>
                 </div>
             </div>
         </div>
@@ -4631,6 +5013,15 @@
                 <button class="detail-top-btn press-glow" id="browseBackBtn">返回</button>
                 <div class="detail-top-title">加入瀏覽清單</div>
                 <button class="detail-top-btn press-glow" id="browseSendBtn">發送給業務</button>
+            </div>
+            <div class="browse-toolbar" id="browseToolbar">
+                <div class="browse-toolbar-copy">
+                    <div class="browse-toolbar-title" id="browseToolbarTitle">瀏覽清單</div>
+                    <div class="browse-toolbar-desc" id="browseToolbarDesc">可直接傳送清單，或安排看房日期。</div>
+                </div>
+                <div class="browse-toolbar-actions" id="browseToolbarActions">
+                    <button type="button" class="browse-toolbar-btn is-primary" id="browseScheduleBtn">預約日期</button>
+                </div>
             </div>
             <div class="browse-list" id="browseList"></div>
         </div>
@@ -4950,6 +5341,11 @@
     const detailCache = {};
     let currentDetailSn = null;
     const browseListKey = "browse_list";
+    const browseAppointmentDraftKey = "browse_appointment_draft";
+    let browseAppointmentMode = false;
+    let browseSelectedSns = [];
+    let calendarMode = "general";
+    let calendarAppointmentSelection = [];
     let detailImageList = [];
     let detailImageIndex = 0;
     let detailZoom = 1;
@@ -6901,6 +7297,8 @@ function addToBrowseList(sn) {
 function removeFromBrowseList(sn) {
     const list = getBrowseList().filter((x) => x.sn !== sn);
     saveBrowseList(list);
+    browseSelectedSns = browseSelectedSns.filter((itemSn) => itemSn !== sn);
+    updateBrowseToolbar();
 }
 function toggleBrowseList(sn) {
     const list = getBrowseList();
@@ -6911,6 +7309,66 @@ function toggleBrowseList(sn) {
     }
     addToBrowseList(sn);
     return true;
+}
+function getSchedulableBrowseItems() {
+    return getBrowseList().filter((item) => item && item.type !== 'media');
+}
+function setBrowseAppointmentMode(next) {
+    browseAppointmentMode = !!next;
+    if (!browseAppointmentMode) browseSelectedSns = [];
+    updateBrowseToolbar();
+    renderBrowseList();
+}
+function toggleBrowseAppointmentSelection(sn) {
+    if (!browseAppointmentMode) return;
+    const items = getSchedulableBrowseItems();
+    if (browseSelectedSns.includes(sn)) {
+        browseSelectedSns = browseSelectedSns.filter((itemSn) => itemSn !== sn);
+    } else {
+        browseSelectedSns = [...browseSelectedSns, sn];
+    }
+    updateBrowseToolbar();
+    renderBrowseList();
+    if (browseSelectedSns.length && browseSelectedSns.length === items.length) {
+        openBrowseAppointmentCalendar();
+    }
+}
+function toggleBrowseSelectAll() {
+    const items = getSchedulableBrowseItems();
+    if (!items.length) return;
+    if (browseSelectedSns.length === items.length) {
+        browseSelectedSns = [];
+    } else {
+        browseSelectedSns = items.map((item) => item.sn);
+    }
+    updateBrowseToolbar();
+    renderBrowseList();
+    if (browseSelectedSns.length && browseSelectedSns.length === items.length) {
+        openBrowseAppointmentCalendar();
+    }
+}
+function updateBrowseToolbar() {
+    const titleEl = document.getElementById('browseToolbarTitle');
+    const descEl = document.getElementById('browseToolbarDesc');
+    const actionsEl = document.getElementById('browseToolbarActions');
+    if (!titleEl || !descEl || !actionsEl) return;
+    const items = getSchedulableBrowseItems();
+    const selectedCount = browseSelectedSns.length;
+    if (!browseAppointmentMode) {
+        titleEl.textContent = '瀏覽清單';
+        descEl.textContent = '可直接傳送清單，或安排看房日期。';
+        actionsEl.innerHTML = `<button type="button" class="browse-toolbar-btn is-primary" id="browseScheduleBtn">預約日期</button>`;
+        return;
+    }
+    titleEl.textContent = selectedCount ? `已選 ${selectedCount} 個物件` : '請選擇想看的物件';
+    descEl.textContent = items.length
+        ? '勾選想安排看房的物件，再填日期和時間。'
+        : '目前沒有可預約的物件。';
+    actionsEl.innerHTML = `
+        <button type="button" class="browse-toolbar-btn is-secondary" id="browseSelectAllBtn">${selectedCount === items.length && items.length ? '取消全選' : '全部選擇'}</button>
+        <button type="button" class="browse-toolbar-btn" id="browseCancelScheduleBtn">取消</button>
+        <button type="button" class="browse-toolbar-btn is-primary" id="browseProceedScheduleBtn"${selectedCount ? '' : ' disabled'}>填寫日期時間</button>
+    `;
 }
 function renderBrowseList() {
     const listEl = document.getElementById('browseList');
@@ -6929,9 +7387,17 @@ function renderBrowseList() {
     };
     listEl.innerHTML = list.map((item) => `
         <div class="browse-item">
-            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
-                <div><strong>${item.title}</strong> <span style="color:#777;">(${item.type === 'media' ? '影音' : item.sn})</span></div>
-                <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;">
+            <div class="browse-item-row">
+                <div class="browse-item-main">
+                    <div class="browse-item-select">
+                        ${browseAppointmentMode
+                            ? `<button type="button" class="browse-select-circle${item.type === 'media' ? ' is-disabled' : ''}${browseSelectedSns.includes(item.sn) ? ' is-selected' : ''}" ${item.type === 'media' ? 'tabindex="-1"' : `onclick="toggleBrowseAppointmentSelection('${item.sn}')"`} aria-label="${browseSelectedSns.includes(item.sn) ? '取消選取' : '選取物件'}"></button>`
+                            : ''
+                        }
+                        <div><strong>${item.title}</strong> <span style="color:#777;">(${item.type === 'media' ? '影音' : item.sn})</span></div>
+                    </div>
+                </div>
+                <div class="browse-item-actions">
                     <button class="press-glow" onclick="removeFromBrowseList('${item.sn}'); renderBrowseList(); updateBrowseIndicator(getBrowseList().length);" style="border:none;background:rgba(255,255,255,0.85);color:#333;padding:4px 8px;border-radius:999px;font-size:11px;cursor:pointer;">取消瀏覽</button>
                     <button class="press-glow" onclick="${item.type === 'media'
                         ? `closeBrowseList(); openMediaReels('${item.mediaCategoryKey || ''}', '${item.videoId || ''}');`
@@ -6948,6 +7414,8 @@ function openBrowseList() {
     const overlay = document.getElementById('browseOverlay');
     if (!overlay) return;
     refreshBrowseListFromCache();
+    setBrowseAppointmentMode(false);
+    updateBrowseToolbar();
     renderBrowseList();
     overlay.classList.add('is-open');
     setBookmarkMode('browse');
@@ -6956,16 +7424,161 @@ function openBrowseList() {
 }
 function closeBrowseList() {
     document.getElementById('browseOverlay')?.classList.remove('is-open');
+    browseAppointmentMode = false;
+    browseSelectedSns = [];
     setBookmarkMode('browse');
     const plus = document.getElementById('toggleBtn');
     if (plus) plus.classList.remove('shifted');
 }
-function openCalendarOverlay() {
+const calendarToday = new Date();
+const calendarMonthState = {
+    year: calendarToday.getFullYear(),
+    month: calendarToday.getMonth()
+};
+function formatAppointmentDateLabel(value) {
+    if (!value) return "";
+    const [year, month, day] = String(value).split('-');
+    return year && month && day ? `${year}/${month}/${day}` : value;
+}
+function renderCalendarAppointmentSelection() {
+    const panel = document.querySelector('.calendar-panel');
+    const listEl = document.getElementById('calendarAppointmentList');
+    const noteEl = document.getElementById('calendarAppointmentNote');
+    const confirmBtn = document.getElementById('calendarConfirmBtn');
+    const todayBtn = document.getElementById('calendarTodayBtn');
+    if (!panel || !listEl || !confirmBtn || !todayBtn) return;
+    const isAppointment = calendarMode === 'appointment';
+    panel.classList.toggle('is-appointment', isAppointment);
+    confirmBtn.style.display = isAppointment ? 'inline-flex' : 'none';
+    todayBtn.style.display = isAppointment ? 'none' : 'inline-flex';
+    if (!isAppointment) {
+        listEl.innerHTML = '';
+        return;
+    }
+    listEl.innerHTML = calendarAppointmentSelection.map((item) => `
+        <div class="calendar-appointment-item">
+            <div class="calendar-appointment-item-title">${escapeHtml(item.title || '未命名物件')}</div>
+            <div class="calendar-appointment-item-sub">${escapeHtml(item.address || item.link || '待確認地址')}</div>
+        </div>
+    `).join('');
+    if (noteEl) noteEl.textContent = `已選 ${calendarAppointmentSelection.length} 個物件，請填入看房日期和時間。`;
+}
+function renderCalendarMonth() {
+    const monthLabel = document.getElementById('calendarMonthLabel');
+    const grid = document.getElementById('calendarGrid');
+    const note = document.getElementById('calendarPanelNote');
+    const selectedDate = document.getElementById('calendarDateInput')?.value || '';
+    if (!monthLabel || !grid) return;
+    const year = calendarMonthState.year;
+    const month = calendarMonthState.month;
+    const firstDay = new Date(year, month, 1);
+    const startWeekday = firstDay.getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const prevMonthDays = new Date(year, month, 0).getDate();
+    const cells = [];
+    for (let i = 0; i < startWeekday; i += 1) {
+        const day = prevMonthDays - startWeekday + i + 1;
+        cells.push(`<div class="calendar-day is-outside" aria-hidden="true">${day}</div>`);
+    }
+    for (let day = 1; day <= daysInMonth; day += 1) {
+        const isoDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const isToday = year === calendarToday.getFullYear()
+            && month === calendarToday.getMonth()
+            && day === calendarToday.getDate();
+        const isSelected = selectedDate === isoDate;
+        cells.push(`<button type="button" class="calendar-day${isToday ? ' is-today' : ''}${isSelected ? ' is-selected' : ''}" data-date="${isoDate}" aria-label="${year}年${month + 1}月${day}日">${day}</button>`);
+    }
+    const remainder = cells.length % 7;
+    const trailing = remainder === 0 ? 0 : 7 - remainder;
+    for (let day = 1; day <= trailing; day += 1) {
+        cells.push(`<div class="calendar-day is-outside" aria-hidden="true">${day}</div>`);
+    }
+    monthLabel.textContent = `${year} 年 ${month + 1} 月`;
+    grid.innerHTML = cells.join('');
+    if (note) {
+        const monthMatchesToday = year === calendarToday.getFullYear() && month === calendarToday.getMonth();
+        note.textContent = monthMatchesToday
+            ? `今天 ${calendarToday.getMonth() + 1}/${calendarToday.getDate()} 已標記。之後可再把看房、提醒或 reels 連動排進來。`
+            : `目前查看 ${year} 年 ${month + 1} 月。點「今天」可快速回到本月。`;
+    }
+}
+function selectCalendarDate(value) {
+    const dateInput = document.getElementById('calendarDateInput');
+    if (dateInput) dateInput.value = value;
+    renderCalendarMonth();
+}
+function shiftCalendarMonth(offset) {
+    calendarMonthState.month += offset;
+    if (calendarMonthState.month < 0) {
+        calendarMonthState.month = 11;
+        calendarMonthState.year -= 1;
+    } else if (calendarMonthState.month > 11) {
+        calendarMonthState.month = 0;
+        calendarMonthState.year += 1;
+    }
+    renderCalendarMonth();
+}
+function jumpCalendarToToday() {
+    calendarMonthState.year = calendarToday.getFullYear();
+    calendarMonthState.month = calendarToday.getMonth();
+    if (calendarMode === 'appointment') {
+        selectCalendarDate(`${calendarToday.getFullYear()}-${String(calendarToday.getMonth() + 1).padStart(2, '0')}-${String(calendarToday.getDate()).padStart(2, '0')}`);
+        return;
+    }
+    renderCalendarMonth();
+}
+function openCalendarOverlay(mode = 'general', items = []) {
     closeDrawer();
+    calendarMode = mode;
+    calendarAppointmentSelection = Array.isArray(items) ? items : [];
+    const dateInput = document.getElementById('calendarDateInput');
+    const timeInput = document.getElementById('calendarTimeInput');
+    if (dateInput) {
+        dateInput.value = mode === 'appointment'
+            ? `${calendarToday.getFullYear()}-${String(calendarToday.getMonth() + 1).padStart(2, '0')}-${String(calendarToday.getDate()).padStart(2, '0')}`
+            : '';
+    }
+    if (timeInput) timeInput.value = '';
+    renderCalendarAppointmentSelection();
+    jumpCalendarToToday();
     document.getElementById('calendarOverlay')?.classList.add('is-open');
 }
 function closeCalendarOverlay() {
     document.getElementById('calendarOverlay')?.classList.remove('is-open');
+    calendarMode = 'general';
+    calendarAppointmentSelection = [];
+}
+function openBrowseAppointmentCalendar() {
+    const items = getSchedulableBrowseItems().filter((item) => browseSelectedSns.includes(item.sn));
+    if (!items.length) return alert('請先勾選想預約看的物件');
+    openCalendarOverlay('appointment', items);
+}
+function sendAppointmentToLine() {
+    const dateValue = document.getElementById('calendarDateInput')?.value || '';
+    const timeValue = document.getElementById('calendarTimeInput')?.value || '';
+    if (!calendarAppointmentSelection.length) return alert('目前沒有選取物件');
+    if (!dateValue) return alert('請先選擇看房日期');
+    if (!timeValue) return alert('請先選擇看房時間');
+    try {
+        localStorage.setItem(browseAppointmentDraftKey, JSON.stringify({
+            savedAt: new Date().toISOString(),
+            date: dateValue,
+            time: timeValue,
+            items: calendarAppointmentSelection
+        }));
+    } catch (error) {}
+    const text = [
+        '您好，我想預約看房',
+        `日期：${formatAppointmentDateLabel(dateValue)}`,
+        `時間：${timeValue}`,
+        '',
+        '想看的物件：',
+        ...calendarAppointmentSelection.map((item, index) => `${index + 1}. ${item.title || '未命名物件'}${item.address ? `｜${item.address}` : ''}${item.link ? `｜${item.link}` : ''}`)
+    ].join('\n');
+    const url = `https://line.me/R/msg/text/?${encodeURIComponent(text)}`;
+    window.open(url, "_blank");
+    closeCalendarOverlay();
+    closeBrowseList();
 }
 function sendBrowseListToLine() {
     const list = getBrowseList();
@@ -7942,26 +8555,6 @@ function contactAgentFromMedia() {
     alert('尚未設定業務聯繫方式');
 }
 
-function formatCalendarDate(date) {
-    return date.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}Z$/, 'Z');
-}
-
-function addCurrentMediaToCalendar() {
-    const payload = getCurrentMediaSharePayload();
-    const start = new Date();
-    start.setMinutes(0, 0, 0);
-    start.setHours(start.getHours() + 1);
-    const end = new Date(start.getTime() + 60 * 60 * 1000);
-    const details = [payload.title, payload.url].filter(Boolean).join('\n');
-    const calendarUrl = new URL('https://calendar.google.com/calendar/render');
-    calendarUrl.searchParams.set('action', 'TEMPLATE');
-    calendarUrl.searchParams.set('text', `觀看房產影音｜${payload.title}`);
-    calendarUrl.searchParams.set('details', details);
-    calendarUrl.searchParams.set('dates', `${formatCalendarDate(start)}/${formatCalendarDate(end)}`);
-    window.open(calendarUrl.toString(), '_blank', 'noopener');
-    setMediaReelsMenuOpen(false);
-}
-
 function formatMediaStatCount(value) {
     const count = Number(value) || 0;
     if (count >= 100000000) return `${(count / 100000000).toFixed(count >= 1000000000 ? 0 : 1).replace(/\.0$/, '')}億`;
@@ -8554,6 +9147,33 @@ document.addEventListener('click', (e) => {
         openListingDetail(detailBtn.dataset.sn);
         return;
     }
+    const scheduleBtn = e.target.closest('#browseScheduleBtn');
+    if (scheduleBtn) {
+        const items = getSchedulableBrowseItems();
+        if (!items.length) {
+            alert('目前沒有可預約的物件');
+            return;
+        }
+        setBrowseAppointmentMode(true);
+        return;
+    }
+    if (e.target.closest('#browseSelectAllBtn')) {
+        toggleBrowseSelectAll();
+        return;
+    }
+    if (e.target.closest('#browseCancelScheduleBtn')) {
+        setBrowseAppointmentMode(false);
+        return;
+    }
+    if (e.target.closest('#browseProceedScheduleBtn')) {
+        openBrowseAppointmentCalendar();
+        return;
+    }
+    const calendarDay = e.target.closest('.calendar-day[data-date]');
+    if (calendarDay) {
+        selectCalendarDate(calendarDay.dataset.date || '');
+        return;
+    }
     if (mediaActionsMenuOpen && !e.target.closest('#mediaReelsMenu') && !e.target.closest('#mediaReelsMenuBtn')) {
         setMediaReelsMenuOpen(false);
     }
@@ -8571,6 +9191,8 @@ document.getElementById('composerToolFeatured')?.addEventListener('click', () =>
     if (href) window.open(href, '_blank', 'noopener');
 });
 document.getElementById('composerToolCalendar')?.addEventListener('click', openCalendarOverlay);
+document.getElementById('calendarPrevBtn')?.addEventListener('click', () => shiftCalendarMonth(-1));
+document.getElementById('calendarNextBtn')?.addEventListener('click', () => shiftCalendarMonth(1));
 document.getElementById('composerToolMedia')?.addEventListener('click', () => {
     if (!getMediaCategories().length) {
         alert('請先在業務資訊裡設定房地產影音播放清單');
@@ -8580,7 +9202,11 @@ document.getElementById('composerToolMedia')?.addEventListener('click', () => {
 });
 document.getElementById('calendarCloseBtn')?.addEventListener('click', closeCalendarOverlay);
 document.getElementById('calendarDismissBtn')?.addEventListener('click', closeCalendarOverlay);
-document.getElementById('calendarPlaceholderBtn')?.addEventListener('click', closeCalendarOverlay);
+document.getElementById('calendarTodayBtn')?.addEventListener('click', jumpCalendarToToday);
+document.getElementById('calendarConfirmBtn')?.addEventListener('click', sendAppointmentToLine);
+document.getElementById('calendarDateInput')?.addEventListener('change', (event) => {
+    selectCalendarDate(event.target.value || '');
+});
 document.getElementById('calendarOverlay')?.addEventListener('click', (event) => {
     if (event.target?.id === 'calendarOverlay') closeCalendarOverlay();
 });
