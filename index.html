@@ -2769,7 +2769,7 @@
         }
         .media-reels-rail {
             position: absolute;
-            right: 16px;
+            right: 22px;
             bottom: 116px;
             z-index: 4;
             display: flex;
@@ -2805,9 +2805,13 @@
             flex: 0 0 auto;
         }
         .media-reels-action-btn:focus,
-        .media-reels-action-btn:focus-visible {
+        .media-reels-action-btn:focus-visible,
+        .media-reels-action-btn:hover,
+        .media-reels-action-btn:active {
             outline: none;
             box-shadow: none;
+            transform: none;
+            background: transparent;
         }
         .media-reels-action-menu {
             position: absolute;
@@ -3027,6 +3031,7 @@
             line-height: 1.18;
             text-shadow: 0 1px 6px rgba(0,0,0,0.22);
             max-width: min(100%, 24ch);
+            margin-top: 6px;
             overflow: hidden;
             display: -webkit-box;
             -webkit-box-orient: vertical;
@@ -3041,8 +3046,15 @@
             letter-spacing: 0.01em;
             text-shadow: 0 1px 6px rgba(0,0,0,0.24);
         }
-        .media-reels-subtitle {
+        .media-reels-subtitle-row {
+            display: flex;
+            align-items: flex-end;
+            gap: 6px;
             max-width: min(100%, 28ch);
+        }
+        .media-reels-subtitle {
+            flex: 1 1 auto;
+            min-width: 0;
             overflow: hidden;
             display: -webkit-box;
             -webkit-box-orient: vertical;
@@ -3066,12 +3078,13 @@
             overflow: visible;
         }
         .media-reels-more {
-            margin-top: 6px;
+            margin: 0 0 1px;
+            flex: 0 0 auto;
             padding: 0;
             border: none;
             background: transparent;
             color: #fff;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 800;
             text-shadow: 0 2px 10px rgba(0,0,0,0.36);
             cursor: pointer;
@@ -3778,15 +3791,15 @@
 
             .media-reels .media-topbar {
                 top: calc(var(--safe-top) + 8px);
-                padding: 0 14px;
+                padding: 0 16px;
             }
 
             .media-sound-btn {
-                right: 14px;
+                right: 16px;
             }
 
             .media-play-btn {
-                right: 122px;
+                right: 126px;
             }
 
             .media-inline-toast {
@@ -3795,7 +3808,7 @@
             }
 
             .media-reels-rail {
-                right: 12px;
+                right: 18px;
                 bottom: calc(var(--safe-bottom) + 112px);
             }
 
@@ -3805,8 +3818,8 @@
             }
 
             .media-reels-action-menu {
-                right: 54px;
-                width: min(210px, calc(100vw - 88px));
+                right: 46px;
+                width: min(210px, calc(100vw - 104px));
             }
 
             .media-reels-frame {
@@ -3822,20 +3835,25 @@
 
             .media-reels-actions,
             .media-reels-meta {
-                padding: 12px;
+                padding: 16px;
             }
 
             .media-reels-meta {
                 padding-bottom: 56px;
-                max-width: min(72%, 24ch);
+                max-width: min(68%, 22ch);
+            }
+
+            .media-reels-subtitle-row {
+                max-width: min(100%, 22ch);
             }
 
             .media-reels-title {
                 font-size: 15px;
+                margin-top: 4px;
             }
 
             .media-reels-hint {
-                left: 12px;
+                left: 16px;
             }
 
             .msg {
@@ -4226,9 +4244,11 @@
                         <div class="media-reels-actions">
                         </div>
                         <div class="media-reels-meta">
+                            <div class="media-reels-subtitle-row">
+                                <div class="media-reels-subtitle" id="mediaReelsSubtitle">上下滑動切換下一支影片</div>
+                                <button type="button" class="media-reels-more" id="mediaReelsMoreBtn" hidden>展開</button>
+                            </div>
                             <div class="media-reels-title" id="mediaReelsTitle">影音播放</div>
-                            <div class="media-reels-subtitle" id="mediaReelsSubtitle">上下滑動切換下一支影片</div>
-                            <button type="button" class="media-reels-more" id="mediaReelsMoreBtn" hidden>展開</button>
                             <div class="media-reels-hint" id="mediaReelsStats">載入影片數據中</div>
                         </div>
                     </div>
@@ -7671,9 +7691,17 @@ function getCurrentMediaBrowseItem() {
 
 function addCurrentMediaToBrowseList() {
     const browseItem = getCurrentMediaBrowseItem();
-    if (!browseItem) return showMediaInlineToast('目前沒有可加入的影音');
+    if (!browseItem) {
+        setMediaReelsMenuOpen(false);
+        showMediaInlineToast('目前沒有可加入的影音');
+        return;
+    }
     const list = getBrowseList();
-    if (list.some((item) => item.sn === browseItem.sn)) return showMediaInlineToast('這支影音已在瀏覽清單');
+    if (list.some((item) => item.sn === browseItem.sn)) {
+        setMediaReelsMenuOpen(false);
+        showMediaInlineToast('這支影音已在瀏覽清單');
+        return;
+    }
     list.push(browseItem);
     saveBrowseList(list);
     trackBrowseAdd(browseItem);
@@ -8332,10 +8360,21 @@ document.getElementById('mediaReelsMenuBtn')?.addEventListener('click', (event) 
     event.stopPropagation();
     setMediaReelsMenuOpen(!mediaActionsMenuOpen);
 });
-document.getElementById('mediaReelsBrowseAction')?.addEventListener('click', addCurrentMediaToBrowseList);
-document.getElementById('mediaReelsLineAction')?.addEventListener('click', sendCurrentMediaToLine);
-document.getElementById('mediaReelsContactAction')?.addEventListener('click', contactAgentFromMedia);
-document.getElementById('mediaReelsCalendarAction')?.addEventListener('click', addCurrentMediaToCalendar);
+document.getElementById('mediaReelsMenu')?.addEventListener('click', (event) => {
+    event.stopPropagation();
+});
+document.getElementById('mediaReelsBrowseAction')?.addEventListener('click', (event) => {
+    event.stopPropagation();
+    addCurrentMediaToBrowseList();
+});
+document.getElementById('mediaReelsLineAction')?.addEventListener('click', (event) => {
+    event.stopPropagation();
+    sendCurrentMediaToLine();
+});
+document.getElementById('mediaReelsContactAction')?.addEventListener('click', (event) => {
+    event.stopPropagation();
+    contactAgentFromMedia();
+});
 document.getElementById('mediaBackToHomeBtn')?.addEventListener('click', openMediaHome);
 document.getElementById('mediaReelsMoreBtn')?.addEventListener('click', toggleMediaReelsDescription);
 document.getElementById('mediaReelsSubtitle')?.addEventListener('click', toggleMediaReelsDescription);
