@@ -2295,6 +2295,10 @@
         .media-home {
             gap: 12px;
         }
+        .media-reels {
+            position: relative;
+            gap: 0;
+        }
         .media-home.is-active,
         .media-reels.is-active {
             display: flex;
@@ -2694,6 +2698,10 @@
             position: relative;
             flex: 1;
             min-height: 0;
+            width: min(100%, 430px);
+            margin: 0 auto;
+            aspect-ratio: 9 / 16;
+            max-height: 100%;
             border-radius: 28px;
             overflow: hidden;
             background: #050505;
@@ -2785,6 +2793,20 @@
             border-radius: 999px;
             background: rgba(255,255,255,0.9);
             box-shadow: 0 0 8px rgba(255,255,255,0.52);
+        }
+        .media-reels .media-topbar {
+            position: absolute;
+            top: 8px;
+            left: 0;
+            right: 0;
+            z-index: 4;
+            padding: 0 10px;
+            pointer-events: none;
+        }
+        .media-reels .media-topbar .media-back-btn {
+            pointer-events: auto;
+            backdrop-filter: blur(16px);
+            background: rgba(10,10,12,0.28);
         }
         .media-reels-empty {
             display: flex;
@@ -3424,8 +3446,23 @@
                 height: 40px;
             }
 
+            .media-reels {
+                margin: 0 -10px -12px;
+            }
+
+            .media-reels .media-topbar {
+                top: calc(var(--safe-top) + 8px);
+                padding: 0 14px;
+            }
+
             .media-reels-frame {
-                border-radius: 22px;
+                width: 100%;
+                max-width: none;
+                aspect-ratio: auto;
+                height: 100%;
+                border-radius: 0;
+                border: none;
+                box-shadow: none;
             }
 
             .media-reels-actions,
@@ -3718,8 +3755,8 @@
                 <div class="media-home-hero">
                     <div class="media-home-copy">
                         <div class="media-home-eyebrow">短影音</div>
-                        <div class="media-home-title" id="mediaHomeHeroTitle">房地產影音入口</div>
-                        <div class="media-home-desc">先選想看的內容類型，再進入直式滑動播放。內頁也有詳細文字敘述及房產物件資訊。</div>
+                        <div class="media-home-title" id="mediaHomeHeroTitle">房地產影音</div>
+                        <div class="media-home-desc">先選想看的內容類型，再進入直式滑動播放。</div>
                         <div class="media-home-tags">
                             <div class="media-home-tag">靜音預覽封面</div>
                             <div class="media-home-tag">上下滑動切換</div>
@@ -3744,7 +3781,7 @@
                     <div class="media-reels-swipe" id="mediaReelsSwipe"></div>
                     <div class="media-reels-overlay">
                         <div class="media-reels-actions">
-                            <div class="media-chip" id="mediaReelsCategoryChip">房地產影音</div>
+                            <div class="media-chip" id="mediaReelsCategoryChip">選擇觀看的影音篇章</div>
                             <div class="media-chip" id="mediaReelsCounter">1 / 1</div>
                         </div>
                         <div class="media-reels-meta">
@@ -7045,7 +7082,7 @@ async function openMediaReels(categoryKey) {
             onReady: (event) => {
                 mediaPlayerReady = true;
                 try {
-                    event.target.mute();
+                    event.target.unMute();
                     event.target.playVideo();
                     mediaPlaylistIds = event.target.getPlaylist() || [];
                 } catch (error) {}
