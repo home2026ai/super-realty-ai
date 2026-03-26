@@ -2499,10 +2499,7 @@
             inset: 0;
             pointer-events: none;
             z-index: 1;
-            background:
-                radial-gradient(ellipse at top left, rgba(0,0,0,0.42), transparent 34%),
-                radial-gradient(ellipse at top right, rgba(0,0,0,0.42), transparent 34%),
-                linear-gradient(90deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.02) 10%, rgba(0,0,0,0.02) 90%, rgba(0,0,0,0.2) 100%);
+            background: none;
         }
         .media-category-preview iframe,
         .media-category-preview .media-category-fallback {
@@ -2537,17 +2534,14 @@
             inset: 0;
             z-index: 0;
             pointer-events: none;
-            background:
-                radial-gradient(circle at top center, rgba(255,255,255,0.06), transparent 34%),
-                radial-gradient(circle at bottom center, rgba(255,255,255,0.04), transparent 30%);
+            background: none;
         }
         .media-category-card::after {
             content: "";
             position: absolute;
             inset: 0;
             background:
-                linear-gradient(180deg, var(--app-surface) 0%, rgba(0,0,0,0.92) 12%, rgba(0,0,0,0.42) 28%, rgba(0,0,0,0.07) 44%, rgba(0,0,0,0.08) 56%, rgba(0,0,0,0.42) 74%, rgba(0,0,0,0.86) 90%, var(--app-surface) 100%),
-                linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0));
+                linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0) 58%, rgba(0,0,0,0.18) 74%, rgba(0,0,0,0.52) 100%);
             pointer-events: none;
         }
         .media-category-card::selection {
@@ -3384,10 +3378,6 @@
             .media-category-card {
                 min-height: 388px;
                 border-radius: 24px;
-            }
-
-            .media-category-card[data-category-style="knowledge"] {
-                margin-top: 8px;
             }
 
             .media-category-title {
@@ -6528,11 +6518,18 @@ function updateAgentLinks() {
 }
 
 function applyAgentData(agentId, data) {
+    const mediaDraft = loadAgentMediaDraft(agentId);
     currentAgentId = agentId;
     currentAgent = {
         ...DEFAULT_AGENT,
         ...(data || {})
     };
+    if (mediaDraft) {
+        if (!currentAgent.mediaTitle && mediaDraft.mediaTitle) currentAgent.mediaTitle = mediaDraft.mediaTitle;
+        if (!currentAgent.mediaUrl && mediaDraft.mediaUrl) currentAgent.mediaUrl = mediaDraft.mediaUrl;
+        if (!currentAgent.mediaPlaylistTour && mediaDraft.mediaPlaylistTour) currentAgent.mediaPlaylistTour = mediaDraft.mediaPlaylistTour;
+        if (!currentAgent.mediaPlaylistKnowledge && mediaDraft.mediaPlaylistKnowledge) currentAgent.mediaPlaylistKnowledge = mediaDraft.mediaPlaylistKnowledge;
+    }
     const photo = document.getElementById('agentPhoto');
     const name = document.getElementById('agentName');
     const bio = document.getElementById('agentBio');
@@ -6818,6 +6815,42 @@ function getAgentParam() {
     return params.get('agent');
 }
 
+function getAgentMediaDraftKey(agentId) {
+    const safeAgentId = String(agentId || "").trim();
+    return safeAgentId ? `agent_media_draft_${safeAgentId}` : "";
+}
+
+function loadAgentMediaDraft(agentId) {
+    const key = getAgentMediaDraftKey(agentId);
+    if (!key) return null;
+    try {
+        const parsed = JSON.parse(localStorage.getItem(key) || "null");
+        return parsed && typeof parsed === "object" ? parsed : null;
+    } catch (error) {
+        return null;
+    }
+}
+
+function saveAgentMediaDraft(agentId, payload) {
+    const key = getAgentMediaDraftKey(agentId);
+    if (!key) return;
+    localStorage.setItem(key, JSON.stringify({
+        mediaTitle: String(payload?.mediaTitle || ""),
+        mediaUrl: String(payload?.mediaUrl || ""),
+        mediaPlaylistTour: String(payload?.mediaPlaylistTour || ""),
+        mediaPlaylistKnowledge: String(payload?.mediaPlaylistKnowledge || "")
+    }));
+}
+
+function getCurrentAgentMediaPayload() {
+    return {
+        mediaTitle: document.getElementById('agentEditMediaTitle')?.value.trim() || "",
+        mediaUrl: document.getElementById('agentEditMediaUrl')?.value.trim() || "",
+        mediaPlaylistTour: document.getElementById('agentEditMediaPlaylistTour')?.value.trim() || "",
+        mediaPlaylistKnowledge: document.getElementById('agentEditMediaPlaylistKnowledge')?.value.trim() || ""
+    };
+}
+
 function extractYouTubePlaylistId(url) {
     const raw = String(url || "").trim();
     if (!raw) return "";
@@ -6877,7 +6910,7 @@ function buildCategoryPreviewEmbed(category) {
     if (!playlistId) {
         return `<div class="media-category-fallback">尚未設定播放清單</div>`;
     }
-    return `<iframe src="https://www.youtube.com/embed/videoseries?list=${encodeURIComponent(playlistId)}&autoplay=1&mute=1&controls=0&loop=1&playsinline=1&rel=0&modestbranding=1&iv_load_policy=3" title="${escapeHtml(category.label)} 預覽" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`;
+    return `<iframe src="https://www.youtube.com/embed/videoseries?list=${encodeURIComponent(playlistId)}&playlist=${encodeURIComponent(playlistId)}&autoplay=1&mute=1&controls=0&loop=1&playsinline=1&rel=0&modestbranding=1&iv_load_policy=3" title="${escapeHtml(category.label)} 預覽" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`;
 }
 
 function renderMediaHome() {
@@ -7496,8 +7529,10 @@ document.getElementById('agentSaveBtn')?.addEventListener('click', async () => {
         mediaPlaylistTour: document.getElementById('agentEditMediaPlaylistTour')?.value.trim(),
         mediaPlaylistKnowledge: document.getElementById('agentEditMediaPlaylistKnowledge')?.value.trim()
     };
+    saveAgentMediaDraft(currentAgentId, payload);
     try {
         const updated = await saveAgentProfile(currentAgentId, agentPassword, payload);
+        saveAgentMediaDraft(currentAgentId, updated);
         applyAgentData(currentAgentId, updated);
         if (agentStatsVisible) {
             await refreshAgentStats();
@@ -7506,6 +7541,12 @@ document.getElementById('agentSaveBtn')?.addEventListener('click', async () => {
     } catch (e) {
         alert("儲存失敗，請稍後再試");
     }
+});
+['agentEditMediaTitle', 'agentEditMediaUrl', 'agentEditMediaPlaylistTour', 'agentEditMediaPlaylistKnowledge'].forEach((id) => {
+    document.getElementById(id)?.addEventListener('input', () => {
+        if (!currentAgentId) return;
+        saveAgentMediaDraft(currentAgentId, getCurrentAgentMediaPayload());
+    });
 });
 document.getElementById('agentShareBtn')?.addEventListener('click', async () => {
     if (!currentAgentId) return;
