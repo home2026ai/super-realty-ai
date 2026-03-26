@@ -2760,6 +2760,62 @@
             align-items: center;
             justify-content: center;
         }
+        .media-sound-btn {
+            border: 1px solid rgba(255,255,255,0.24);
+            background: rgba(0,0,0,0.34);
+            color: #fff;
+            border-radius: 999px;
+            min-height: 34px;
+            padding: 0 12px;
+            font-size: 12px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            pointer-events: auto;
+        }
+        .media-sound-btn svg {
+            width: 15px;
+            height: 15px;
+            stroke: currentColor;
+            fill: none;
+            flex: 0 0 auto;
+        }
+        .media-sound-hint {
+            position: absolute;
+            left: 50%;
+            bottom: 126px;
+            transform: translateX(-50%);
+            z-index: 3;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            min-height: 46px;
+            padding: 0 16px;
+            border-radius: 999px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(8,8,10,0.56);
+            color: #fff;
+            font-size: 13px;
+            font-weight: 800;
+            backdrop-filter: blur(18px);
+            box-shadow: 0 14px 28px rgba(0,0,0,0.24);
+            cursor: pointer;
+            pointer-events: auto;
+            animation: mediaHintPulse 1.8s ease-in-out infinite;
+        }
+        .media-sound-hint.is-visible {
+            display: inline-flex;
+        }
+        .media-sound-hint svg {
+            width: 16px;
+            height: 16px;
+            stroke: currentColor;
+            fill: none;
+            flex: 0 0 auto;
+        }
         .media-reels-meta {
             flex-direction: column;
             align-items: flex-start;
@@ -2844,6 +2900,16 @@
             to {
                 opacity: 1;
                 transform: translateY(0) scale(1);
+            }
+        }
+        @keyframes mediaHintPulse {
+            0%, 100% {
+                transform: translateX(-50%) translateY(0);
+                box-shadow: 0 14px 28px rgba(0,0,0,0.24);
+            }
+            50% {
+                transform: translateX(-50%) translateY(-2px);
+                box-shadow: 0 18px 34px rgba(0,0,0,0.3);
             }
         }
         .chat-scroll-indicator {
@@ -3779,10 +3845,28 @@
                 <div class="media-reels-frame" id="mediaReelsFrame">
                     <div class="media-reels-player" id="mediaReelsPlayer"></div>
                     <div class="media-reels-swipe" id="mediaReelsSwipe"></div>
+                    <button type="button" class="media-sound-hint" id="mediaSoundHint" aria-label="點一下開聲音">
+                        <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M5 9v6h4l5 4V5l-5 4H5Z"></path>
+                            <path d="M18 9a4 4 0 0 1 0 6"></path>
+                            <path d="M20.5 6.5a8 8 0 0 1 0 11"></path>
+                        </svg>
+                        <span>點一下開聲音</span>
+                    </button>
                     <div class="media-reels-overlay">
                         <div class="media-reels-actions">
-                            <div class="media-chip" id="mediaReelsCategoryChip">選擇觀看的影音篇章</div>
-                            <div class="media-chip" id="mediaReelsCounter">1 / 1</div>
+                            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                                <div class="media-chip" id="mediaReelsCategoryChip">選擇觀看的影音篇章</div>
+                                <div class="media-chip" id="mediaReelsCounter">1 / 1</div>
+                            </div>
+                            <button type="button" class="media-sound-btn press-glow" id="mediaSoundToggle" aria-label="開聲音">
+                                <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <path d="M5 9v6h4l5 4V5l-5 4H5Z"></path>
+                                    <path d="M18 9a4 4 0 0 1 0 6"></path>
+                                    <path d="M20.5 6.5a8 8 0 0 1 0 11"></path>
+                                </svg>
+                                <span id="mediaSoundToggleText">開聲音</span>
+                            </button>
                         </div>
                         <div class="media-reels-meta">
                             <div class="media-reels-title" id="mediaReelsTitle">影音播放</div>
@@ -4448,6 +4532,23 @@
     let mediaPlayer = null;
     let mediaPlaylistIds = [];
     let mediaPlayerApiLoading = null;
+    let mediaMuted = true;
+
+    function shouldShowMediaSoundHint() {
+        return localStorage.getItem('media_sound_hint_seen') !== '1';
+    }
+
+    function hideMediaSoundHint(markSeen = false) {
+        const hint = document.getElementById('mediaSoundHint');
+        if (hint) hint.classList.remove('is-visible');
+        if (markSeen) localStorage.setItem('media_sound_hint_seen', '1');
+    }
+
+    function showMediaSoundHint() {
+        if (!shouldShowMediaSoundHint()) return;
+        const hint = document.getElementById('mediaSoundHint');
+        if (hint) hint.classList.add('is-visible');
+    }
 
     function getSessionId() {
         let id = localStorage.getItem('chat_session_id');
@@ -7048,6 +7149,29 @@ function updateMediaReelsMeta(category) {
     }
 }
 
+function updateMediaSoundButton() {
+    const textEl = document.getElementById('mediaSoundToggleText');
+    const btnEl = document.getElementById('mediaSoundToggle');
+    const nextText = mediaMuted ? '開聲音' : '靜音中';
+    if (textEl) textEl.textContent = nextText;
+    if (btnEl) btnEl.setAttribute('aria-label', nextText);
+}
+
+function toggleMediaSound() {
+    if (!mediaPlayer || !mediaPlayerReady) return;
+    try {
+        if (mediaMuted) {
+            mediaPlayer.unMute();
+            mediaMuted = false;
+            hideMediaSoundHint(true);
+        } else {
+            mediaPlayer.mute();
+            mediaMuted = true;
+        }
+        updateMediaSoundButton();
+    } catch (error) {}
+}
+
 async function openMediaReels(categoryKey) {
     const categories = getMediaCategories();
     const category = categories.find((item) => item.key === categoryKey);
@@ -7063,6 +7187,9 @@ async function openMediaReels(categoryKey) {
     playerHolder.innerHTML = '';
     mediaPlayerReady = false;
     mediaPlaylistIds = [];
+    mediaMuted = true;
+    updateMediaSoundButton();
+    hideMediaSoundHint();
     await ensureYouTubePlayerApi();
     mediaPlayer = new window.YT.Player('mediaReelsPlayer', {
         width: '100%',
@@ -7082,10 +7209,13 @@ async function openMediaReels(categoryKey) {
             onReady: (event) => {
                 mediaPlayerReady = true;
                 try {
-                    event.target.unMute();
+                    event.target.mute();
                     event.target.playVideo();
                     mediaPlaylistIds = event.target.getPlaylist() || [];
                 } catch (error) {}
+                mediaMuted = true;
+                updateMediaSoundButton();
+                showMediaSoundHint();
                 updateMediaReelsMeta(category);
             },
             onStateChange: () => {
@@ -7359,6 +7489,8 @@ document.getElementById('composerToolMedia')?.addEventListener('click', () => {
 });
 document.getElementById('mediaBackToChatBtn')?.addEventListener('click', exitMediaMode);
 document.getElementById('mediaBackToChatBtnSecondary')?.addEventListener('click', exitMediaMode);
+document.getElementById('mediaSoundToggle')?.addEventListener('click', toggleMediaSound);
+document.getElementById('mediaSoundHint')?.addEventListener('click', toggleMediaSound);
 document.getElementById('mediaBackToHomeBtn')?.addEventListener('click', () => {
     renderMediaHome();
     setMediaMode('home');
