@@ -214,7 +214,7 @@ async function fetchYouTubePlaylistMeta(playlistId) {
     for (let i = 0; i < orderedVideoIds.length; i += 50) {
         const chunk = orderedVideoIds.slice(i, i + 50);
         const videosUrl = new URL("https://www.googleapis.com/youtube/v3/videos");
-        videosUrl.searchParams.set("part", "snippet");
+        videosUrl.searchParams.set("part", "snippet,statistics");
         videosUrl.searchParams.set("id", chunk.join(","));
         videosUrl.searchParams.set("key", YOUTUBE_DATA_API_KEY);
         const videosJson = await fetchYouTubeJson(videosUrl.toString());
@@ -228,12 +228,16 @@ async function fetchYouTubePlaylistMeta(playlistId) {
         items: orderedVideoIds.map((videoId, index) => {
             const meta = metadataById.get(videoId);
             const snippet = meta?.snippet || {};
+            const statistics = meta?.statistics || {};
             return {
                 index,
                 videoId,
                 title: String(snippet.title || "").trim(),
                 description: String(snippet.description || "").trim(),
-                thumbnail: snippet.thumbnails?.high?.url || snippet.thumbnails?.medium?.url || snippet.thumbnails?.default?.url || ""
+                thumbnail: snippet.thumbnails?.high?.url || snippet.thumbnails?.medium?.url || snippet.thumbnails?.default?.url || "",
+                viewCount: Number.parseInt(statistics.viewCount, 10) || 0,
+                likeCount: Number.parseInt(statistics.likeCount, 10) || 0,
+                likeCountVisible: typeof statistics.likeCount !== "undefined"
             };
         }).filter((item) => item.videoId)
     };
