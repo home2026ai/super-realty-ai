@@ -303,6 +303,96 @@
         .msg.community-msg > div {
             width: 100%;
         }
+        .msg.fee-msg {
+            max-width: none;
+            width: calc(100% + (var(--chat-side-pad, 20px) * 2));
+            margin-left: calc(var(--chat-side-pad, 20px) * -1);
+            padding: 0;
+            background: transparent;
+            border-radius: 0;
+            align-self: stretch;
+            overflow: visible;
+        }
+        .msg.fee-msg > div {
+            width: 100%;
+        }
+        .fee-sheet {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 0 var(--chat-side-pad, 20px);
+            box-sizing: border-box;
+        }
+        .fee-sheet-header {
+            padding: 16px 18px;
+            border-radius: 22px;
+            background: linear-gradient(145deg, rgba(255,255,255,0.14), rgba(255,255,255,0.05));
+            border: 1px solid rgba(255,255,255,0.14);
+            box-shadow: 0 14px 32px rgba(0,0,0,0.22);
+            backdrop-filter: blur(18px);
+        }
+        .fee-sheet-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            min-height: 24px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: rgba(255, 208, 132, 0.16);
+            color: #ffd58c;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+        }
+        .fee-sheet-title {
+            margin-top: 10px;
+            font-size: 22px;
+            font-weight: 900;
+            line-height: 1.2;
+            color: #fff;
+        }
+        .fee-sheet-subtitle {
+            margin-top: 8px;
+            color: rgba(255,255,255,0.72);
+            font-size: 12px;
+            line-height: 1.5;
+        }
+        .fee-sheet-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .fee-item {
+            padding: 14px 16px;
+            border-radius: 18px;
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 10px 24px rgba(0,0,0,0.16);
+        }
+        .fee-item-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 800;
+            line-height: 1.35;
+        }
+        .fee-item-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 999px;
+            background: #ffd58c;
+            flex: 0 0 auto;
+            box-shadow: 0 0 0 5px rgba(255, 213, 140, 0.12);
+        }
+        .fee-item-desc {
+            margin-top: 8px;
+            padding-left: 16px;
+            color: rgba(255,255,255,0.82);
+            font-size: 13px;
+            line-height: 1.65;
+        }
         .listing-cards-row {
             display: flex;
             overflow-x: auto;
@@ -7020,9 +7110,9 @@ function showFlow() {
 
 function showFeeOptions() {
     addBotMsgHTML(`請選擇您的身份：<div class="interaction-container">
-        <div class="int-btn ripple-btn" onclick="addBotMsg('🏠 **買方應負擔費用**\\n\\n・**契稅：**\\n依房屋評定現值的 6% 計算。這是買方的主要稅負，僅針對建築物課徵。\\n\\n・**印花稅：**\\n依照「建物現值」與「土地公告現值」總和的 0.1% 貼用印花稅票。\\n\\n・**地政登記規費：**\\n向地政事務所辦理所有權移轉登記時繳納，金額為「建物現值 + 土地公告現值」的 0.1%。\\n\\n・**代書費 (過戶手續)：**\\n委託地政士辦理產權移轉的手續費，行情約在 $12,000 至 $16,000 元。\\n\\n・**貸款設定規費：**\\n若有貸款，需支付給地政局的設定費，為「貸款設定總額（通常為貸款金額的 1.2 倍）」的 0.1%。\\n\\n・**貸款設定代書費：**\\n委託代書辦理銀行抵押權設定的手續費，行情約為 $4,000 至 $8,000 元。\\n\\n・**仲介服務費：**\\n依成交總價計算，買方習慣上支付 1% 至 2%。\\n\\n・**銀行貸款手續費：**\\n銀行辦理房貸的開辦或帳管費，約 $3,000 至 $10,000 元不等。\\n\\n・**火險與地震險：**\\n若有貸款，銀行會強制要求投保，每年保費約 $2,000 至 $3,500 元。')">我是買方</div>
-        <div class="int-btn ripple-btn" onclick="addBotMsg('💰 **賣方應負擔費用**\\n\\n・**房地合一稅：**\\n針對交易獲利部分課徵，依持有年限長短，稅率分為 15%、20%、35% 或 45%。\\n\\n・**土地增值稅：**\\n依土地漲價總數額課徵，稅率為 20% 至 40%，若符合自用住宅條件可適用 10% 優惠稅率。\\n\\n・**仲介服務費：**\\n依成交總價計算，賣方習慣上支付 3% 至 4%。\\n\\n・**塗銷代書費：**\\n交屋前需辦理原貸款的抵押權塗銷，手續費約 $2,000 至 $4,000 元。\\n\\n・**財產交易所得稅：**\\n僅適用於 2016 年以前取得的「舊制」房屋，須於隔年併入綜合所得稅申報。')">我是賣方</div>
-        <div class="int-btn ripple-btn" onclick="addBotMsg('🤝 **買賣雙方共同分攤費用**\\n\\n・**簽約手續費 (潤筆費)：**\\n約 $2,000 至 $4,000 元，通常由買賣雙方平均負擔。\\n\\n・**履約保證手續費：**\\n為成交總價的 0.06%，通常由買賣各出一半。\\n\\n・**持有稅與雜費拆算：**\\n包含地價稅、房屋稅、水電瓦斯費、管理費，以「交屋日」為基準按天數比例拆算。')">雙方共同負擔費用</div>
+        <div class="int-btn ripple-btn" onclick="showBuyerFeeDetails()">我是買方</div>
+        <div class="int-btn ripple-btn" onclick="showSellerFeeDetails()">我是賣方</div>
+        <div class="int-btn ripple-btn" onclick="showSharedFeeDetails()">雙方共同負擔費用</div>
     </div>`);
     closeDrawer();
 }
@@ -7321,8 +7411,76 @@ function addBotMsgHTML(html) {
     const d = document.createElement('div');
     d.className = 'msg ai';
     if (String(html).includes('community-cards-row')) d.classList.add('community-msg');
+    if (String(html).includes('fee-sheet')) d.classList.add('fee-msg');
     d.innerHTML = html;
     chatBox.appendChild(d); scrollChat();
+}
+function renderFeeSheet({ emoji = "", title = "", subtitle = "", items = [] }) {
+    const safeItems = Array.isArray(items) ? items : [];
+    return `
+        <div class="fee-sheet">
+            <div class="fee-sheet-header">
+                <div class="fee-sheet-kicker">${escapeHtml(emoji)} 費用整理</div>
+                <div class="fee-sheet-title">${escapeHtml(title)}</div>
+                ${subtitle ? `<div class="fee-sheet-subtitle">${escapeHtml(subtitle)}</div>` : ''}
+            </div>
+            <div class="fee-sheet-list">
+                ${safeItems.map((item) => `
+                    <div class="fee-item">
+                        <div class="fee-item-title">
+                            <span class="fee-item-dot" aria-hidden="true"></span>
+                            <span>${escapeHtml(item.title || "")}</span>
+                        </div>
+                        <div class="fee-item-desc">${escapeHtml(item.desc || "")}</div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
+}
+function showBuyerFeeDetails() {
+    addBotMsgHTML(renderFeeSheet({
+        emoji: "🏠",
+        title: "買方應負擔費用",
+        subtitle: "把稅費、規費、貸款與仲介成本拆開看，閱讀會清楚很多。",
+        items: [
+            { title: "契稅", desc: "依房屋評定現值的 6% 計算。這是買方的主要稅負，僅針對建築物課徵。" },
+            { title: "印花稅", desc: "依照建物現值與土地公告現值總和的 0.1% 貼用印花稅票。" },
+            { title: "地政登記規費", desc: "向地政事務所辦理所有權移轉登記時繳納，金額為建物現值加土地公告現值的 0.1%。" },
+            { title: "代書費（過戶手續）", desc: "委託地政士辦理產權移轉的手續費，行情約在 $12,000 至 $16,000 元。" },
+            { title: "貸款設定規費", desc: "若有貸款，需支付給地政局的設定費，為貸款設定總額（通常為貸款金額的 1.2 倍）的 0.1%。" },
+            { title: "貸款設定代書費", desc: "委託代書辦理銀行抵押權設定的手續費，行情約為 $4,000 至 $8,000 元。" },
+            { title: "仲介服務費", desc: "依成交總價計算，買方習慣上支付 1% 至 2%。" },
+            { title: "銀行貸款手續費", desc: "銀行辦理房貸的開辦或帳管費，約 $3,000 至 $10,000 元不等。" },
+            { title: "火險與地震險", desc: "若有貸款，銀行會強制要求投保，每年保費約 $2,000 至 $3,500 元。" }
+        ]
+    }));
+}
+function showSellerFeeDetails() {
+    addBotMsgHTML(renderFeeSheet({
+        emoji: "💰",
+        title: "賣方應負擔費用",
+        subtitle: "賣方成本多半集中在稅負與成交相關手續費，先分項看最不容易漏掉。",
+        items: [
+            { title: "房地合一稅", desc: "針對交易獲利部分課徵，依持有年限長短，稅率分為 15%、20%、35% 或 45%。" },
+            { title: "土地增值稅", desc: "依土地漲價總數額課徵，稅率為 20% 至 40%，若符合自用住宅條件可適用 10% 優惠稅率。" },
+            { title: "仲介服務費", desc: "依成交總價計算，賣方習慣上支付 3% 至 4%。" },
+            { title: "塗銷代書費", desc: "交屋前需辦理原貸款的抵押權塗銷，手續費約 $2,000 至 $4,000 元。" },
+            { title: "財產交易所得稅", desc: "僅適用於 2016 年以前取得的舊制房屋，須於隔年併入綜合所得稅申報。" }
+        ]
+    }));
+}
+function showSharedFeeDetails() {
+    addBotMsgHTML(renderFeeSheet({
+        emoji: "🤝",
+        title: "買賣雙方共同分攤費用",
+        subtitle: "這些通常不是單方全額負擔，實務上會依約定或交屋日按比例分攤。",
+        items: [
+            { title: "簽約手續費（潤筆費）", desc: "約 $2,000 至 $4,000 元，通常由買賣雙方平均負擔。" },
+            { title: "履約保證手續費", desc: "為成交總價的 0.06%，通常由買賣各出一半。" },
+            { title: "持有稅與雜費拆算", desc: "包含地價稅、房屋稅、水電瓦斯費、管理費，以交屋日為基準按天數比例拆算。" }
+        ]
+    }));
 }
 function isListingQuery(text) {
     const hasFind = /我要找|找房|找屋|找.*房|幫我查/.test(text);
