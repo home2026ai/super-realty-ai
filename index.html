@@ -2717,6 +2717,14 @@
             box-shadow: 0 18px 36px rgba(0,0,0,0.32);
             transform-origin: center bottom;
             animation: mediaReelsLift 0.42s cubic-bezier(.2,.9,.2,1);
+            transition: transform 0.22s ease, opacity 0.22s ease;
+            will-change: transform, opacity;
+        }
+        .media-reels-frame.is-dragging {
+            transition: none;
+        }
+        .media-reels-frame.is-dragging .media-reels-swipe {
+            cursor: grabbing;
         }
         .media-reels-player {
             position: absolute;
@@ -2731,6 +2739,9 @@
             position: absolute;
             inset: 0;
             z-index: 1;
+            touch-action: none;
+            cursor: grab;
+            user-select: none;
         }
         .media-reels-overlay {
             position: absolute;
@@ -2769,6 +2780,10 @@
             justify-content: center;
         }
         .media-sound-btn {
+            position: absolute;
+            right: 16px;
+            bottom: 24px;
+            z-index: 4;
             border: 1px solid rgba(255,255,255,0.24);
             background: rgba(0,0,0,0.34);
             color: #fff;
@@ -2794,8 +2809,9 @@
         .media-sound-hint {
             position: absolute;
             left: 50%;
-            bottom: 126px;
-            transform: translateX(-50%);
+            top: 50%;
+            bottom: auto;
+            transform: translate(-50%, -50%);
             z-index: 3;
             display: none;
             align-items: center;
@@ -2912,11 +2928,11 @@
         }
         @keyframes mediaHintPulse {
             0%, 100% {
-                transform: translateX(-50%) translateY(0);
+                transform: translate(-50%, -50%);
                 box-shadow: 0 14px 28px rgba(0,0,0,0.24);
             }
             50% {
-                transform: translateX(-50%) translateY(-2px);
+                transform: translate(-50%, calc(-50% - 2px));
                 box-shadow: 0 18px 34px rgba(0,0,0,0.3);
             }
         }
@@ -3533,6 +3549,11 @@
                 padding: 0 14px;
             }
 
+            .media-sound-btn {
+                right: 14px;
+                bottom: calc(var(--safe-bottom) + 24px);
+            }
+
             .media-reels-frame {
                 width: 100%;
                 max-width: none;
@@ -3865,20 +3886,16 @@
                         </svg>
                         <span>點一下開聲音</span>
                     </button>
+                    <button type="button" class="media-sound-btn press-glow" id="mediaSoundToggle" aria-label="開聲音">
+                        <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M5 9v6h4l5 4V5l-5 4H5Z"></path>
+                            <path d="M18 9a4 4 0 0 1 0 6"></path>
+                            <path d="M20.5 6.5a8 8 0 0 1 0 11"></path>
+                        </svg>
+                        <span id="mediaSoundToggleText">開聲音</span>
+                    </button>
                     <div class="media-reels-overlay">
                         <div class="media-reels-actions">
-                            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-                                <div class="media-chip" id="mediaReelsCategoryChip">選擇觀看的影音篇章</div>
-                                <div class="media-chip" id="mediaReelsCounter">1 / 1</div>
-                            </div>
-                            <button type="button" class="media-sound-btn press-glow" id="mediaSoundToggle" aria-label="開聲音">
-                                <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                    <path d="M5 9v6h4l5 4V5l-5 4H5Z"></path>
-                                    <path d="M18 9a4 4 0 0 1 0 6"></path>
-                                    <path d="M20.5 6.5a8 8 0 0 1 0 11"></path>
-                                </svg>
-                                <span id="mediaSoundToggleText">開聲音</span>
-                            </button>
                         </div>
                         <div class="media-reels-meta">
                             <div class="media-reels-title" id="mediaReelsTitle">影音播放</div>
@@ -4540,6 +4557,9 @@
     let mediaMode = "chat";
     let mediaCategoryKey = "";
     let mediaTouchStartY = 0;
+    let mediaTouchCurrentY = 0;
+    let mediaSwipeActive = false;
+    let mediaSwipeLocked = false;
     let mediaPlayerReady = false;
     let mediaPlayer = null;
     let mediaPlaylistIds = [];
@@ -7128,7 +7148,12 @@ function resetMediaReelsPlayer() {
     mediaMuted = true;
     updateMediaSoundButton();
     hideMediaSoundHint();
+    mediaTouchStartY = 0;
+    mediaTouchCurrentY = 0;
+    mediaSwipeActive = false;
+    mediaSwipeLocked = false;
     if (playerHolder) playerHolder.innerHTML = "";
+    resetMediaReelsDrag(false);
 }
 
 function exitMediaMode() {
@@ -7184,6 +7209,91 @@ function updateMediaSoundButton() {
     const nextText = mediaMuted ? '開聲音' : '靜音中';
     if (textEl) textEl.textContent = nextText;
     if (btnEl) btnEl.setAttribute('aria-label', nextText);
+}
+
+function getMediaReelsFrame() {
+    return document.getElementById('mediaReelsFrame');
+}
+
+function beginMediaSwipe(clientY) {
+    if (mediaSwipeLocked) return;
+    mediaTouchStartY = clientY;
+    mediaTouchCurrentY = clientY;
+    mediaSwipeActive = true;
+    const frame = getMediaReelsFrame();
+    if (!frame) return;
+    frame.classList.add('is-dragging');
+    frame.style.transition = 'none';
+}
+
+function setMediaReelsDrag(deltaY = 0) {
+    const frame = getMediaReelsFrame();
+    if (!frame) return;
+    const limited = Math.max(Math.min(deltaY, 180), -180);
+    const opacity = Math.max(0.78, 1 - Math.abs(limited) / 520);
+    frame.style.transform = `translateY(${limited}px)`;
+    frame.style.opacity = `${opacity}`;
+}
+
+function resetMediaReelsDrag(animated = true) {
+    const frame = getMediaReelsFrame();
+    if (!frame) return;
+    frame.classList.toggle('is-dragging', !animated);
+    if (animated) frame.style.transition = 'transform 0.22s ease, opacity 0.22s ease';
+    frame.style.transform = 'translateY(0px)';
+    frame.style.opacity = '1';
+    if (!animated) {
+        requestAnimationFrame(() => frame.classList.remove('is-dragging'));
+    } else {
+        window.setTimeout(() => frame.classList.remove('is-dragging'), 230);
+    }
+}
+
+function updateMediaSwipe(clientY) {
+    if (!mediaSwipeActive || mediaSwipeLocked) return;
+    mediaTouchCurrentY = clientY;
+    setMediaReelsDrag(mediaTouchCurrentY - mediaTouchStartY);
+}
+
+function endMediaSwipe(clientY) {
+    if (!mediaSwipeActive) {
+        resetMediaReelsDrag(true);
+        return;
+    }
+    mediaTouchCurrentY = clientY;
+    mediaSwipeActive = false;
+    handleMediaSwipe(mediaTouchCurrentY - mediaTouchStartY);
+}
+
+function cancelMediaSwipe() {
+    if (!mediaSwipeActive) return;
+    mediaSwipeActive = false;
+    resetMediaReelsDrag(true);
+}
+
+function animateMediaReelsOut(deltaY, done) {
+    const frame = getMediaReelsFrame();
+    if (!frame) {
+        if (typeof done === 'function') done();
+        return;
+    }
+    const direction = deltaY < 0 ? -1 : 1;
+    const distance = Math.max(window.innerHeight || 0, frame.offsetHeight || 0, 680);
+    frame.classList.remove('is-dragging');
+    frame.style.transition = 'transform 0.18s ease, opacity 0.18s ease';
+    frame.style.transform = `translateY(${direction * distance}px)`;
+    frame.style.opacity = '0';
+    window.setTimeout(() => {
+        frame.style.transition = 'none';
+        frame.style.transform = `translateY(${-direction * 38}px)`;
+        frame.style.opacity = '0';
+        requestAnimationFrame(() => {
+            frame.style.transition = 'transform 0.22s ease, opacity 0.22s ease';
+            frame.style.transform = 'translateY(0px)';
+            frame.style.opacity = '1';
+        });
+        if (typeof done === 'function') done();
+    }, 190);
 }
 
 function toggleMediaSound() {
@@ -7263,12 +7373,22 @@ async function openMediaReels(categoryKey) {
 }
 
 function handleMediaSwipe(deltaY) {
-    if (!mediaPlayerReady || !mediaPlayer) return;
-    if (Math.abs(deltaY) < 44) return;
-    try {
-        if (deltaY < 0 && typeof mediaPlayer.nextVideo === 'function') mediaPlayer.nextVideo();
-        if (deltaY > 0 && typeof mediaPlayer.previousVideo === 'function') mediaPlayer.previousVideo();
-    } catch (error) {}
+    if (!mediaPlayerReady || !mediaPlayer || mediaSwipeLocked) {
+        resetMediaReelsDrag(true);
+        return;
+    }
+    if (Math.abs(deltaY) < 44) {
+        resetMediaReelsDrag(true);
+        return;
+    }
+    mediaSwipeLocked = true;
+    animateMediaReelsOut(deltaY, () => {
+        try {
+            if (deltaY < 0 && typeof mediaPlayer.nextVideo === 'function') mediaPlayer.nextVideo();
+            if (deltaY > 0 && typeof mediaPlayer.previousVideo === 'function') mediaPlayer.previousVideo();
+        } catch (error) {}
+        mediaSwipeLocked = false;
+    });
 }
 
 function setChatVisibility(isVisible) {
@@ -7535,12 +7655,31 @@ document.getElementById('mediaHomeGrid')?.addEventListener('click', (event) => {
     openMediaReels(card.dataset.mediaCategory || '');
 });
 document.getElementById('mediaReelsSwipe')?.addEventListener('touchstart', (event) => {
-    mediaTouchStartY = event.touches?.[0]?.clientY || 0;
+    beginMediaSwipe(event.touches?.[0]?.clientY || 0);
 }, { passive: true });
+document.getElementById('mediaReelsSwipe')?.addEventListener('touchmove', (event) => {
+    if (!mediaSwipeActive) return;
+    event.preventDefault();
+    updateMediaSwipe(event.touches?.[0]?.clientY || mediaTouchCurrentY || 0);
+}, { passive: false });
 document.getElementById('mediaReelsSwipe')?.addEventListener('touchend', (event) => {
-    const endY = event.changedTouches?.[0]?.clientY || 0;
-    handleMediaSwipe(endY - mediaTouchStartY);
+    endMediaSwipe(event.changedTouches?.[0]?.clientY || mediaTouchCurrentY || 0);
 }, { passive: true });
+document.getElementById('mediaReelsSwipe')?.addEventListener('touchcancel', () => {
+    cancelMediaSwipe();
+}, { passive: true });
+document.getElementById('mediaReelsSwipe')?.addEventListener('mousedown', (event) => {
+    event.preventDefault();
+    beginMediaSwipe(event.clientY || 0);
+});
+window.addEventListener('mousemove', (event) => {
+    if (!mediaSwipeActive) return;
+    updateMediaSwipe(event.clientY || mediaTouchCurrentY || 0);
+});
+window.addEventListener('mouseup', (event) => {
+    if (!mediaSwipeActive) return;
+    endMediaSwipe(event.clientY || mediaTouchCurrentY || 0);
+});
 document.getElementById('browseBackBtn')?.addEventListener('click', closeBrowseList);
 document.getElementById('browseSendBtn')?.addEventListener('click', sendBrowseListToLine);
 document.getElementById('detailAddBtn')?.addEventListener('click', () => {
