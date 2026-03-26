@@ -682,6 +682,9 @@
             font-size: 24px;
             line-height: 1.1;
         }
+        html[data-bg="mist"] .detail-top-title {
+            color: #1f1a17;
+        }
         .detail-top-btn {
             border: none;
             padding: 0 14px;
@@ -797,6 +800,9 @@
             font-size: 14px;
             color: #1f1f1f;
         }
+        html[data-bg="mist"] .detail-section-title {
+            color: #1f1a17;
+        }
         .detail-list {
             font-size: 13px;
             line-height: 1.5;
@@ -806,6 +812,14 @@
             font-size: 13px;
             color: #444;
             line-height: 1.6;
+        }
+        .listing-status {
+            font-size: 12px;
+            color: var(--main-text);
+            margin-bottom: 6px;
+        }
+        html[data-bg="mist"] .listing-status {
+            color: #1f1a17;
         }
         .agent-bookmark-group {
             z-index: 30;
@@ -7367,7 +7381,7 @@ function startListingSearch(query, pendingQuery, baseInput, loadingId) {
         holder.classList.add('listing-msg');
         holder.innerHTML = `
             <div id="${boxId}">
-                <div id="${statusId}" style="font-size:12px;color:#fff;margin-bottom:6px;">搜尋中...</div>
+                <div id="${statusId}" class="listing-status">搜尋中...</div>
                 <div id="${cardsId}" class="listing-cards-row"></div>
                 <div id="${noteId}" class="listing-note"></div>
             </div>
