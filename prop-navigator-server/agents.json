@@ -8,7 +8,9 @@
     "phoneNumber": "0900390735",
     "featuredUrl": "https://crm.great-home.com.tw/aspnet_es/API/ConvertPic.aspx?url=344d27f31c02e829f24022f333826c2f929432592842e12a1266345923831b42e729926b22e336c2782f4255329f2942a9270239341823a31ad2ed2a0275233333726a2fa297326a28a2ac2a1269345223131b22b529c278269337727d2ad291329a27f2ac2ac277344e27931c029e29b27623d333c22f2f529c329825a2a227223b341724231722eb29526a23d335123a2b725d32512822d82a0242342723b317d2af25226e261337c2712c4258&objPrint=2",
     "mediaTitle": "",
-    "mediaUrl": "https://www.youtube.com/@BellMusic_."
+    "mediaUrl": "https://www.youtube.com/@BellMusic_.",
+    "mediaPlaylistTour": "https://youtube.com/playlist?list=PLZ4UoI5x3W_8D7QyT6XXXuQb8wYRlFR9g&si=fRefp0ZLjtq8t4R1",
+    "mediaPlaylistKnowledge": "https://youtube.com/playlist?list=PLZ4UoI5x3W_-_9q1aWvEqYXFhWWbI1Ubl&si=UIDOx3k9KfGVOPgQ"
   },
   "agent02": {
     "password": "1234",
@@ -16,7 +18,9 @@
     "bio": "",
     "photoUrl": "",
     "lineUrl": "",
-    "phoneNumber": ""
+    "phoneNumber": "",
+    "mediaPlaylistTour": "",
+    "mediaPlaylistKnowledge": ""
   },
   "agent03": {
     "password": "1234",
@@ -24,7 +28,9 @@
     "bio": "",
     "photoUrl": "",
     "lineUrl": "",
-    "phoneNumber": ""
+    "phoneNumber": "",
+    "mediaPlaylistTour": "",
+    "mediaPlaylistKnowledge": ""
   },
   "agent04": {
     "password": "1234",
@@ -32,7 +38,9 @@
     "bio": "",
     "photoUrl": "",
     "lineUrl": "",
-    "phoneNumber": ""
+    "phoneNumber": "",
+    "mediaPlaylistTour": "",
+    "mediaPlaylistKnowledge": ""
   },
   "agent05": {
     "password": "1234",
@@ -40,7 +48,9 @@
     "bio": "",
     "photoUrl": "",
     "lineUrl": "",
-    "phoneNumber": ""
+    "phoneNumber": "",
+    "mediaPlaylistTour": "",
+    "mediaPlaylistKnowledge": ""
   },
   "agent06": {
     "password": "1234",
@@ -48,7 +58,9 @@
     "bio": "",
     "photoUrl": "",
     "lineUrl": "",
-    "phoneNumber": ""
+    "phoneNumber": "",
+    "mediaPlaylistTour": "",
+    "mediaPlaylistKnowledge": ""
   },
   "agent07": {
     "password": "1234",
@@ -56,7 +68,9 @@
     "bio": "",
     "photoUrl": "",
     "lineUrl": "",
-    "phoneNumber": ""
+    "phoneNumber": "",
+    "mediaPlaylistTour": "",
+    "mediaPlaylistKnowledge": ""
   },
   "agent08": {
     "password": "1234",
@@ -64,7 +78,9 @@
     "bio": "",
     "photoUrl": "",
     "lineUrl": "",
-    "phoneNumber": ""
+    "phoneNumber": "",
+    "mediaPlaylistTour": "",
+    "mediaPlaylistKnowledge": ""
   },
   "agent09": {
     "password": "1234",
@@ -72,7 +88,9 @@
     "bio": "",
     "photoUrl": "",
     "lineUrl": "",
-    "phoneNumber": ""
+    "phoneNumber": "",
+    "mediaPlaylistTour": "",
+    "mediaPlaylistKnowledge": ""
   },
   "agent10": {
     "password": "1234",
@@ -80,7 +98,9 @@
     "bio": "",
     "photoUrl": "",
     "lineUrl": "",
-    "phoneNumber": ""
+    "phoneNumber": "",
+    "mediaPlaylistTour": "",
+    "mediaPlaylistKnowledge": ""
   },
   "agent11": {
     "password": "1234",
@@ -88,7 +108,9 @@
     "bio": "",
     "photoUrl": "",
     "lineUrl": "",
-    "phoneNumber": ""
+    "phoneNumber": "",
+    "mediaPlaylistTour": "",
+    "mediaPlaylistKnowledge": ""
   },
   "agent12": {
     "password": "1234",
@@ -96,7 +118,9 @@
     "bio": "",
     "photoUrl": "",
     "lineUrl": "",
-    "phoneNumber": ""
+    "phoneNumber": "",
+    "mediaPlaylistTour": "",
+    "mediaPlaylistKnowledge": ""
   },
   "agent13": {
     "password": "1234",
@@ -104,7 +128,9 @@
     "bio": "",
     "photoUrl": "",
     "lineUrl": "",
-    "phoneNumber": ""
+    "phoneNumber": "",
+    "mediaPlaylistTour": "",
+    "mediaPlaylistKnowledge": ""
   },
   "agent14": {
     "password": "1234",
@@ -112,7 +138,9 @@
     "bio": "",
     "photoUrl": "",
     "lineUrl": "",
-    "phoneNumber": ""
+    "phoneNumber": "",
+    "mediaPlaylistTour": "",
+    "mediaPlaylistKnowledge": ""
   },
   "agent15": {
     "password": "1234",
@@ -120,7 +148,9 @@
     "bio": "",
     "photoUrl": "",
     "lineUrl": "",
-    "phoneNumber": ""
+    "phoneNumber": "",
+    "mediaPlaylistTour": "",
+    "mediaPlaylistKnowledge": ""
   },
   "agent16": {
     "password": "1234",
@@ -128,7 +158,9 @@
     "bio": "",
     "photoUrl": "",
     "lineUrl": "",
-    "phoneNumber": ""
+    "phoneNumber": "",
+    "mediaPlaylistTour": "",
+    "mediaPlaylistKnowledge": ""
   },
   "agent17": {
     "password": "1234",
@@ -136,7 +168,9 @@
     "bio": "",
     "photoUrl": "",
     "lineUrl": "",
-    "phoneNumber": ""
+    "phoneNumber": "",
+    "mediaPlaylistTour": "",
+    "mediaPlaylistKnowledge": ""
   },
   "agent18": {
     "password": "1234",
@@ -144,7 +178,9 @@
     "bio": "",
     "photoUrl": "",
     "lineUrl": "",
-    "phoneNumber": ""
+    "phoneNumber": "",
+    "mediaPlaylistTour": "",
+    "mediaPlaylistKnowledge": ""
   },
   "agent19": {
     "password": "1234",
@@ -152,7 +188,9 @@
     "bio": "",
     "photoUrl": "",
     "lineUrl": "",
-    "phoneNumber": ""
+    "phoneNumber": "",
+    "mediaPlaylistTour": "",
+    "mediaPlaylistKnowledge": ""
   },
   "agent20": {
     "password": "1234",
@@ -160,7 +198,9 @@
     "bio": "",
     "photoUrl": "",
     "lineUrl": "",
-    "phoneNumber": ""
+    "phoneNumber": "",
+    "mediaPlaylistTour": "",
+    "mediaPlaylistKnowledge": ""
   },
   "agent21": {
     "password": "1234",
@@ -168,7 +208,9 @@
     "bio": "",
     "photoUrl": "",
     "lineUrl": "",
-    "phoneNumber": ""
+    "phoneNumber": "",
+    "mediaPlaylistTour": "",
+    "mediaPlaylistKnowledge": ""
   },
   "agent22": {
     "password": "1234",
@@ -176,7 +218,9 @@
     "bio": "",
     "photoUrl": "",
     "lineUrl": "",
-    "phoneNumber": ""
+    "phoneNumber": "",
+    "mediaPlaylistTour": "",
+    "mediaPlaylistKnowledge": ""
   },
   "agent23": {
     "password": "1234",
@@ -184,7 +228,9 @@
     "bio": "",
     "photoUrl": "",
     "lineUrl": "",
-    "phoneNumber": ""
+    "phoneNumber": "",
+    "mediaPlaylistTour": "",
+    "mediaPlaylistKnowledge": ""
   },
   "agent24": {
     "password": "1234",
@@ -192,7 +238,9 @@
     "bio": "",
     "photoUrl": "",
     "lineUrl": "",
-    "phoneNumber": ""
+    "phoneNumber": "",
+    "mediaPlaylistTour": "",
+    "mediaPlaylistKnowledge": ""
   },
   "agent25": {
     "password": "1234",
@@ -200,7 +248,9 @@
     "bio": "",
     "photoUrl": "",
     "lineUrl": "",
-    "phoneNumber": ""
+    "phoneNumber": "",
+    "mediaPlaylistTour": "",
+    "mediaPlaylistKnowledge": ""
   },
   "agent26": {
     "password": "1234",
@@ -208,7 +258,9 @@
     "bio": "",
     "photoUrl": "",
     "lineUrl": "",
-    "phoneNumber": ""
+    "phoneNumber": "",
+    "mediaPlaylistTour": "",
+    "mediaPlaylistKnowledge": ""
   },
   "agent27": {
     "password": "1234",
@@ -216,7 +268,9 @@
     "bio": "",
     "photoUrl": "",
     "lineUrl": "",
-    "phoneNumber": ""
+    "phoneNumber": "",
+    "mediaPlaylistTour": "",
+    "mediaPlaylistKnowledge": ""
   },
   "agent28": {
     "password": "1234",
@@ -224,7 +278,9 @@
     "bio": "",
     "photoUrl": "",
     "lineUrl": "",
-    "phoneNumber": ""
+    "phoneNumber": "",
+    "mediaPlaylistTour": "",
+    "mediaPlaylistKnowledge": ""
   },
   "agent29": {
     "password": "1234",
@@ -232,7 +288,9 @@
     "bio": "",
     "photoUrl": "",
     "lineUrl": "",
-    "phoneNumber": ""
+    "phoneNumber": "",
+    "mediaPlaylistTour": "",
+    "mediaPlaylistKnowledge": ""
   },
   "agent30": {
     "password": "1234",
@@ -240,7 +298,9 @@
     "bio": "",
     "photoUrl": "",
     "lineUrl": "",
-    "phoneNumber": ""
+    "phoneNumber": "",
+    "mediaPlaylistTour": "",
+    "mediaPlaylistKnowledge": ""
   },
   "agent31": {
     "password": "1234",
@@ -248,7 +308,9 @@
     "bio": "",
     "photoUrl": "",
     "lineUrl": "",
-    "phoneNumber": ""
+    "phoneNumber": "",
+    "mediaPlaylistTour": "",
+    "mediaPlaylistKnowledge": ""
   },
   "agent32": {
     "password": "1234",
@@ -256,7 +318,9 @@
     "bio": "",
     "photoUrl": "",
     "lineUrl": "",
-    "phoneNumber": ""
+    "phoneNumber": "",
+    "mediaPlaylistTour": "",
+    "mediaPlaylistKnowledge": ""
   },
   "agent33": {
     "password": "1234",
@@ -264,7 +328,9 @@
     "bio": "",
     "photoUrl": "",
     "lineUrl": "",
-    "phoneNumber": ""
+    "phoneNumber": "",
+    "mediaPlaylistTour": "",
+    "mediaPlaylistKnowledge": ""
   },
   "agent34": {
     "password": "1234",
@@ -272,7 +338,9 @@
     "bio": "",
     "photoUrl": "",
     "lineUrl": "",
-    "phoneNumber": ""
+    "phoneNumber": "",
+    "mediaPlaylistTour": "",
+    "mediaPlaylistKnowledge": ""
   },
   "agent35": {
     "password": "1234",
@@ -280,7 +348,9 @@
     "bio": "",
     "photoUrl": "",
     "lineUrl": "",
-    "phoneNumber": ""
+    "phoneNumber": "",
+    "mediaPlaylistTour": "",
+    "mediaPlaylistKnowledge": ""
   },
   "agent36": {
     "password": "1234",
@@ -288,7 +358,9 @@
     "bio": "",
     "photoUrl": "",
     "lineUrl": "",
-    "phoneNumber": ""
+    "phoneNumber": "",
+    "mediaPlaylistTour": "",
+    "mediaPlaylistKnowledge": ""
   },
   "agent37": {
     "password": "1234",
@@ -296,7 +368,9 @@
     "bio": "",
     "photoUrl": "",
     "lineUrl": "",
-    "phoneNumber": ""
+    "phoneNumber": "",
+    "mediaPlaylistTour": "",
+    "mediaPlaylistKnowledge": ""
   },
   "agent38": {
     "password": "1234",
@@ -304,7 +378,9 @@
     "bio": "",
     "photoUrl": "",
     "lineUrl": "",
-    "phoneNumber": ""
+    "phoneNumber": "",
+    "mediaPlaylistTour": "",
+    "mediaPlaylistKnowledge": ""
   },
   "agent39": {
     "password": "1234",
@@ -312,7 +388,9 @@
     "bio": "",
     "photoUrl": "",
     "lineUrl": "",
-    "phoneNumber": ""
+    "phoneNumber": "",
+    "mediaPlaylistTour": "",
+    "mediaPlaylistKnowledge": ""
   },
   "agent40": {
     "password": "1234",
@@ -320,7 +398,9 @@
     "bio": "",
     "photoUrl": "",
     "lineUrl": "",
-    "phoneNumber": ""
+    "phoneNumber": "",
+    "mediaPlaylistTour": "",
+    "mediaPlaylistKnowledge": ""
   },
   "agent41": {
     "password": "1234",
@@ -328,7 +408,9 @@
     "bio": "",
     "photoUrl": "",
     "lineUrl": "",
-    "phoneNumber": ""
+    "phoneNumber": "",
+    "mediaPlaylistTour": "",
+    "mediaPlaylistKnowledge": ""
   },
   "agent42": {
     "password": "1234",
@@ -336,7 +418,9 @@
     "bio": "",
     "photoUrl": "",
     "lineUrl": "",
-    "phoneNumber": ""
+    "phoneNumber": "",
+    "mediaPlaylistTour": "",
+    "mediaPlaylistKnowledge": ""
   },
   "agent43": {
     "password": "1234",
@@ -344,7 +428,9 @@
     "bio": "",
     "photoUrl": "",
     "lineUrl": "",
-    "phoneNumber": ""
+    "phoneNumber": "",
+    "mediaPlaylistTour": "",
+    "mediaPlaylistKnowledge": ""
   },
   "agent44": {
     "password": "1234",
@@ -352,7 +438,9 @@
     "bio": "",
     "photoUrl": "",
     "lineUrl": "",
-    "phoneNumber": ""
+    "phoneNumber": "",
+    "mediaPlaylistTour": "",
+    "mediaPlaylistKnowledge": ""
   },
   "agent45": {
     "password": "1234",
@@ -360,7 +448,9 @@
     "bio": "",
     "photoUrl": "",
     "lineUrl": "",
-    "phoneNumber": ""
+    "phoneNumber": "",
+    "mediaPlaylistTour": "",
+    "mediaPlaylistKnowledge": ""
   },
   "agent46": {
     "password": "1234",
@@ -368,7 +458,9 @@
     "bio": "",
     "photoUrl": "",
     "lineUrl": "",
-    "phoneNumber": ""
+    "phoneNumber": "",
+    "mediaPlaylistTour": "",
+    "mediaPlaylistKnowledge": ""
   },
   "agent47": {
     "password": "1234",
@@ -376,7 +468,9 @@
     "bio": "",
     "photoUrl": "",
     "lineUrl": "",
-    "phoneNumber": ""
+    "phoneNumber": "",
+    "mediaPlaylistTour": "",
+    "mediaPlaylistKnowledge": ""
   },
   "agent48": {
     "password": "1234",
@@ -384,7 +478,9 @@
     "bio": "",
     "photoUrl": "",
     "lineUrl": "",
-    "phoneNumber": ""
+    "phoneNumber": "",
+    "mediaPlaylistTour": "",
+    "mediaPlaylistKnowledge": ""
   },
   "agent49": {
     "password": "1234",
@@ -392,7 +488,9 @@
     "bio": "",
     "photoUrl": "",
     "lineUrl": "",
-    "phoneNumber": ""
+    "phoneNumber": "",
+    "mediaPlaylistTour": "",
+    "mediaPlaylistKnowledge": ""
   },
   "agent50": {
     "password": "1234",
@@ -400,6 +498,8 @@
     "bio": "",
     "photoUrl": "",
     "lineUrl": "",
-    "phoneNumber": ""
+    "phoneNumber": "",
+    "mediaPlaylistTour": "",
+    "mediaPlaylistKnowledge": ""
   }
 }
