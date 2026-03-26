@@ -1417,6 +1417,31 @@
             opacity: 0.4;
             cursor: default;
         }
+        html[data-bg="mist"] .browse-list {
+            color: #1f1a17;
+        }
+        html[data-bg="mist"] .browse-item {
+            color: #1f1a17;
+            border-bottom-color: rgba(95, 75, 54, 0.16);
+        }
+        html[data-bg="mist"] .browse-toolbar {
+            background: linear-gradient(180deg, rgba(255,255,255,0.62) 0%, rgba(231,214,196,0.64) 100%);
+            border: 1px solid rgba(126, 102, 78, 0.14);
+        }
+        html[data-bg="mist"] .browse-toolbar-title {
+            color: #1f1a17;
+        }
+        html[data-bg="mist"] .browse-toolbar-desc {
+            color: rgba(58, 47, 39, 0.72);
+        }
+        html[data-bg="mist"] .browse-item-title {
+            color: #1f1a17;
+        }
+        html[data-bg="mist"] .browse-item-code,
+        html[data-bg="mist"] .browse-item-meta,
+        html[data-bg="mist"] .browse-item-address {
+            color: #4a3d34;
+        }
         .browse-item-row {
             display: flex;
             align-items: flex-start;
@@ -3914,6 +3939,17 @@
         #composerToolMedia.is-pressed {
             color: #e3bf68;
         }
+        html[data-bg="mist"] #composerToolMedia,
+        html[data-bg="mist"] #composerToolMedia .composer-tool-label,
+        html[data-bg="mist"] #composerToolMedia svg {
+            color: #c8741f;
+        }
+        html[data-bg="mist"] #composerToolMedia:hover,
+        html[data-bg="mist"] #composerToolMedia:active,
+        html[data-bg="mist"] #composerToolMedia:focus-visible,
+        html[data-bg="mist"] #composerToolMedia.is-pressed {
+            color: #c8741f;
+        }
         .calendar-overlay {
             position: absolute;
             inset: 0;
@@ -5616,12 +5652,12 @@
         <div class="detail-panel" id="browsePanel">
             <div class="detail-top">
                 <button class="detail-top-btn press-glow" id="browseBackBtn">返回</button>
-                <div class="detail-top-title">加入瀏覽清單</div>
+                <div class="detail-top-title">加入的瀏覽清單</div>
                 <button class="detail-top-btn press-glow" id="browseSendBtn">發送給業務</button>
             </div>
             <div class="browse-toolbar" id="browseToolbar">
                 <div class="browse-toolbar-copy">
-                    <div class="browse-toolbar-title" id="browseToolbarTitle">瀏覽清單</div>
+                    <div class="browse-toolbar-title" id="browseToolbarTitle">加入的瀏覽清單</div>
                     <div class="browse-toolbar-desc" id="browseToolbarDesc">可直接傳送清單，或安排看房日期。</div>
                 </div>
                 <div class="browse-toolbar-actions" id="browseToolbarActions">
@@ -8078,7 +8114,7 @@ function updateBrowseToolbar() {
     const items = getSchedulableBrowseItems();
     const selectedCount = browseSelectedSns.length;
     if (!browseAppointmentMode) {
-        titleEl.textContent = '瀏覽清單';
+        titleEl.textContent = '加入的瀏覽清單';
         descEl.textContent = '可直接傳送清單，或安排看房日期。';
         actionsEl.innerHTML = `<button type="button" class="browse-toolbar-btn is-primary" id="browseScheduleBtn">預約日期</button>`;
         return;
