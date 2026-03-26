@@ -185,11 +185,12 @@ async function fetchYouTubeJson(url) {
     return resp.json();
 }
 
-async function fetchYouTubePlaylistMeta(playlistId) {
+async function fetchYouTubePlaylistMeta(playlistId, options = {}) {
     if (!YOUTUBE_DATA_API_KEY) {
         throw new Error("youtube api key missing");
     }
-    const cached = getYouTubeMetaCache(playlistId);
+    const forceRefresh = !!options.forceRefresh;
+    const cached = forceRefresh ? null : getYouTubeMetaCache(playlistId);
     if (cached) return cached;
 
     const playlistItems = [];
@@ -974,6 +975,7 @@ app.get('/api/agents/:agentId/stats', (req, res) => {
 
 app.get('/api/youtube-playlist-meta', async (req, res) => {
     const playlistId = typeof req.query.playlistId === "string" ? req.query.playlistId.trim() : "";
+    const forceRefresh = req.query.refresh === "1";
     if (!playlistId) {
         res.status(400).json({ error: "missing playlistId" });
         return;
@@ -983,7 +985,7 @@ app.get('/api/youtube-playlist-meta', async (req, res) => {
         return;
     }
     try {
-        const payload = await fetchYouTubePlaylistMeta(playlistId);
+        const payload = await fetchYouTubePlaylistMeta(playlistId, { forceRefresh });
         res.json(payload);
     } catch (error) {
         console.error("❌ youtube playlist meta error:", error);
