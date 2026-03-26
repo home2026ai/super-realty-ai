@@ -9808,6 +9808,12 @@ window.addEventListener('mouseup', (event) => {
 });
 document.getElementById('browseBackBtn')?.addEventListener('click', closeBrowseList);
 document.getElementById('browseSendBtn')?.addEventListener('click', sendBrowseListToLine);
+document.querySelectorAll('.calc-overlay').forEach((overlay) => {
+    overlay.addEventListener('click', (event) => {
+        if (event.target !== overlay) return;
+        closePopups();
+    });
+});
 document.getElementById('detailAddBtn')?.addEventListener('click', () => {
     if (!currentDetailSn) return;
     const added = toggleBrowseList(currentDetailSn);
