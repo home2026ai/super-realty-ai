@@ -320,10 +320,10 @@
             display: flex;
             flex-direction: column;
             gap: 10px;
-            padding: 0 var(--chat-side-pad, 20px);
             box-sizing: border-box;
         }
         .fee-sheet-header {
+            margin: 0 var(--chat-side-pad, 20px);
             padding: 16px 18px;
             border-radius: 22px;
             background: linear-gradient(145deg, rgba(255,255,255,0.14), rgba(255,255,255,0.05));
@@ -359,15 +359,31 @@
         }
         .fee-sheet-list {
             display: flex;
-            flex-direction: column;
-            gap: 10px;
+            gap: 12px;
+            overflow-x: auto;
+            width: 100%;
+            padding: 0 var(--chat-side-pad, 20px) 6px;
+            box-sizing: border-box;
+            scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
+            scroll-snap-type: x mandatory;
+            scroll-padding-left: var(--chat-side-pad, 20px);
+            scroll-padding-right: var(--chat-side-pad, 20px);
+        }
+        .fee-sheet-list::-webkit-scrollbar {
+            width: 0;
+            height: 0;
         }
         .fee-item {
+            min-width: calc(100% - (var(--chat-side-pad, 20px) * 2));
+            max-width: calc(100% - (var(--chat-side-pad, 20px) * 2));
+            flex: 0 0 calc(100% - (var(--chat-side-pad, 20px) * 2));
             padding: 14px 16px;
             border-radius: 18px;
             background: rgba(255,255,255,0.07);
             border: 1px solid rgba(255,255,255,0.1);
             box-shadow: 0 10px 24px rgba(0,0,0,0.16);
+            scroll-snap-align: center;
         }
         .fee-item-title {
             display: flex;
@@ -392,6 +408,36 @@
             color: rgba(255,255,255,0.82);
             font-size: 13px;
             line-height: 1.65;
+        }
+        html[data-bg="mist"] .fee-sheet-header {
+            background: linear-gradient(180deg, rgba(255,248,242,0.96) 0%, rgba(228,210,191,0.94) 100%);
+            border: 1px solid rgba(126, 102, 78, 0.18);
+            box-shadow: 0 24px 52px rgba(120, 96, 72, 0.18);
+        }
+        html[data-bg="mist"] .fee-sheet-kicker {
+            background: rgba(199, 171, 141, 0.2);
+            color: #87684a;
+        }
+        html[data-bg="mist"] .fee-sheet-title {
+            color: #1f1a17;
+        }
+        html[data-bg="mist"] .fee-sheet-subtitle {
+            color: rgba(58, 47, 39, 0.72);
+        }
+        html[data-bg="mist"] .fee-item {
+            background: linear-gradient(180deg, rgba(255,255,255,0.62) 0%, rgba(231,214,196,0.64) 100%);
+            border: 1px solid rgba(126, 102, 78, 0.14);
+            box-shadow: 0 10px 22px rgba(145, 123, 98, 0.1);
+        }
+        html[data-bg="mist"] .fee-item-title {
+            color: #1f1a17;
+        }
+        html[data-bg="mist"] .fee-item-dot {
+            background: #c7ab8d;
+            box-shadow: 0 0 0 5px rgba(199, 171, 141, 0.18);
+        }
+        html[data-bg="mist"] .fee-item-desc {
+            color: #4a3d34;
         }
         .listing-cards-row {
             display: flex;
@@ -7100,10 +7146,10 @@ function calculateUnifiedTotalPrice() {
 // --- 其餘功能 ---
 function showFlow() {
     addBotMsgHTML(`請選擇交易階段：<div class="interaction-container">
-        <div class="int-btn ripple-btn" onclick="addBotMsg('📄 簽約：第一階段：（S）\\n\\n買方準備： 身分證正本、便章、簽約金（總價 10%）。\\n\\n賣方準備： 身分證正本、土地及建物所有權狀正本。\\n\\n重點作業：\\n\\n雙方簽署「不動產買賣契約書」。\\n\\n代書核對權狀產權，確認無誤。\\n\\n建議開啟「履約保證專戶」確保資金安全。')">1.簽約</div>
-        <div class="int-btn ripple-btn" onclick="addBotMsg('📄 用印：第二階段：（S）\\n\\n買方準備： 身分證影本、戶口名簿影本（或戶籍謄本）、用印款（總價 10%）。\\n\\n賣方準備： 印鑑證明 1 份（至戶政事務所申請）、印鑑章。\\n\\n重點作業：\\n\\n在報稅及過戶文件（公契）上蓋章。\\n\\n買方選定貸款銀行，進行銀行對保。\\n\\n買方簽署「尾款擔保本票」交由代書暫時保管。')">2.用印</div>
-        <div class="int-btn ripple-btn" onclick="addBotMsg('📄 完稅：第三階段：（T）\\n\\n買方負擔： 契稅、印花稅、登記規費、完稅款（總價 10%）。\\n\\n賣方負擔： 土地增值稅、欠稅（如有）。\\n\\n重點作業：\\n\\n稅單核發後，雙方各自繳清稅款。\\n\\n買方支付完稅款。\\n\\n代書將稅單收據送件至地政事務所，正式辦理產權移轉登記。')">3.完稅</div>
-        <div class="int-btn ripple-btn" onclick="addBotMsg('📄 交屋：第四階段：（C）\\n\\n買方準備： 支付尾款（總價 70%，通常為銀行撥款）、代書費。\\n\\n賣方準備： 房屋鑰匙、遙控器、住戶規約、設備說明書。\\n\\n重點作業：\\n\\n產權移轉： 買方領取新的土地及建物所有權狀。\\n\\n現場點交： 核對合約附件（家具、漏水保固等）。\\n\\n費用拆算： 水、電、瓦斯、管理費依交屋日按比例切分。\\n\\n結案： 賣方領取尾款，買方取回擔保本票。')">4.交屋</div>
+        <div class="int-btn ripple-btn" onclick="showSignFlowDetails()">1.簽約</div>
+        <div class="int-btn ripple-btn" onclick="showSealFlowDetails()">2.用印</div>
+        <div class="int-btn ripple-btn" onclick="showTaxFlowDetails()">3.完稅</div>
+        <div class="int-btn ripple-btn" onclick="showHandoverFlowDetails()">4.交屋</div>
     </div>`);
     closeDrawer();
 }
@@ -7479,6 +7525,54 @@ function showSharedFeeDetails() {
             { title: "簽約手續費（潤筆費）", desc: "約 $2,000 至 $4,000 元，通常由買賣雙方平均負擔。" },
             { title: "履約保證手續費", desc: "為成交總價的 0.06%，通常由買賣各出一半。" },
             { title: "持有稅與雜費拆算", desc: "包含地價稅、房屋稅、水電瓦斯費、管理費，以交屋日為基準按天數比例拆算。" }
+        ]
+    }));
+}
+function showSignFlowDetails() {
+    addBotMsgHTML(renderFeeSheet({
+        emoji: "📄",
+        title: "簽約｜第一階段",
+        subtitle: "先把雙方身分、權狀與簽約金確認完成，這一段最重要的是把交易基礎立穩。",
+        items: [
+            { title: "買方準備", desc: "身分證正本、便章、簽約金（總價 10%）。" },
+            { title: "賣方準備", desc: "身分證正本、土地及建物所有權狀正本。" },
+            { title: "重點作業", desc: "雙方簽署不動產買賣契約書，代書核對權狀產權，並建議開啟履約保證專戶確保資金安全。" }
+        ]
+    }));
+}
+function showSealFlowDetails() {
+    addBotMsgHTML(renderFeeSheet({
+        emoji: "🖋️",
+        title: "用印｜第二階段",
+        subtitle: "這一段主要是把報稅、過戶與貸款需要的文件蓋章、備齊並往後推進。",
+        items: [
+            { title: "買方準備", desc: "身分證影本、戶口名簿影本或戶籍謄本、用印款（總價 10%）。" },
+            { title: "賣方準備", desc: "印鑑證明 1 份（至戶政事務所申請）、印鑑章。" },
+            { title: "重點作業", desc: "在報稅及過戶文件（公契）上蓋章，買方選定貸款銀行進行銀行對保，並簽署尾款擔保本票交由代書暫時保管。" }
+        ]
+    }));
+}
+function showTaxFlowDetails() {
+    addBotMsgHTML(renderFeeSheet({
+        emoji: "🧾",
+        title: "完稅｜第三階段",
+        subtitle: "這一段是稅費與規費正式清算的重點期，雙方要依角色把應付費用繳清。",
+        items: [
+            { title: "買方負擔", desc: "契稅、印花稅、登記規費、完稅款（總價 10%）。" },
+            { title: "賣方負擔", desc: "土地增值稅、欠稅（如有）。" },
+            { title: "重點作業", desc: "稅單核發後，雙方各自繳清稅款，買方支付完稅款，代書將稅單收據送件至地政事務所，正式辦理產權移轉登記。" }
+        ]
+    }));
+}
+function showHandoverFlowDetails() {
+    addBotMsgHTML(renderFeeSheet({
+        emoji: "🔑",
+        title: "交屋｜第四階段",
+        subtitle: "交屋是交易收尾階段，要同時完成尾款、點交、費用拆算與產權文件交接。",
+        items: [
+            { title: "買方準備", desc: "支付尾款（總價 70%，通常為銀行撥款）、代書費。" },
+            { title: "賣方準備", desc: "房屋鑰匙、遙控器、住戶規約、設備說明書。" },
+            { title: "重點作業", desc: "買方領取新的土地及建物所有權狀，現場點交並核對合約附件，水電瓦斯與管理費依交屋日按比例切分，最後由賣方領取尾款、買方取回擔保本票。" }
         ]
     }));
 }
