@@ -4628,8 +4628,16 @@
     margin-bottom: 4px;
 }
         /* 建議清單 */
-        .suggestions-list { position: absolute; top: 100%; left: 0; width: 100%; background: white; border: 1px solid #eee; border-radius: 8px; max-height: 150px; overflow-y: auto; z-index: 1000; display: none; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        .suggestion-item { padding: 10px 15px; font-size: 14px; cursor: pointer; border-bottom: 1px solid #f9f9f9; }
+        .suggestions-list { position: absolute; top: 100%; left: 0; width: 100%; background: #fff; border: 1px solid #eee; border-radius: 8px; max-height: 150px; overflow-y: auto; z-index: 1000; display: none; box-shadow: 0 4px 12px rgba(0,0,0,0.1); color: #161616; }
+        .suggestion-item { padding: 10px 15px; font-size: 14px; cursor: pointer; border-bottom: 1px solid #f2f2f2; color: #161616; background: #fff; -webkit-text-fill-color: #161616; }
+        .suggestion-item:last-child { border-bottom: none; }
+        .suggestion-item:hover,
+        .suggestion-item:active,
+        .suggestion-item:focus-visible {
+            background: #f6f2ff;
+            color: #111;
+            -webkit-text-fill-color: #111;
+        }
         .community-lookup-list { max-height: 55vh; overflow-y: auto; margin-top: 12px; display: grid; gap: 10px; padding-right: 4px; }
         .road-group { background: rgba(255, 255, 255, 0.92); border-radius: 12px; padding: 10px; border: 1px solid rgba(155, 81, 224, 0.2); }
         .road-title { font-size: 12px; font-weight: 700; color: #666; margin-bottom: 8px; }
@@ -7511,7 +7519,7 @@ function showSellerFeeDetails() {
             { title: "房地合一稅", desc: "針對交易獲利部分課徵，依持有年限長短，稅率分為 15%、20%、35% 或 45%。" },
             { title: "土地增值稅", desc: "依土地漲價總數額課徵，稅率為 20% 至 40%，若符合自用住宅條件可適用 10% 優惠稅率。" },
             { title: "仲介服務費", desc: "依成交總價計算，賣方習慣上支付 3% 至 4%。" },
-            { title: "塗銷代書費", desc: "交屋前需辦理原貸款的抵押權塗銷，手續費約 $2,000 至 $4,000 元。" },
+            { title: "塗銷代書費", desc: "交屋前需辦理原貸款的抵押權塗銷，手續費約 $2,000 至 $6,000 元。" },
             { title: "財產交易所得稅", desc: "僅適用於 2016 年以前取得的舊制房屋，須於隔年併入綜合所得稅申報。" }
         ]
     }));
@@ -9813,7 +9821,6 @@ function renderDetailPanel(item, data) {
     const floorValue = item.totalFloor
         ? (item.floor ? `${item.floor} / ${item.totalFloor} 樓` : `${item.totalFloor} 樓`)
         : (detailMap["樓層"] || "不明");
-    const parkingValue = item.parking || detailMap["車位"] || "不明";
     const roomsValue = item.rooms ?? null;
     const hallsValue = item.halls ?? null;
     const bathsValue = item.baths ?? null;
@@ -9862,8 +9869,7 @@ function renderDetailPanel(item, data) {
         `建坪：${areaValue}`,
         roomLine,
         `屋齡：${ageValue}`,
-        `樓層：${floorValue}`,
-        `車位：${parkingValue}`
+        `樓層：${floorValue}`
     ].filter(Boolean);
     const allLines = [...baseLines, ...details].map((line) => {
         if (!line) return "";
