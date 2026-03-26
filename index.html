@@ -2881,6 +2881,30 @@
             font-size: 13px;
             line-height: 1.4;
         }
+        .media-reels-subtitle {
+            max-width: min(100%, 34ch);
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+            white-space: pre-wrap;
+        }
+        .media-reels-subtitle.is-expanded {
+            display: block;
+            -webkit-line-clamp: initial;
+            overflow: visible;
+        }
+        .media-reels-more {
+            margin-top: 4px;
+            padding: 0;
+            border: none;
+            background: transparent;
+            color: rgba(255,255,255,0.92);
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            pointer-events: auto;
+        }
         .media-reels-hint {
             display: inline-flex;
             align-items: center;
@@ -3935,6 +3959,7 @@
                         <div class="media-reels-meta">
                             <div class="media-reels-title" id="mediaReelsTitle">影音播放</div>
                             <div class="media-reels-subtitle" id="mediaReelsSubtitle">上下滑動切換下一支影片</div>
+                            <button type="button" class="media-reels-more" id="mediaReelsMoreBtn" hidden>展開</button>
                             <div class="media-reels-hint">向上滑下一支，向下滑上一支</div>
                         </div>
                     </div>
@@ -4598,6 +4623,9 @@
     let mediaPlayerReady = false;
     let mediaPlayer = null;
     let mediaPlaylistIds = [];
+    let mediaPlaylistMeta = [];
+    let mediaMetaCache = {};
+    let mediaDescriptionExpanded = false;
     let mediaPlayerApiLoading = null;
     let mediaMuted = true;
 
@@ -7179,6 +7207,8 @@ function resetMediaReelsPlayer() {
     mediaPlayer = null;
     mediaPlayerReady = false;
     mediaPlaylistIds = [];
+    mediaPlaylistMeta = [];
+    mediaDescriptionExpanded = false;
     mediaCategoryKey = "";
     mediaMuted = true;
     updateMediaSoundButton();
@@ -7230,18 +7260,58 @@ function getCurrentMediaVideoTitle() {
     }
 }
 
+function getCurrentMediaIndex() {
+    if (mediaPlayerReady && mediaPlayer && typeof mediaPlayer.getPlaylistIndex === 'function') {
+        try {
+            return Math.max(0, mediaPlayer.getPlaylistIndex() || 0);
+        } catch (error) {}
+    }
+    return 0;
+}
+
+function getCurrentMediaMetaItem() {
+    const index = getCurrentMediaIndex();
+    return mediaPlaylistMeta[index] || null;
+}
+
+async function fetchMediaPlaylistMeta(playlistId) {
+    if (!playlistId) return [];
+    if (Array.isArray(mediaMetaCache[playlistId])) {
+        return mediaMetaCache[playlistId];
+    }
+    try {
+        const resp = await fetch(`${API_BASE}/api/youtube-playlist-meta?playlistId=${encodeURIComponent(playlistId)}`);
+        if (!resp.ok) return [];
+        const data = await resp.json();
+        const items = Array.isArray(data.items) ? data.items : [];
+        mediaMetaCache[playlistId] = items;
+        return items;
+    } catch (error) {
+        return [];
+    }
+}
+
 function updateMediaReelsMeta(category) {
     const titleEl = document.getElementById('mediaReelsTitle');
     const subtitleEl = document.getElementById('mediaReelsSubtitle');
+    const moreBtn = document.getElementById('mediaReelsMoreBtn');
     const chipEl = document.getElementById('mediaReelsCategoryChip');
     const counterEl = document.getElementById('mediaReelsCounter');
-    const currentTitle = getCurrentMediaVideoTitle();
+    const currentMeta = getCurrentMediaMetaItem();
+    const currentTitle = currentMeta?.title || getCurrentMediaVideoTitle();
+    const currentDescription = String(currentMeta?.description || '').trim();
     const nextTitle = currentTitle || category?.label || '房地產影音';
-    const nextSubtitle = currentTitle ? '' : (category?.desc || '上下滑動切換下一支影片');
+    const nextSubtitle = currentDescription || category?.desc || '上下滑動切換下一支影片';
     if (titleEl) titleEl.textContent = nextTitle;
     if (subtitleEl) {
         subtitleEl.textContent = nextSubtitle;
         subtitleEl.style.display = nextSubtitle ? '' : 'none';
+        subtitleEl.classList.toggle('is-expanded', Boolean(nextSubtitle) && mediaDescriptionExpanded);
+    }
+    if (moreBtn) {
+        const shouldShow = currentDescription.length > 0;
+        moreBtn.hidden = !shouldShow;
+        moreBtn.textContent = mediaDescriptionExpanded ? '收起' : '展開';
     }
     if (chipEl) chipEl.textContent = category?.label || '房地產影音';
     if (counterEl) {
@@ -7371,6 +7441,8 @@ async function openMediaReels(categoryKey) {
     }
     resetMediaReelsPlayer();
     mediaCategoryKey = categoryKey;
+    mediaDescriptionExpanded = false;
+    mediaPlaylistMeta = await fetchMediaPlaylistMeta(category.playlistId);
     setMediaMode('reels');
     updateMediaReelsMeta(category);
     const playerHolder = document.getElementById('mediaReelsPlayer');
@@ -7433,6 +7505,7 @@ function handleMediaSwipe(deltaY) {
         return;
     }
     mediaSwipeLocked = true;
+    mediaDescriptionExpanded = false;
     animateMediaReelsOut(deltaY, () => {
         try {
             if (deltaY < 0 && typeof mediaPlayer.nextVideo === 'function') mediaPlayer.nextVideo();
@@ -7700,6 +7773,12 @@ document.getElementById('mediaBackToChatBtnSecondary')?.addEventListener('click'
 document.getElementById('mediaSoundToggle')?.addEventListener('click', toggleMediaSound);
 document.getElementById('mediaSoundHint')?.addEventListener('click', toggleMediaSound);
 document.getElementById('mediaBackToHomeBtn')?.addEventListener('click', openMediaHome);
+document.getElementById('mediaReelsMoreBtn')?.addEventListener('click', () => {
+    mediaDescriptionExpanded = !mediaDescriptionExpanded;
+    const categories = getMediaCategories();
+    const category = categories.find((item) => item.key === mediaCategoryKey) || null;
+    updateMediaReelsMeta(category);
+});
 document.getElementById('mediaHomeGrid')?.addEventListener('click', (event) => {
     const card = event.target.closest('[data-media-category]');
     if (!card) return;
