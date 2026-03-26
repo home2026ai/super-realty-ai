@@ -1576,6 +1576,19 @@
                 justify-content: flex-start;
             }
 
+            .calendar-overlay {
+                align-items: flex-start;
+                padding: calc(var(--safe-top) + 10px) 12px calc(var(--safe-bottom) + 12px);
+            }
+
+            .calendar-panel {
+                width: 100%;
+                max-width: 100%;
+                max-height: calc(100dvh - var(--safe-top) - var(--safe-bottom) - 22px);
+                border-radius: 24px;
+                padding: 16px 14px 18px;
+            }
+
             .calendar-field-row {
                 grid-template-columns: 1fr;
             }
@@ -1624,6 +1637,10 @@
                 min-height: 38px;
                 padding: 0 14px;
                 font-size: 12px;
+            }
+
+            #calendarScheduleBtn {
+                min-width: 122px;
             }
 
             .browse-item-row {
@@ -1765,10 +1782,10 @@
         .drawer-menu {
             position: fixed;
             left: 0;
-            top: 0;
+            top: var(--safe-top);
             bottom: 0;
             width: 220px;
-            height: 100dvh;
+            height: calc(100dvh - var(--safe-top));
             background: var(--panel-surface);
             border-right: 1px solid rgba(255, 255, 255, 0.18);
             border-radius: 0 18px 18px 0;
@@ -1778,7 +1795,7 @@
             align-items: stretch;
             justify-content: flex-start;
             gap: 6px;
-            padding: 16px 12px calc(var(--safe-bottom) + 18px);
+            padding: 12px 12px calc(var(--safe-bottom) + 18px);
             transition: transform 0.35s ease, opacity 0.35s ease;
             transform: translateX(-100%);
             opacity: 0;
@@ -3687,18 +3704,23 @@
             padding: 20px;
             background: rgba(0,0,0,0.52);
             backdrop-filter: blur(10px);
+            overflow-y: auto;
         }
         .calendar-overlay.is-open {
             display: flex;
         }
         .calendar-panel {
             width: min(100%, 420px);
+            max-height: min(88vh, calc(100dvh - 40px));
             border-radius: 24px;
             border: 1px solid rgba(255,255,255,0.12);
             background: linear-gradient(180deg, rgba(30,30,32,0.94) 0%, rgba(12,12,14,0.96) 100%);
             color: rgba(255,255,255,0.9);
             box-shadow: 0 28px 60px rgba(0,0,0,0.34);
             padding: 18px 18px 20px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
         html[data-bg="mist"] .calendar-overlay {
             background: rgba(142, 127, 109, 0.18);
@@ -3756,6 +3778,9 @@
             display: flex;
             flex-direction: column;
             gap: 12px;
+            min-height: 0;
+            overflow-y: auto;
+            padding-right: 2px;
         }
         .calendar-panel-card {
             border-radius: 18px;
@@ -3864,10 +3889,11 @@
         .calendar-day.has-schedule::before {
             content: "";
             position: absolute;
-            top: 6px;
-            right: 7px;
+            bottom: 7px;
+            left: 50%;
             width: 6px;
             height: 6px;
+            margin-left: -3px;
             border-radius: 50%;
             background: #ff5858;
             box-shadow: 0 0 0 2px rgba(12,12,14,0.82);
@@ -4034,6 +4060,15 @@
             align-items: center;
             gap: 10px;
             margin-top: 6px;
+        }
+        #calendarScheduleBtn {
+            min-width: 128px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            margin-left: auto;
+            margin-right: auto;
         }
         .calendar-panel-btn {
             min-height: 40px;
