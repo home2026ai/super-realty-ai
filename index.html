@@ -2779,6 +2779,17 @@
             align-items: center;
             justify-content: center;
         }
+        .media-back-btn.is-arrow {
+            gap: 6px;
+            padding-left: 10px;
+        }
+        .media-back-btn.is-arrow svg {
+            width: 16px;
+            height: 16px;
+            stroke: currentColor;
+            fill: none;
+            flex: 0 0 auto;
+        }
         .media-sound-btn {
             position: absolute;
             right: 16px;
@@ -3872,7 +3883,12 @@
             </div>
             <div class="media-reels" id="mediaReels">
                 <div class="media-topbar">
-                    <button type="button" class="media-back-btn press-glow" id="mediaBackToHomeBtn">返回分類</button>
+                    <button type="button" class="media-back-btn press-glow is-arrow" id="mediaBackToHomeBtn">
+                        <svg viewBox="0 0 24 24" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M15 6l-6 6 6 6"></path>
+                        </svg>
+                        <span>返回分類</span>
+                    </button>
                     <button type="button" class="media-back-btn press-glow" id="mediaBackToChatBtnSecondary">返 AI 對話匡</button>
                 </div>
                 <div class="media-reels-frame" id="mediaReelsFrame">
@@ -7206,7 +7222,7 @@ function updateMediaReelsMeta(category) {
 function updateMediaSoundButton() {
     const textEl = document.getElementById('mediaSoundToggleText');
     const btnEl = document.getElementById('mediaSoundToggle');
-    const nextText = mediaMuted ? '開聲音' : '靜音中';
+    const nextText = mediaMuted ? '開聲音' : '關聲音';
     if (textEl) textEl.textContent = nextText;
     if (btnEl) btnEl.setAttribute('aria-label', nextText);
 }
