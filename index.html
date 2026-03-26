@@ -2780,15 +2780,29 @@
             justify-content: center;
         }
         .media-back-btn.is-arrow {
-            gap: 6px;
-            padding-left: 10px;
+            min-height: 0;
+            width: 38px;
+            height: 38px;
+            padding: 0;
+            border: none;
+            background: transparent;
+            border-radius: 0;
+            box-shadow: none;
         }
         .media-back-btn.is-arrow svg {
-            width: 16px;
-            height: 16px;
+            width: 26px;
+            height: 26px;
             stroke: currentColor;
             fill: none;
             flex: 0 0 auto;
+        }
+        .media-back-btn.is-arrow:hover,
+        .media-back-btn.is-arrow:active,
+        .media-back-btn.is-arrow:focus-visible {
+            border: none;
+            background: transparent;
+            box-shadow: none;
+            transform: none;
         }
         .media-sound-btn {
             position: absolute;
@@ -3887,7 +3901,6 @@
                         <svg viewBox="0 0 24 24" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <path d="M15 6l-6 6 6 6"></path>
                         </svg>
-                        <span>返回分類</span>
                     </button>
                     <button type="button" class="media-back-btn press-glow" id="mediaBackToChatBtnSecondary">返 AI 對話匡</button>
                 </div>
