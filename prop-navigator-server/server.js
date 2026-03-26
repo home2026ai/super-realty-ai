@@ -50,6 +50,8 @@ const LISTING_HEADERS = {
 };
 const AGENTS_PATH = path.join(__dirname, 'agents.json');
 const ANALYTICS_PATH = path.join(__dirname, 'agent-analytics.json');
+const YOUTUBE_DATA_API_KEY = process.env.YOUTUBE_DATA_API_KEY || "";
+const youtubePlaylistMetaCache = new Map();
 const USE_LIST_HTML = false;
 const DETAIL_CONCURRENCY = 4;
 const CITY_TEMPLATES = {
@@ -155,6 +157,89 @@ function getDayKey(date = new Date()) {
 
 function getIsoNow() {
     return new Date().toISOString();
+}
+
+function getYouTubeMetaCache(playlistId) {
+    const cached = youtubePlaylistMetaCache.get(playlistId);
+    if (!cached) return null;
+    if (cached.expiresAt < Date.now()) {
+        youtubePlaylistMetaCache.delete(playlistId);
+        return null;
+    }
+    return cached.payload;
+}
+
+function setYouTubeMetaCache(playlistId, payload) {
+    youtubePlaylistMetaCache.set(playlistId, {
+        payload,
+        expiresAt: Date.now() + (1000 * 60 * 20)
+    });
+}
+
+async function fetchYouTubeJson(url) {
+    const resp = await fetch(url);
+    if (!resp.ok) {
+        const text = await resp.text().catch(() => "");
+        throw new Error(`youtube api ${resp.status}: ${text || resp.statusText}`);
+    }
+    return resp.json();
+}
+
+async function fetchYouTubePlaylistMeta(playlistId) {
+    if (!YOUTUBE_DATA_API_KEY) {
+        throw new Error("youtube api key missing");
+    }
+    const cached = getYouTubeMetaCache(playlistId);
+    if (cached) return cached;
+
+    const playlistItems = [];
+    let nextPageToken = "";
+    do {
+        const listUrl = new URL("https://www.googleapis.com/youtube/v3/playlistItems");
+        listUrl.searchParams.set("part", "snippet");
+        listUrl.searchParams.set("playlistId", playlistId);
+        listUrl.searchParams.set("maxResults", "50");
+        listUrl.searchParams.set("key", YOUTUBE_DATA_API_KEY);
+        if (nextPageToken) listUrl.searchParams.set("pageToken", nextPageToken);
+        const listJson = await fetchYouTubeJson(listUrl.toString());
+        playlistItems.push(...(Array.isArray(listJson.items) ? listJson.items : []));
+        nextPageToken = String(listJson.nextPageToken || "");
+    } while (nextPageToken);
+
+    const orderedVideoIds = playlistItems
+        .map((item) => item?.snippet?.resourceId?.videoId || "")
+        .filter(Boolean);
+
+    const metadataById = new Map();
+    for (let i = 0; i < orderedVideoIds.length; i += 50) {
+        const chunk = orderedVideoIds.slice(i, i + 50);
+        const videosUrl = new URL("https://www.googleapis.com/youtube/v3/videos");
+        videosUrl.searchParams.set("part", "snippet");
+        videosUrl.searchParams.set("id", chunk.join(","));
+        videosUrl.searchParams.set("key", YOUTUBE_DATA_API_KEY);
+        const videosJson = await fetchYouTubeJson(videosUrl.toString());
+        for (const item of Array.isArray(videosJson.items) ? videosJson.items : []) {
+            metadataById.set(item.id, item);
+        }
+    }
+
+    const payload = {
+        playlistId,
+        items: orderedVideoIds.map((videoId, index) => {
+            const meta = metadataById.get(videoId);
+            const snippet = meta?.snippet || {};
+            return {
+                index,
+                videoId,
+                title: String(snippet.title || "").trim(),
+                description: String(snippet.description || "").trim(),
+                thumbnail: snippet.thumbnails?.high?.url || snippet.thumbnails?.medium?.url || snippet.thumbnails?.default?.url || ""
+            };
+        }).filter((item) => item.videoId)
+    };
+
+    setYouTubeMetaCache(playlistId, payload);
+    return payload;
 }
 
 function recordVisit(agentId, sessionId) {
@@ -881,6 +966,25 @@ app.get('/api/agents/:agentId/stats', (req, res) => {
         agentId,
         stats: getAgentStatsSummary(agentId)
     });
+});
+
+app.get('/api/youtube-playlist-meta', async (req, res) => {
+    const playlistId = typeof req.query.playlistId === "string" ? req.query.playlistId.trim() : "";
+    if (!playlistId) {
+        res.status(400).json({ error: "missing playlistId" });
+        return;
+    }
+    if (!YOUTUBE_DATA_API_KEY) {
+        res.status(500).json({ error: "youtube api key missing" });
+        return;
+    }
+    try {
+        const payload = await fetchYouTubePlaylistMeta(playlistId);
+        res.json(payload);
+    } catch (error) {
+        console.error("❌ youtube playlist meta error:", error);
+        res.status(502).json({ error: error.message || "youtube meta fetch failed" });
+    }
 });
 
 app.post('/api/agents/:agentId', (req, res) => {
