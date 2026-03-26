@@ -2572,10 +2572,19 @@
             padding: 4px 0 12px;
         }
         .media-topbar-title {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
             color: var(--main-text);
             font-size: 18px;
             font-weight: 800;
             letter-spacing: 0.01em;
+        }
+        .media-topbar-title svg {
+            width: 18px;
+            height: 18px;
+            stroke: rgba(255,255,255,0.82);
+            flex: 0 0 auto;
         }
         .media-back-btn {
             border: 1px solid rgba(255,255,255,0.22);
@@ -5061,7 +5070,13 @@
         <div class="media-stage" id="mediaStage">
             <div class="media-home is-active" id="mediaHome">
                 <div class="media-topbar">
-                    <div class="media-topbar-title">選擇觀看的影音篇章</div>
+                    <div class="media-topbar-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M10 13a5 5 0 0 0 7.07 0l2.12-2.12a5 5 0 0 0-7.07-7.07L10.7 5.22"></path>
+                            <path d="M14 11a5 5 0 0 0-7.07 0L4.8 13.12a5 5 0 1 0 7.07 7.07l1.41-1.41"></path>
+                        </svg>
+                        <span>選擇觀看主題</span>
+                    </div>
                     <button type="button" class="media-back-btn press-glow" id="mediaBackToChatBtn">返回 AI 對話</button>
                 </div>
                 <div class="media-home-hero">
@@ -8786,10 +8801,8 @@ function buildCategoryPreviewEmbed(category) {
 
 function renderMediaHome() {
     const grid = document.getElementById('mediaHomeGrid');
-    const titleEl = document.querySelector('#mediaHome .media-topbar-title');
     const heroTitleEl = document.getElementById('mediaHomeHeroTitle');
-    if (titleEl) titleEl.textContent = currentAgent.mediaTitle || DEFAULT_AGENT.mediaTitle || '房地產影音';
-    if (heroTitleEl) heroTitleEl.textContent = `${currentAgent.mediaTitle || DEFAULT_AGENT.mediaTitle || '房地產影音'} 入口`;
+    if (heroTitleEl) heroTitleEl.textContent = currentAgent.mediaTitle || DEFAULT_AGENT.mediaTitle || '房地產影音';
     if (!grid) return;
     const categories = getMediaCategories();
     if (!categories.length) {
