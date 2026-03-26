@@ -1643,6 +1643,10 @@
                 min-width: 122px;
             }
 
+            #calendarConfirmBtn {
+                min-width: 146px;
+            }
+
             .browse-item-row {
                 flex-direction: column;
                 gap: 8px;
@@ -3215,6 +3219,55 @@
         .media-inline-toast.is-visible {
             display: inline-flex;
         }
+        .media-share-menu {
+            position: absolute;
+            right: 18px;
+            bottom: 118px;
+            z-index: 7;
+            min-width: 164px;
+            padding: 8px;
+            border-radius: 18px;
+            background: rgba(12,12,14,0.86);
+            border: 1px solid rgba(255,255,255,0.12);
+            backdrop-filter: blur(16px);
+            box-shadow: 0 18px 36px rgba(0,0,0,0.28);
+            display: none;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .media-share-menu.is-open {
+            display: flex;
+        }
+        .media-share-item {
+            min-height: 40px;
+            border: none;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.05);
+            color: rgba(255,255,255,0.92);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0 12px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: left;
+        }
+        .media-share-item svg {
+            width: 16px;
+            height: 16px;
+            stroke: currentColor;
+            fill: none;
+            flex: 0 0 auto;
+        }
+        .media-share-item:hover,
+        .media-share-item:active,
+        .media-share-item:focus-visible {
+            box-shadow: none;
+            outline: none;
+            transform: none;
+            background: rgba(255,255,255,0.09);
+        }
         .media-sound-btn svg {
             width: 15px;
             height: 15px;
@@ -4070,6 +4123,16 @@
             margin-left: auto;
             margin-right: auto;
         }
+        #calendarConfirmBtn {
+            min-width: 152px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.1;
+        }
         .calendar-panel-btn {
             min-height: 40px;
             border-radius: 999px;
@@ -4310,6 +4373,37 @@
         .unit-suffix { font-size: 12px; color: #000; white-space: nowrap; font-weight: 700; }
         .int-btn { background: white; color: var(--ai-purple); border: 1.1px solid var(--ai-purple); padding: 10px 16px; border-radius: 12px; font-size: 13px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; transition: 0.3s; }
         .int-btn:hover { background: var(--ai-purple); color: white; }
+        .chat-box .interaction-container {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+            margin-top: 12px;
+        }
+        .chat-box .interaction-container .int-btn {
+            width: auto;
+            min-height: 40px;
+            margin-top: 0;
+            padding: 0 18px;
+            border-radius: 999px;
+            border: 1px solid rgba(255,255,255,0.12);
+            background: rgba(92, 92, 97, 0.58);
+            color: rgba(255,255,255,0.9);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            box-shadow: none;
+        }
+        .chat-box .interaction-container .int-btn:hover,
+        .chat-box .interaction-container .int-btn:active,
+        .chat-box .interaction-container .int-btn:focus-visible {
+            background: rgba(92, 92, 97, 0.58);
+            color: rgba(255,255,255,0.9);
+            box-shadow: none;
+            outline: none;
+            transform: none;
+        }
         .calc-note { font-size: 11px; color: #666; margin-top: 6px; }
         .calc-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
         .rent-tab.is-active { background: var(--ai-purple); color: white; }
@@ -5016,6 +5110,21 @@
                         <span id="mediaPlayToggleText">暫停</span>
                     </button>
                     <div class="media-inline-toast" id="mediaInlineToast">已加入瀏覽</div>
+                    <div class="media-share-menu" id="mediaShareMenu">
+                        <button type="button" class="media-share-item" id="mediaShareCopyBtn">
+                            <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <rect x="9" y="9" width="11" height="11" rx="2"></rect>
+                                <path d="M6 15H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v1"></path>
+                            </svg>
+                            <span>複製連結</span>
+                        </button>
+                        <button type="button" class="media-share-item" id="mediaShareLineBtn">
+                            <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M21 11.5c0 4.7-4.25 8.5-9.5 8.5-.85 0-1.67-.1-2.44-.3L4 21l1.48-4.23C4.56 15.3 4 13.45 4 11.5 4 6.8 8.25 3 13.5 3S21 6.8 21 11.5Z"></path>
+                            </svg>
+                            <span>分享到 LINE</span>
+                        </button>
+                    </div>
                     <div class="media-reels-rail" id="mediaReelsRail">
                         <button type="button" class="media-reels-action-btn" id="mediaReelsShareBtn" aria-label="分享目前影片">
                             <svg viewBox="0 0 24 24" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -8843,28 +8952,36 @@ function setMediaReelsMenuOpen(isOpen) {
     if (btn) btn.setAttribute('aria-expanded', mediaActionsMenuOpen ? 'true' : 'false');
 }
 
-async function shareCurrentMedia() {
+function setMediaShareMenuOpen(isOpen) {
+    const menu = document.getElementById('mediaShareMenu');
+    if (menu) menu.classList.toggle('is-open', Boolean(isOpen));
+}
+
+function shareCurrentMedia() {
+    setMediaReelsMenuOpen(false);
+    const menu = document.getElementById('mediaShareMenu');
+    setMediaShareMenuOpen(!menu?.classList.contains('is-open'));
+}
+
+async function copyCurrentMediaLink() {
     const payload = getCurrentMediaSharePayload();
     try {
-        if (navigator.share) {
-            await navigator.share({
-                title: payload.title,
-                text: payload.text,
-                url: payload.url
-            });
-            return;
-        }
-    } catch (error) {
-        if (error?.name === 'AbortError') return;
-    }
-    try {
         if (navigator.clipboard?.writeText) {
-            await navigator.clipboard.writeText(payload.text);
-            alert('影片連結已複製');
+            await navigator.clipboard.writeText(payload.url);
+            showMediaInlineToast('影片連結已複製');
+            setMediaShareMenuOpen(false);
             return;
         }
     } catch (error) {}
     window.prompt('請複製影片連結', payload.url);
+    setMediaShareMenuOpen(false);
+}
+
+function shareCurrentMediaToLine() {
+    const payload = getCurrentMediaSharePayload();
+    const url = `https://line.me/R/msg/text/?${encodeURIComponent(payload.text)}`;
+    window.open(url, '_blank');
+    setMediaShareMenuOpen(false);
 }
 
 function showMediaInlineToast(message) {
@@ -9573,6 +9690,9 @@ document.addEventListener('click', (e) => {
         selectCalendarDate(calendarDay.dataset.date || '');
         return;
     }
+    if (!e.target.closest('#mediaShareMenu') && !e.target.closest('#mediaReelsShareBtn')) {
+        setMediaShareMenuOpen(false);
+    }
     if (mediaActionsMenuOpen && !e.target.closest('#mediaReelsMenu') && !e.target.closest('#mediaReelsMenuBtn')) {
         setMediaReelsMenuOpen(false);
     }
@@ -9622,11 +9742,17 @@ document.getElementById('mediaSoundToggle')?.addEventListener('click', toggleMed
 document.getElementById('mediaPlayToggle')?.addEventListener('click', toggleMediaPlayback);
 document.getElementById('mediaSoundHint')?.addEventListener('click', toggleMediaSound);
 document.getElementById('mediaReelsShareBtn')?.addEventListener('click', shareCurrentMedia);
+document.getElementById('mediaShareCopyBtn')?.addEventListener('click', copyCurrentMediaLink);
+document.getElementById('mediaShareLineBtn')?.addEventListener('click', shareCurrentMediaToLine);
 document.getElementById('mediaReelsMenuBtn')?.addEventListener('click', (event) => {
     event.stopPropagation();
+    setMediaShareMenuOpen(false);
     setMediaReelsMenuOpen(!mediaActionsMenuOpen);
 });
 document.getElementById('mediaReelsMenu')?.addEventListener('click', (event) => {
+    event.stopPropagation();
+});
+document.getElementById('mediaShareMenu')?.addEventListener('click', (event) => {
     event.stopPropagation();
 });
 document.getElementById('mediaReelsBrowseAction')?.addEventListener('click', (event) => {
