@@ -2250,6 +2250,10 @@
         .chat-card.is-media-mode .chat-scroll-indicator {
             display: none;
         }
+        .chat-card.is-media-reels-mode .chat-header,
+        .chat-card.is-media-reels-mode .agent-cta-bar {
+            display: none;
+        }
         .media-stage {
             position: relative;
             display: none;
@@ -2286,6 +2290,9 @@
             display: flex;
             flex-direction: column;
         }
+        .chat-card.is-media-reels-mode .media-stage {
+            padding: 0;
+        }
         .media-home,
         .media-reels {
             display: none;
@@ -2298,6 +2305,7 @@
         .media-reels {
             position: relative;
             gap: 0;
+            background: #000;
         }
         .media-home.is-active,
         .media-reels.is-active {
@@ -3411,6 +3419,10 @@
 
             .media-stage {
                 padding: 4px 10px 12px;
+            }
+
+            .chat-card.is-media-reels-mode .media-stage {
+                padding: 0;
             }
 
             .media-home-hero {
@@ -7096,20 +7108,37 @@ function setMediaMode(nextMode) {
     const reels = document.getElementById('mediaReels');
     if (!card || !home || !reels) return;
     card.classList.toggle('is-media-mode', nextMode !== 'chat');
+    card.classList.toggle('is-media-reels-mode', nextMode === 'reels');
     home.classList.toggle('is-active', nextMode === 'home');
     reels.classList.toggle('is-active', nextMode === 'reels');
 }
 
-function exitMediaMode() {
-    setMediaMode('chat');
+function resetMediaReelsPlayer() {
+    const playerHolder = document.getElementById('mediaReelsPlayer');
+    try {
+        if (mediaPlayer) {
+            if (typeof mediaPlayer.stopVideo === 'function') mediaPlayer.stopVideo();
+            if (typeof mediaPlayer.destroy === 'function') mediaPlayer.destroy();
+        }
+    } catch (error) {}
+    mediaPlayer = null;
+    mediaPlayerReady = false;
+    mediaPlaylistIds = [];
     mediaCategoryKey = "";
-    if (mediaPlayer && typeof mediaPlayer.stopVideo === 'function') {
-        try { mediaPlayer.stopVideo(); } catch (error) {}
-    }
+    mediaMuted = true;
+    updateMediaSoundButton();
+    hideMediaSoundHint();
+    if (playerHolder) playerHolder.innerHTML = "";
+}
+
+function exitMediaMode() {
+    resetMediaReelsPlayer();
+    setMediaMode('chat');
 }
 
 function openMediaHome() {
     closeDrawer();
+    resetMediaReelsPlayer();
     renderMediaHome();
     setMediaMode('home');
 }
@@ -7179,17 +7208,12 @@ async function openMediaReels(categoryKey) {
         alert('此分類尚未設定播放清單');
         return;
     }
+    resetMediaReelsPlayer();
     mediaCategoryKey = categoryKey;
     setMediaMode('reels');
     updateMediaReelsMeta(category);
     const playerHolder = document.getElementById('mediaReelsPlayer');
     if (!playerHolder) return;
-    playerHolder.innerHTML = '';
-    mediaPlayerReady = false;
-    mediaPlaylistIds = [];
-    mediaMuted = true;
-    updateMediaSoundButton();
-    hideMediaSoundHint();
     await ensureYouTubePlayerApi();
     mediaPlayer = new window.YT.Player('mediaReelsPlayer', {
         width: '100%',
@@ -7218,7 +7242,20 @@ async function openMediaReels(categoryKey) {
                 showMediaSoundHint();
                 updateMediaReelsMeta(category);
             },
-            onStateChange: () => {
+            onStateChange: (event) => {
+                if (window.YT && event?.data === window.YT.PlayerState.ENDED) {
+                    try {
+                        const currentIndex = typeof event.target.getPlaylistIndex === 'function'
+                            ? (event.target.getPlaylistIndex() || 0)
+                            : 0;
+                        if (typeof event.target.playVideoAt === 'function') {
+                            event.target.playVideoAt(currentIndex);
+                        } else if (typeof event.target.seekTo === 'function' && typeof event.target.playVideo === 'function') {
+                            event.target.seekTo(0, true);
+                            event.target.playVideo();
+                        }
+                    } catch (error) {}
+                }
                 updateMediaReelsMeta(category);
             }
         }
@@ -7491,10 +7528,7 @@ document.getElementById('mediaBackToChatBtn')?.addEventListener('click', exitMed
 document.getElementById('mediaBackToChatBtnSecondary')?.addEventListener('click', exitMediaMode);
 document.getElementById('mediaSoundToggle')?.addEventListener('click', toggleMediaSound);
 document.getElementById('mediaSoundHint')?.addEventListener('click', toggleMediaSound);
-document.getElementById('mediaBackToHomeBtn')?.addEventListener('click', () => {
-    renderMediaHome();
-    setMediaMode('home');
-});
+document.getElementById('mediaBackToHomeBtn')?.addEventListener('click', openMediaHome);
 document.getElementById('mediaHomeGrid')?.addEventListener('click', (event) => {
     const card = event.target.closest('[data-media-category]');
     if (!card) return;
