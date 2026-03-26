@@ -2769,8 +2769,8 @@
         }
         .media-reels-rail {
             position: absolute;
-            right: 22px;
-            bottom: 116px;
+            right: 58px;
+            bottom: 268px;
             z-index: 4;
             display: flex;
             flex-direction: column;
@@ -3031,11 +3031,21 @@
             font-family: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
             line-height: 1.18;
             letter-spacing: 0.02em;
+            display: inline-block;
+            padding: 4px 18px 5px 12px;
+            margin-left: -8px;
+            background: linear-gradient(90deg,
+                rgba(0,0,0,0) 0%,
+                rgba(0,0,0,0.52) 10%,
+                rgba(0,0,0,0.76) 30%,
+                rgba(0,0,0,0.76) 72%,
+                rgba(0,0,0,0.48) 90%,
+                rgba(0,0,0,0) 100%);
             text-shadow:
                 0 2px 6px rgba(0,0,0,0.72),
                 0 6px 18px rgba(0,0,0,0.84),
                 0 12px 28px rgba(0,0,0,0.92);
-            max-width: min(100%, 32ch);
+            max-width: min(100%, 36ch);
             margin-top: 8px;
             margin-bottom: 4px;
             overflow: hidden;
@@ -3828,8 +3838,8 @@
             }
 
             .media-reels-rail {
-                right: 18px;
-                bottom: calc(var(--safe-bottom) + 112px);
+                right: 56px;
+                bottom: calc(var(--safe-bottom) + 260px);
             }
 
             .media-reels-action-btn {
@@ -3875,6 +3885,8 @@
             .media-reels-title {
                 font-size: 15px;
                 margin-top: 4px;
+                padding: 4px 16px 5px 10px;
+                margin-left: -6px;
             }
 
             .media-reels-hint {
@@ -8113,6 +8125,20 @@ function handleMediaSwipe(deltaY) {
     }
     mediaSwipeLocked = true;
     mediaDescriptionExpanded = false;
+    const currentIndex = getCurrentMediaIndex();
+    const lastIndex = Math.max((mediaPlaylistIds.length || 1) - 1, 0);
+    if (deltaY < 0 && currentIndex >= lastIndex) {
+        mediaSwipeLocked = false;
+        resetMediaReelsDrag(true);
+        showMediaInlineToast('已經是最後一支');
+        return;
+    }
+    if (deltaY > 0 && currentIndex <= 0) {
+        mediaSwipeLocked = false;
+        resetMediaReelsDrag(true);
+        showMediaInlineToast('已經是第一支');
+        return;
+    }
     animateMediaReelsOut(deltaY, () => {
         try {
             if (deltaY < 0 && typeof mediaPlayer.nextVideo === 'function') mediaPlayer.nextVideo();
