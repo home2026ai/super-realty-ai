@@ -807,13 +807,22 @@
         .agent-share-btn {
             width: 36px;
             height: 36px;
-            line-height: 0.75;
-            transform: translateY(-3關 Auto contextpx);
             border-radius: 999px;
             border: none;
             background: rgba(255, 255, 255, 0.92);
-            font-size: 36px;
             cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            color: #2d3d38;
+            transform: none;
+        }
+        .agent-share-btn svg {
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
+            fill: none;
         }
         .agent-top-actions {
             display: flex;
@@ -5323,7 +5332,12 @@
                 <div class="agent-title">業務資訊</div>
                 <div class="agent-top-actions">
                     <button class="agent-stats-btn press-glow" id="agentStatsBtn" title="數據" style="display:none;">數據</button>
-                    <button class="agent-share-btn press-glow" id="agentShareBtn" title="分享">⤴︎</button>
+                    <button class="agent-share-btn press-glow" id="agentShareBtn" title="分享" aria-label="分享給客戶連結">
+                        <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M22 2L11 13"></path>
+                            <path d="M22 2L15 22L11 13L2 9L22 2Z"></path>
+                        </svg>
+                    </button>
                 </div>
             </div>
             <div id="agentView" class="agent-card">
@@ -9088,13 +9102,22 @@ function getMediaReelsStatsText(meta) {
     return segments.join(' ・ ');
 }
 
-async function fetchMediaPlaylistMeta(playlistId) {
+async function fetchMediaPlaylistMeta(playlistId, options = {}) {
     if (!playlistId) return [];
-    if (Array.isArray(mediaMetaCache[playlistId])) {
+    const forceRefresh = !!options.forceRefresh;
+    if (!forceRefresh && Array.isArray(mediaMetaCache[playlistId])) {
         return mediaMetaCache[playlistId];
     }
     try {
-        const resp = await fetch(`${API_BASE}/api/youtube-playlist-meta?playlistId=${encodeURIComponent(playlistId)}`);
+        const url = new URL(`${API_BASE}/api/youtube-playlist-meta`);
+        url.searchParams.set('playlistId', playlistId);
+        if (forceRefresh) {
+            url.searchParams.set('refresh', '1');
+            url.searchParams.set('_ts', String(Date.now()));
+        }
+        const resp = await fetch(url.toString(), {
+            cache: forceRefresh ? 'no-store' : 'default'
+        });
         if (!resp.ok) return [];
         const data = await resp.json();
         const items = Array.isArray(data.items) ? data.items : [];
@@ -9319,7 +9342,7 @@ async function openMediaReels(categoryKey, targetVideoId = '') {
     mediaCategoryKey = categoryKey;
     mediaDescriptionExpanded = false;
     setMediaReelsMenuOpen(false);
-    mediaPlaylistMeta = await fetchMediaPlaylistMeta(category.playlistId);
+    mediaPlaylistMeta = await fetchMediaPlaylistMeta(category.playlistId, { forceRefresh: true });
     setMediaMode('reels');
     updateMediaReelsMeta(category);
     const playerHolder = document.getElementById('mediaReelsPlayer');
