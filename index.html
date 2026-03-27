@@ -7238,7 +7238,7 @@ async function sendMessage() {
     }
     const shouldSearchListing = !attachment && (isListingQuery(val) || (pendingQuery && hasListingCriteria(val)));
     if (shouldSearchListing) {
-        let query = pendingQuery ? `${pendingQuery} ${val}` : val;
+        let query = normalizeListingQuery(pendingQuery ? `${pendingQuery} ${val}` : val);
         if (shouldAskGuishanArea(query)) {
             showGuishanAreaChoice(query, pendingQuery, val);
             return;
@@ -7249,6 +7249,32 @@ async function sendMessage() {
         }
         startListingSearch(query, pendingQuery, val, loadingId);
         return;
+    }
+
+    if (!attachment && !pendingQuery) {
+        const intent = await detectListingIntent(val);
+        if (intent) {
+            let query = normalizeListingQuery(val, {
+                region: intent.region,
+                rooms: intent.rooms,
+                budgetMaxWan: intent.budgetMaxWan
+            });
+            if (intent.region === 'unknown' || intent.region === 'none') {
+                showListingRegionChoice(query, pendingQuery, val);
+                return;
+            }
+            if (intent.region === 'guishan') {
+                showGuishanAreaChoice(query, pendingQuery, val);
+                return;
+            }
+            if (shouldAskAreaRange(query)) {
+                showAreaRangeChoice(query, pendingQuery, val);
+                return;
+            }
+            const listingLoadingId = "load-" + Date.now();
+            startListingSearch(query, pendingQuery, val, listingLoadingId);
+            return;
+        }
     }
 
     addBotMsg(attachment ? "AI 正在分析附件..." : "AI 思考中...", loadingId);
@@ -7275,6 +7301,125 @@ async function sendMessage() {
 
 let pendingGuishanAreaQuery = null;
 let pendingAreaRangeQuery = null;
+let pendingListingRegionQuery = null;
+
+function extractImplicitBudgetWan(text) {
+    const raw = String(text || "");
+    if (!raw || /(\d+)\s*萬/.test(raw)) return null;
+    const matches = [...raw.matchAll(/\d{3,4}/g)];
+    for (let i = matches.length - 1; i >= 0; i -= 1) {
+        const match = matches[i];
+        const value = parseInt(match[0], 10);
+        if (!Number.isFinite(value) || value < 300 || value > 9999) continue;
+        const start = match.index || 0;
+        const end = start + match[0].length;
+        const prev = raw.slice(Math.max(0, start - 1), start);
+        const next = raw.slice(end, end + 2);
+        if (/[\/\-:]/.test(prev)) continue;
+        if (/^(坪|樓|年|房|戶|室|月|號|%|樓層)/.test(next)) continue;
+        return value;
+    }
+    return null;
+}
+
+function normalizeListingQuery(query, overrides = {}) {
+    let next = String(query || "").trim();
+    if (!next) return next;
+    const targetRegion = overrides.region || "";
+    if (targetRegion === "linkou" && !/林口/.test(next)) next += " 林口";
+    if (targetRegion === "guishan" && !/龜山/.test(next)) next += " 龜山";
+    if (targetRegion === "a7" && !/A7|Ａ７/i.test(next)) next += " A7";
+    if (targetRegion === "a8" && !/A8|Ａ８/i.test(next)) next += " A8";
+    if (overrides.rooms && !/(\d+|[一二兩三四五六七八九十])\s*房/.test(next)) {
+        next += ` ${overrides.rooms}房`;
+    }
+    if (overrides.budgetMaxWan && !/(\d+)\s*萬/.test(next)) {
+        next += ` ${overrides.budgetMaxWan}萬`;
+    }
+    const implicitBudget = extractImplicitBudgetWan(next);
+    if (implicitBudget && !/(\d+)\s*萬/.test(next)) {
+        next += ` ${implicitBudget}萬`;
+    }
+    return next.replace(/\s+/g, " ").trim();
+}
+
+async function detectListingIntent(text) {
+    try {
+        const response = await fetch(`${API_BASE}/api/listing-intent`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: text, sessionId: getSessionId() })
+        });
+        if (!response.ok) return null;
+        const data = await response.json();
+        return data && data.isListing ? data : null;
+    } catch (error) {
+        return null;
+    }
+}
+
+async function requestGeneralChatResponse(message) {
+    const loadingId = "load-" + Date.now();
+    addBotMsg("AI 思考中...", loadingId);
+    try {
+        const response = await fetch(`${API_BASE}/api/chat`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                message,
+                sessionId: getSessionId(),
+                attachmentData: null,
+                attachmentMimeType: null,
+                attachmentName: null
+            })
+        });
+        const data = await response.json();
+        document.getElementById(loadingId)?.remove();
+        addBotMsg(data.text);
+    } catch (error) {
+        document.getElementById(loadingId)?.remove();
+        addBotMsg("連線失敗");
+    }
+}
+
+function cancelListingIntentPrompt(kind) {
+    let payload = null;
+    if (kind === 'region') {
+        payload = pendingListingRegionQuery;
+        pendingListingRegionQuery = null;
+    } else if (kind === 'guishan') {
+        payload = pendingGuishanAreaQuery;
+        pendingGuishanAreaQuery = null;
+    }
+    if (!payload?.baseInput) return;
+    requestGeneralChatResponse(payload.baseInput);
+}
+
+function showListingRegionChoice(query, pendingQuery, baseInput) {
+    pendingListingRegionQuery = { query, pendingQuery, baseInput };
+    addBotMsgHTML(`我猜你可能是在找房，先幫你確認區域：<div class="interaction-container">
+        <div class="int-btn ripple-btn" onclick="selectListingRegion('linkou')">林口區</div>
+        <div class="int-btn ripple-btn" onclick="selectListingRegion('guishan')">龜山區</div>
+        <div class="int-btn ripple-btn" onclick="cancelListingIntentPrompt('region')">我不是要找房</div>
+    </div>`);
+}
+
+function selectListingRegion(regionKey) {
+    if (!pendingListingRegionQuery) return;
+    const { query, pendingQuery, baseInput } = pendingListingRegionQuery;
+    pendingListingRegionQuery = null;
+    const nextQuery = normalizeListingQuery(query, { region: regionKey });
+    const loadingId = "load-" + Date.now();
+    if (regionKey === 'guishan') {
+        showGuishanAreaChoice(nextQuery, pendingQuery, baseInput);
+        return;
+    }
+    if (shouldAskAreaRange(nextQuery)) {
+        showAreaRangeChoice(nextQuery, pendingQuery, baseInput);
+        return;
+    }
+    startListingSearch(nextQuery, pendingQuery, baseInput, loadingId);
+}
 
 function shouldAskGuishanArea(query) {
     if (!/(龜山|龜山區)/.test(query)) return false;
@@ -7292,9 +7437,10 @@ function shouldAskAreaRange(query) {
 
 function showGuishanAreaChoice(query, pendingQuery, baseInput) {
     pendingGuishanAreaQuery = { query, pendingQuery, baseInput };
-    addBotMsgHTML(`請選擇區域：<div class="interaction-container">
+    addBotMsgHTML(`我猜你想找龜山物件，請再選擇細區：<div class="interaction-container">
         <div class="int-btn ripple-btn" onclick="selectGuishanArea('A7')">A7 地區</div>
         <div class="int-btn ripple-btn" onclick="selectGuishanArea('A8')">A8 地區</div>
+        <div class="int-btn ripple-btn" onclick="cancelListingIntentPrompt('guishan')">我不是要找房</div>
     </div>`);
 }
 
@@ -7364,6 +7510,7 @@ function submitAreaRange(minId, maxId, minValId, maxValId) {
 }
 
 function startListingSearch(query, pendingQuery, baseInput, loadingId) {
+    query = normalizeListingQuery(query);
     trackListingSearch(query);
     addBotMsg("🏠 正在搜尋物件...", loadingId);
     const communityName = extractCommunityNameFromQuery(query);
@@ -7637,9 +7784,12 @@ function showHandoverFlowDetails() {
 function isListingQuery(text) {
     const hasFind = /我要找|找房|找屋|找.*房|幫我查/.test(text);
     const communityName = extractCommunityNameFromQuery(text);
-    const hasRooms = /\d+\s*房/.test(text);
+    const hasRooms = /(\d+|[一二兩三四五六七八九十])\s*房/.test(text);
     const hasCommunityCombo = !!communityName && hasRooms;
-    return (hasFind && hasListingCriteria(text)) || hasCommunityCombo;
+    const hasCity = /(桃園|新北|林口|龜山|A7|A8|A9|Ａ７|Ａ８|Ａ９)/i.test(text);
+    const hasBudget = /(\d+)\s*萬/.test(text) || extractImplicitBudgetWan(text) !== null;
+    const hasCompactDemand = hasCity && (hasRooms || hasBudget || hasCommunityCombo);
+    return (hasFind && hasListingCriteria(text)) || hasCommunityCombo || hasCompactDemand;
 }
 function parseAreaValue(area) {
     if (area === null || area === undefined) return null;
@@ -7680,9 +7830,9 @@ function matchesListingClient(item, criteria) {
 }
 function hasListingCriteria(text) {
     const hasCity = /(桃園|新北|林口|龜山|A7|A8|A9)/i.test(text);
-    const hasNeed = /(房|萬|預算|車)/i.test(text);
+    const hasNeed = /(房|萬|預算|車)/i.test(text) || extractImplicitBudgetWan(text) !== null;
     const hasCommunity = !!extractCommunityNameFromQuery(text);
-    const hasRooms = /\d+\s*房/.test(text);
+    const hasRooms = /(\d+|[一二兩三四五六七八九十])\s*房/.test(text);
     const isResale = /再售物件|再售/.test(text);
     if (hasCommunity && hasRooms) return true;
     if (hasCommunity && isResale) return true;
