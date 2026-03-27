@@ -461,9 +461,7 @@ function buildListUrl(cityKey, page, criteria) {
     if (!entry) return null;
     const params = new URLSearchParams();
     if (page && page > 1) params.set("pi", String(page));
-    if (criteria && criteria.communityName) {
-        params.set("kw", criteria.communityName);
-    } else if (criteria && criteria.keywordTag === "a7") {
+    if (criteria && criteria.keywordTag === "a7") {
         params.set("kw", "A7");
     }
     const query = params.toString();
@@ -471,7 +469,7 @@ function buildListUrl(cityKey, page, criteria) {
 }
 
 function shouldUseHtmlListing(criteria) {
-    return USE_LIST_HTML || Boolean(criteria && criteria.communityName);
+    return USE_LIST_HTML;
 }
 
 function normalizeImage(url) {
