@@ -1215,6 +1215,64 @@ async function logAvailableModels() {
 logAvailableModels();
 
 // --- 順序 4：API 路由開始 ---
+app.post('/api/listing-intent', async (req, res) => {
+    try {
+        const { message } = req.body || {};
+        const rawMessage = String(message || "").trim();
+        if (!rawMessage) {
+            res.status(400).json({ error: "message required" });
+            return;
+        }
+
+        const prompt = `
+你是房地產找房意圖判斷器。請判斷使用者這句話是否「可能是在找房」。
+
+重要規則：
+1. 只回傳 JSON，不要回傳任何額外文字。
+2. 若使用者輸入像 1600、2000 這種未標示單位的數字，且上下文像找房需求，預設視為總價「萬元」。
+3. 若提到林口，region 回傳 "linkou"。
+4. 若提到龜山但沒明確 A7/A8，region 回傳 "guishan"。
+5. 若提到 A7，region 回傳 "a7"；提到 A8，region 回傳 "a8"。
+6. 若看起來在找房但完全沒提區域，region 回傳 "unknown"。
+7. 若不是找房需求，isListing 回傳 false，其他欄位盡量填 null 或 "none"。
+
+請使用這個 JSON 格式：
+{
+  "isListing": true,
+  "region": "linkou|guishan|a7|a8|unknown|none",
+  "rooms": 2,
+  "budgetMaxWan": 1600,
+  "minAreaPing": null,
+  "maxAreaPing": null
+}
+
+使用者輸入：
+${rawMessage}
+        `.trim();
+
+        const response = await generateGeminiContentWithRetry(
+            "gemini-2.5-flash",
+            [{ role: 'user', parts: [{ text: prompt }] }],
+            { responseMimeType: "application/json" }
+        );
+        const text = extractResponseText(response).trim();
+        const jsonText = text.replace(/^```json\s*/i, "").replace(/```$/i, "").trim();
+        const parsed = JSON.parse(jsonText);
+        const normalized = {
+            isListing: Boolean(parsed?.isListing),
+            region: String(parsed?.region || "none").toLowerCase(),
+            rooms: Number.isFinite(Number(parsed?.rooms)) ? Number(parsed.rooms) : null,
+            budgetMaxWan: Number.isFinite(Number(parsed?.budgetMaxWan)) ? Number(parsed.budgetMaxWan) : null,
+            minAreaPing: Number.isFinite(Number(parsed?.minAreaPing)) ? Number(parsed.minAreaPing) : null,
+            maxAreaPing: Number.isFinite(Number(parsed?.maxAreaPing)) ? Number(parsed.maxAreaPing) : null
+        };
+        res.json(normalized);
+    } catch (error) {
+        console.error("❌ listing-intent error:", getErrorDetails(error));
+        res.status(500).json({ error: "listing-intent failed" });
+    }
+});
+
 app.post('/api/chat', async (req, res) => {
     // ... 處理邏輯 ...
     try {
