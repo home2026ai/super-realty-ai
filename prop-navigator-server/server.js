@@ -326,6 +326,7 @@ function parseSearchQuery(text) {
         cityKey: null,
         cityKeys: null,
         district: null,
+        communityName: null,
         rooms: null,
         maxPrice: null,
         maxAge: null,
@@ -353,6 +354,10 @@ function parseSearchQuery(text) {
 
     if (/__LINKOU_GUISHAN__/.test(raw)) {
         criteria.cityKeys = ["newtaipei", "taoyuan"];
+    }
+    const communityMatch = raw.match(/__COMMUNITY__=([^\s]+)/);
+    if (communityMatch && communityMatch[1]) {
+        criteria.communityName = decodeURIComponent(communityMatch[1]);
     }
     if (/桃園/.test(raw)) criteria.cityKey = "taoyuan";
     if (/新北|林口/.test(raw)) criteria.cityKey = "newtaipei";
@@ -797,6 +802,10 @@ function matchesRoomsByText(item, rooms) {
 }
 
 function matchesCriteria(item, criteria) {
+    if (criteria.communityName) {
+        const hay = `${item.title || ""} ${item.address || ""}`;
+        if (!hay.includes(criteria.communityName)) return false;
+    }
     if (criteria.district && item.address && !item.address.includes(criteria.district)) return false;
     if (criteria.rooms !== null) {
         if (item.rooms !== null && item.rooms !== undefined && item.rooms !== criteria.rooms) {
@@ -885,6 +894,14 @@ async function generateGeminiContent(model, contents, config = undefined) {
     });
 }
 
+async function generateGeminiContentStream(model, contents, config = undefined) {
+    return genAI.models.generateContentStream({
+        model,
+        contents,
+        ...(config ? { config } : {})
+    });
+}
+
 function delay(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -912,6 +929,24 @@ async function generateGeminiContentWithRetry(model, contents, config = undefine
             }
             const waitMs = 900 * (attempt + 1);
             console.warn(`⏳ Retry ${attempt + 1}/${retries} for ${model} after ${waitMs}ms`);
+            await delay(waitMs);
+        }
+    }
+    throw lastError;
+}
+
+async function generateGeminiContentStreamWithRetry(model, contents, config = undefined, retries = 1) {
+    let lastError = null;
+    for (let attempt = 0; attempt <= retries; attempt += 1) {
+        try {
+            return await generateGeminiContentStream(model, contents, config);
+        } catch (error) {
+            lastError = error;
+            if (!isRetryableGeminiError(error) || attempt === retries) {
+                throw error;
+            }
+            const waitMs = 900 * (attempt + 1);
+            console.warn(`⏳ Stream retry ${attempt + 1}/${retries} for ${model} after ${waitMs}ms`);
             await delay(waitMs);
         }
     }
@@ -1406,6 +1441,103 @@ promptParts.push({ text: combinedText });
                 ? "圖片分析服務目前流量較高，請稍後再試一次。"
                 : `分析失敗：${details.message || "未知錯誤"}`
         });
+    }
+});
+
+app.post('/api/chat-stream', async (req, res) => {
+    try {
+        const { message, imageData, attachmentData, attachmentMimeType, attachmentName, sessionId } = req.body;
+        const inlineData = attachmentData || imageData || null;
+        const inlineMimeType = attachmentMimeType || (imageData ? "image/jpeg" : null);
+
+        let promptParts = [];
+
+        if (inlineData && inlineMimeType) {
+            promptParts.push({
+                inlineData: {
+                    data: inlineData,
+                    mimeType: inlineMimeType
+                }
+            });
+        }
+
+        const attachmentHint = attachmentName ? `\n附件名稱：${attachmentName}` : "";
+        const attachmentInstruction = inlineMimeType
+            ? /^image\//i.test(inlineMimeType)
+                ? `\n這次請直接分析使用者上傳的圖片內容，若是截圖請辨識畫面中的文字與重點。`
+                : `\n這次請直接分析使用者上傳的文件內容，先摘要再回答問題。`
+            : "";
+        const combinedText = `${SYSTEM_PROMPT}\n\n${message}${attachmentHint}${attachmentInstruction}`;
+        promptParts.push({ text: combinedText });
+
+        const history = getHistory(sessionId);
+        const contents = [...history, { role: 'user', parts: promptParts }];
+
+        res.setHeader("Content-Type", "text/event-stream; charset=utf-8");
+        res.setHeader("Cache-Control", "no-cache");
+        res.setHeader("Connection", "keep-alive");
+        if (res.flushHeaders) res.flushHeaders();
+
+        const sendEvent = (event, payload) => {
+            res.write(`event: ${event}\n`);
+            res.write(`data: ${JSON.stringify(payload)}\n\n`);
+        };
+
+        const modelNames = inlineMimeType && /^image\//i.test(inlineMimeType)
+            ? [
+                "gemini-2.5-flash-image",
+                "gemini-2.5-flash-image-preview",
+                "gemini-2.5-flash"
+            ]
+            : [
+                "gemini-2.5-flash",
+                "gemini-2.0-flash",
+                "gemini-1.5-flash"
+            ];
+
+        let usedModel = null;
+        let stream = null;
+        let lastError = null;
+
+        for (const modelName of modelNames) {
+            try {
+                stream = await generateGeminiContentStreamWithRetry(modelName, contents);
+                usedModel = modelName;
+                break;
+            } catch (error) {
+                lastError = error;
+                console.warn(`⚠️ Stream model failed: ${modelName}`);
+            }
+        }
+
+        if (!stream) {
+            console.error("❌ chat-stream error:", getErrorDetails(lastError));
+            throw lastError || new Error("All stream models failed");
+        }
+
+        let responseText = "";
+        sendEvent("start", { model: usedModel });
+
+        for await (const chunk of stream) {
+            const delta = extractResponseText(chunk);
+            if (!delta) continue;
+            responseText += delta;
+            sendEvent("chunk", { text: delta });
+        }
+
+        pushHistory(sessionId, 'user', promptParts);
+        pushHistory(sessionId, 'model', [{ text: responseText }]);
+        sendEvent("done", { text: responseText, model: usedModel });
+        res.end();
+    } catch (error) {
+        console.error("❌ chat-stream error:", getErrorDetails(error));
+        if (!res.headersSent) {
+            res.status(500).json({ error: error.message || "chat-stream failed" });
+            return;
+        }
+        res.write(`event: error\n`);
+        res.write(`data: ${JSON.stringify({ error: error.message || "chat-stream failed" })}\n\n`);
+        res.end();
     }
 });
 
