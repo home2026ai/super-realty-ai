@@ -7276,26 +7276,23 @@ async function sendMessage() {
         }
     }
 
-    addBotMsg(attachment ? "AI 正在分析附件..." : "AI 思考中...", loadingId);
+    addStreamingBotMsg(loadingId);
     try {
         const fallbackPrompt = attachment
             ? (attachment.kind === 'image' ? "使用者已上傳圖片。請直接根據圖片內容進行分析，不要回答你看不到圖片；若圖片中有文字、表格、截圖或房地產資訊，請先辨識再整理重點。" : "使用者已上傳文件。請直接根據文件內容進行分析，先整理重點再回答問題。")
             : "";
-        const response = await fetch(`${API_BASE}/api/chat`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-                message: val || fallbackPrompt,
-                sessionId: getSessionId(),
-                attachmentData: attachment?.data || null,
-                attachmentMimeType: attachment?.mimeType || null,
-                attachmentName: attachment?.name || null
-            })
+        await streamChatResponse({
+            message: val || fallbackPrompt,
+            sessionId: getSessionId(),
+            attachmentData: attachment?.data || null,
+            attachmentMimeType: attachment?.mimeType || null,
+            attachmentName: attachment?.name || null,
+            loadingId
         });
-        const data = await response.json();
+    } catch(e) {
         document.getElementById(loadingId)?.remove();
-        addBotMsg(data.text);
-    } catch(e) { addBotMsg("連線失敗"); }
+        addBotMsg("連線失敗");
+    }
 }
 
 let pendingGuishanAreaQuery = null;
@@ -7375,22 +7372,9 @@ async function detectListingIntent(text) {
 
 async function requestGeneralChatResponse(message) {
     const loadingId = "load-" + Date.now();
-    addBotMsg("AI 思考中...", loadingId);
+    addStreamingBotMsg(loadingId);
     try {
-        const response = await fetch(`${API_BASE}/api/chat`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                message,
-                sessionId: getSessionId(),
-                attachmentData: null,
-                attachmentMimeType: null,
-                attachmentName: null
-            })
-        });
-        const data = await response.json();
-        document.getElementById(loadingId)?.remove();
-        addBotMsg(data.text);
+        await streamChatResponse({ message, sessionId: getSessionId(), loadingId });
     } catch (error) {
         document.getElementById(loadingId)?.remove();
         addBotMsg("連線失敗");
@@ -7664,9 +7648,12 @@ function submitAreaRange(minId, maxId, minValId, maxValId) {
 
 function startListingSearch(query, pendingQuery, baseInput, loadingId) {
     query = normalizeListingQuery(query);
+    const communityName = extractCommunityNameFromQuery(query);
+    if (communityName) {
+        query = `${query} __COMMUNITY__=${encodeURIComponent(communityName)}`;
+    }
     trackListingSearch(query);
     addBotMsg("🏠 正在搜尋物件...", loadingId);
-    const communityName = extractCommunityNameFromQuery(query);
     const hasCityKeyword = /(桃園|新北|林口|龜山|A7|A8|A9)/i.test(query);
     if (communityName && !hasCityKeyword) {
         query = `${query} __LINKOU_GUISHAN__`;
@@ -7814,6 +7801,15 @@ function addBotMsg(text, id = null) {
     d.innerHTML = formatMarkdownTable(text);
     chatBox.appendChild(d); scrollChat();
 }
+function addStreamingBotMsg(id = null) {
+    const d = document.createElement('div');
+    d.className = 'msg ai';
+    if (id) d.id = id;
+    d.textContent = '';
+    chatBox.appendChild(d);
+    scrollChat();
+    return d;
+}
 function addBotMsgHTML(html) {
     const d = document.createElement('div');
     d.className = 'msg ai';
@@ -7821,6 +7817,100 @@ function addBotMsgHTML(html) {
     if (String(html).includes('fee-sheet')) d.classList.add('fee-msg');
     d.innerHTML = html;
     chatBox.appendChild(d); scrollChat();
+}
+async function streamChatResponse({ message, sessionId, attachmentData = null, attachmentMimeType = null, attachmentName = null, loadingId = null }) {
+    const targetEl = loadingId ? (document.getElementById(loadingId) || addStreamingBotMsg(loadingId)) : addStreamingBotMsg();
+    targetEl.textContent = attachmentData ? "AI 正在分析附件..." : "AI 思考中...";
+    let accumulated = "";
+    let firstChunkArrived = false;
+    try {
+        const response = await fetch(`${API_BASE}/api/chat-stream`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                message,
+                sessionId,
+                attachmentData,
+                attachmentMimeType,
+                attachmentName
+            })
+        });
+        if (!response.ok || !response.body) {
+            throw new Error("stream unavailable");
+        }
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder("utf-8");
+        let buffer = "";
+
+        const processEventBlock = (block) => {
+            const lines = block.split('\n');
+            let eventName = "message";
+            let dataText = "";
+            lines.forEach((line) => {
+                if (line.startsWith('event:')) eventName = line.slice(6).trim();
+                if (line.startsWith('data:')) dataText += line.slice(5).trim();
+            });
+            if (!dataText) return;
+            let payload = null;
+            try { payload = JSON.parse(dataText); } catch (e) { return; }
+            if (eventName === 'chunk' && typeof payload.text === 'string') {
+                if (!firstChunkArrived) {
+                    accumulated = "";
+                    firstChunkArrived = true;
+                }
+                if (payload.text.startsWith(accumulated)) {
+                    accumulated = payload.text;
+                } else {
+                    accumulated += payload.text;
+                }
+                targetEl.textContent = accumulated;
+                scrollChat();
+            } else if (eventName === 'done') {
+                const finalText = typeof payload.text === 'string' ? payload.text : accumulated;
+                targetEl.innerHTML = formatMarkdownTable(finalText);
+                scrollChat();
+            } else if (eventName === 'error') {
+                throw new Error(payload.error || "chat-stream failed");
+            }
+        };
+
+        while (true) {
+            const { value, done } = await reader.read();
+            if (done) break;
+            buffer += decoder.decode(value, { stream: true });
+            let separatorIndex = buffer.indexOf('\n\n');
+            while (separatorIndex !== -1) {
+                const block = buffer.slice(0, separatorIndex);
+                buffer = buffer.slice(separatorIndex + 2);
+                processEventBlock(block);
+                separatorIndex = buffer.indexOf('\n\n');
+            }
+        }
+        if (accumulated && targetEl.textContent === accumulated) {
+            targetEl.innerHTML = formatMarkdownTable(accumulated);
+        }
+        scrollChat();
+    } catch (error) {
+        const fallbackResponse = await fetch(`${API_BASE}/api/chat`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                message,
+                sessionId,
+                attachmentData,
+                attachmentMimeType,
+                attachmentName
+            })
+        });
+        if (!fallbackResponse.ok) {
+            if (loadingId) document.getElementById(loadingId)?.remove();
+            throw error;
+        }
+        const fallbackData = await fallbackResponse.json();
+        const fallbackText = String(fallbackData?.text || "");
+        targetEl.innerHTML = formatMarkdownTable(fallbackText || "連線失敗");
+        scrollChat();
+    }
 }
 function renderFeeSheet({ emoji = "", title = "", subtitle = "", items = [] }) {
     const safeItems = Array.isArray(items) ? items : [];
