@@ -14,6 +14,8 @@
     <meta name="color-scheme" content="light dark">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="icon" type="image/png" href="plotic-ai-icon.png">
+    <link rel="apple-touch-icon" href="plotic-ai-icon.png">
     <title>Plotic AI｜房仲AI超級助手</title>
     <script>
         (function applyInitialTheme() {
@@ -2097,6 +2099,22 @@
             flex: 1 1 auto;
             min-height: 6px;
         }
+        .drawer-brand {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 4px 4px 10px;
+        }
+        .drawer-brand img {
+            display: block;
+            width: min(172px, 100%);
+            height: auto;
+            object-fit: contain;
+            opacity: 0.96;
+        }
+        .drawer-brand .drawer-brand-mist { display: none; }
+        html[data-bg="mist"] .drawer-brand .drawer-brand-noir { display: none; }
+        html[data-bg="mist"] .drawer-brand .drawer-brand-mist { display: block; }
         .drawer-settings {
             display: flex;
             flex-direction: column;
@@ -5229,6 +5247,10 @@
         <div class="drawer-btn press-glow ripple-btn" onclick="openCommunitySearch()"><span>社區資訊</span></div>
         <a class="drawer-btn press-glow ripple-btn" href="https://lvr.land.moi.gov.tw" target="_blank" rel="noopener"><span>實價登錄</span></a>
         <div class="drawer-spacer"></div>
+        <div class="drawer-brand" aria-hidden="true">
+            <img class="drawer-brand-noir" src="plotic-ai-logo-noir.png" alt="Plotic AI">
+            <img class="drawer-brand-mist" src="plotic-ai-logo-mist.png" alt="Plotic AI">
+        </div>
         <div class="drawer-btn press-glow ripple-btn" onclick="openAgentPanel()"><span>業務資訊</span></div>
         <div class="drawer-settings" id="drawerSettings">
             <button type="button" class="drawer-btn drawer-settings-toggle press-glow ripple-btn" id="settingsToggle">
