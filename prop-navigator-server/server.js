@@ -328,9 +328,10 @@ function parseSearchQuery(text) {
         district: null,
         rooms: null,
         maxPrice: null,
+        maxAge: null,
         minArea: null,
         maxArea: null,
-        requireCar: false,
+        parkingMode: "any",
         startPage: 1,
         streetWhitelistKey: null,
         keywordTag: null
@@ -393,7 +394,14 @@ function parseSearchQuery(text) {
     const priceMatch = raw.match(/(\d+)\s*萬/);
     if (priceMatch) criteria.maxPrice = parseInt(priceMatch[1], 10);
 
-    if (/車位|車/.test(raw) && !/無車/.test(raw)) criteria.requireCar = true;
+    const ageMatch = raw.match(/屋齡\s*(\d+(?:\.\d+)?)\s*年\s*(?:內|以下|以內)/);
+    if (ageMatch) criteria.maxAge = parseFloat(ageMatch[1]);
+
+    if (/(無車位|不要車位|免車位|沒車位|不需要車位)/.test(raw)) {
+        criteria.parkingMode = "without";
+    } else if (/(車位|有車位|要車位|需要車位|車)/.test(raw) && !/(無車位|不要車位|免車位|沒車位|不需要車位|無車)/.test(raw)) {
+        criteria.parkingMode = "with";
+    }
 
     const areaRangeMatch = raw.match(/坪數\s*(\d+(?:\.\d+)?)\s*坪?\s*(?:到|~|-|－|—|至)\s*(\d+(?:\.\d+)?)\s*坪?/);
     if (areaRangeMatch) {
@@ -719,6 +727,25 @@ function parseAreaValue(area) {
     return Number.isFinite(num) ? num : null;
 }
 
+function extractParkingValueFromDetail(detail) {
+    if (!detail) return "";
+    const lines = Array.isArray(detail.details) ? detail.details : [];
+    const parkingLines = lines
+        .map((line) => String(line || "").trim())
+        .filter((line) => /^車位：/.test(line));
+    if (parkingLines.length) {
+        return parkingLines[parkingLines.length - 1].split("：").slice(1).join("：").trim();
+    }
+    return "";
+}
+
+function classifyParkingValue(value) {
+    const raw = String(value || "").trim();
+    if (!raw) return "unknown";
+    if (/^(無|沒有|無車位|未附車位|無附車位)/.test(raw)) return "without";
+    return "with";
+}
+
 function matchesNearKeywords(text, keywords) {
     if (!keywords || !keywords.length) return true;
     const rules = {
@@ -737,6 +764,12 @@ function matchesNearKeywords(text, keywords) {
 
 function matchesCriteriaWithDetail(item, criteria, detail) {
     if (!matchesCriteria(item, criteria)) return false;
+    if (criteria.parkingMode && criteria.parkingMode !== "any") {
+        const parkingValue = extractParkingValueFromDetail(detail);
+        const parkingState = classifyParkingValue(parkingValue);
+        if (criteria.parkingMode === "without" && parkingState !== "without") return false;
+        if (criteria.parkingMode === "with" && parkingState !== "with") return false;
+    }
     if (criteria.nearKeywords && criteria.nearKeywords.length) {
         const detailText = `${(detail?.features || []).join(" ")} ${(detail?.nearby || []).join(" ")} ${(detail?.details || []).join(" ")} ${item.desc || ""}`.trim();
         if (!matchesNearKeywords(detailText, criteria.nearKeywords)) return false;
@@ -773,15 +806,16 @@ function matchesCriteria(item, criteria) {
     if (criteria.maxPrice !== null) {
         if (item.price && item.price > criteria.maxPrice) return false;
     }
+    if (criteria.maxAge !== null) {
+        const ageVal = parseFloat(String(item.ageYears || "").replace(/[^\d.]/g, ""));
+        if (!Number.isFinite(ageVal)) return false;
+        if (ageVal > criteria.maxAge) return false;
+    }
     if (criteria.minArea !== null || criteria.maxArea !== null) {
         const areaVal = parseAreaValue(item.area);
         if (areaVal === null) return false;
         if (criteria.minArea !== null && areaVal < criteria.minArea) return false;
         if (criteria.maxArea !== null && areaVal > criteria.maxArea) return false;
-    }
-    if (criteria.requireCar) {
-        const hay = `${item.title} ${item.desc}`;
-        if (!/車/.test(hay)) return false;
     }
     return true;
 }
@@ -1088,7 +1122,10 @@ app.get('/api/listings-stream', async (req, res) => {
         let pagesFetched = 0;
         let totalPages = 0;
         const firstPages = [];
-        const needsDetail = criteria && Array.isArray(criteria.nearKeywords) && criteria.nearKeywords.length > 0;
+        const needsDetail = !!(
+            (criteria && Array.isArray(criteria.nearKeywords) && criteria.nearKeywords.length > 0) ||
+            (criteria && criteria.parkingMode && criteria.parkingMode !== "any")
+        );
 
         for (const key of cityKeys) {
             let firstPage = null;
@@ -1132,6 +1169,11 @@ app.get('/api/listings-stream', async (req, res) => {
                         return;
                     }
                     if (matchesCriteriaWithDetail(item, criteria, detail)) {
+                        const parkingValue = extractParkingValueFromDetail(detail);
+                        if (parkingValue) {
+                            item.parking = parkingValue;
+                            item.parkingResolved = true;
+                        }
                         sendEvent("item", item);
                     }
                 });
@@ -1166,6 +1208,11 @@ app.get('/api/listings-stream', async (req, res) => {
                             return;
                         }
                         if (matchesCriteriaWithDetail(item, criteria, detail)) {
+                            const parkingValue = extractParkingValueFromDetail(detail);
+                            if (parkingValue) {
+                                item.parking = parkingValue;
+                                item.parkingResolved = true;
+                            }
                             sendEvent("item", item);
                         }
                     });
@@ -1381,7 +1428,10 @@ app.post('/api/listings', async (req, res) => {
 
         let totalPages = 0;
         const firstPages = [];
-        const needsDetail = criteria && Array.isArray(criteria.nearKeywords) && criteria.nearKeywords.length > 0;
+        const needsDetail = !!(
+            (criteria && Array.isArray(criteria.nearKeywords) && criteria.nearKeywords.length > 0) ||
+            (criteria && criteria.parkingMode && criteria.parkingMode !== "any")
+        );
         for (const key of cityKeys) {
             let firstPage = null;
             let cityTotal = 0;
@@ -1422,6 +1472,11 @@ app.post('/api/listings', async (req, res) => {
                         return;
                     }
                     if (matchesCriteriaWithDetail(item, criteria, detail)) {
+                        const parkingValue = extractParkingValueFromDetail(detail);
+                        if (parkingValue) {
+                            item.parking = parkingValue;
+                            item.parkingResolved = true;
+                        }
                         results.push(item);
                     }
                 });
@@ -1455,6 +1510,11 @@ app.post('/api/listings', async (req, res) => {
                             return;
                         }
                         if (matchesCriteriaWithDetail(item, criteria, detail)) {
+                            const parkingValue = extractParkingValueFromDetail(detail);
+                            if (parkingValue) {
+                                item.parking = parkingValue;
+                                item.parkingResolved = true;
+                            }
                             results.push(item);
                         }
                     });
