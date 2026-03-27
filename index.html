@@ -7750,7 +7750,10 @@ function startListingSearch(query, pendingQuery, baseInput, loadingId) {
 
     es.addEventListener('item', (evt) => {
         const item = JSON.parse(evt.data);
-            const baseMatch = criteria && criteria.serverFiltered ? true : matchesListingClient(item, criteria);
+            const clientCriteria = criteria && criteria.serverFiltered
+                ? { ...criteria, parkingMode: "any", nearKeywords: [] }
+                : criteria;
+            const baseMatch = matchesListingClient(item, clientCriteria);
             if (!baseMatch) return;
             const requiresNear = criteria && !criteria.serverFiltered && Array.isArray(criteria.nearKeywords) && criteria.nearKeywords.length > 0;
             const isMatch = baseMatch && !requiresNear;
@@ -8151,11 +8154,13 @@ function extractCommunityNameFromQuery(text) {
     const cleaned = text
         .replace(/幫我查|我要找|找房|找屋|找/gi, "")
         .replace(/再售物件|再售/gi, "")
+        .replace(/新成屋|預售屋|中古屋|成屋/gi, "")
         .replace(/近機捷|近捷運|近學校|近公園|近三井/gi, "")
+        .replace(/屋齡\s*\d+(?:\.\d+)?\s*年\s*(?:內|以下|以內)?/gi, "")
         .replace(/(桃園|新北|林口|龜山|A7|A8|A9)/gi, "")
-        .replace(/\d+\s*房.*/i, "")
+        .replace(/(\d+|[一二兩三四五六七八九十])\s*房.*/i, "")
         .replace(/\d+\s*萬.*/i, "")
-        .replace(/(預算|車位|車|房)/gi, "")
+        .replace(/(預算|車位|車|房|新屋|成屋)/gi, "")
         .trim();
     if (cleaned.length >= 2) return cleaned;
     return "";
