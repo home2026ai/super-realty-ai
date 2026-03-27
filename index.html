@@ -7301,6 +7301,7 @@ let pendingListingRegionQuery = null;
 let pendingListingRoomsQuery = null;
 let pendingListingBudgetQuery = null;
 let pendingListingAgeQuery = null;
+let pendingCommunityRegionQuery = null;
 
 function extractImplicitBudgetWan(text) {
     const raw = String(text || "");
@@ -7386,6 +7387,9 @@ function cancelListingIntentPrompt(kind) {
     if (kind === 'region') {
         payload = pendingListingRegionQuery;
         pendingListingRegionQuery = null;
+    } else if (kind === 'community-region') {
+        payload = pendingCommunityRegionQuery;
+        pendingCommunityRegionQuery = null;
     } else if (kind === 'guishan') {
         payload = pendingGuishanAreaQuery;
         pendingGuishanAreaQuery = null;
@@ -7406,6 +7410,10 @@ function cancelListingIntentPrompt(kind) {
 function continueListingGuidance(query, pendingQuery, baseInput, options = {}) {
     const normalized = normalizeListingQuery(query);
     const allowCancel = !!options.allowCancel;
+    if (shouldAskCommunityRegion(normalized)) {
+        showCommunityRegionChoice(normalized, pendingQuery, baseInput, { allowCancel });
+        return;
+    }
     if (shouldAskGuishanArea(normalized)) {
         showGuishanAreaChoice(normalized, pendingQuery, baseInput, { allowCancel });
         return;
@@ -7522,6 +7530,16 @@ function shouldAskGuishanArea(query) {
     return !/(A7|A8|Ａ７|Ａ８)/i.test(query);
 }
 
+function hasExplicitListingRegion(query) {
+    return /(林口|林口區|龜山|龜山區|A7|A8|A9|Ａ７|Ａ８|Ａ９)/i.test(String(query || ""));
+}
+
+function shouldAskCommunityRegion(query) {
+    const communityName = extractCommunityNameFromQuery(query);
+    if (!communityName) return false;
+    return !hasExplicitListingRegion(query);
+}
+
 function hasAreaCriteria(query) {
     return /(?:坪數|至少|需要|\d+\s*坪以上|\d+\s*坪\s*(?:到|~|-|－|—|至)\s*\d+\s*坪|\d+\s*坪)/.test(query);
 }
@@ -7551,6 +7569,25 @@ function selectGuishanArea(areaKey) {
     const { query, pendingQuery, baseInput, allowCancel } = pendingGuishanAreaQuery;
     pendingGuishanAreaQuery = null;
     const nextQuery = normalizeListingQuery(`${query} ${areaKey}`);
+    continueListingGuidance(nextQuery, pendingQuery, baseInput, { allowCancel });
+}
+
+function showCommunityRegionChoice(query, pendingQuery, baseInput, options = {}) {
+    const allowCancel = !!options.allowCancel;
+    pendingCommunityRegionQuery = { query, pendingQuery, baseInput, allowCancel };
+    addBotMsgHTML(`為了增加找房速度，請先選擇地區：<div class="interaction-container">
+        <div class="int-btn ripple-btn" onclick="selectCommunityRegion('a7')">A7 地區</div>
+        <div class="int-btn ripple-btn" onclick="selectCommunityRegion('a8')">A8 地區</div>
+        <div class="int-btn ripple-btn" onclick="selectCommunityRegion('linkou')">林口區</div>
+        ${allowCancel ? `<div class="int-btn ripple-btn" onclick="cancelListingIntentPrompt('community-region')">我不是要找房</div>` : ''}
+    </div>`);
+}
+
+function selectCommunityRegion(regionKey) {
+    if (!pendingCommunityRegionQuery) return;
+    const { query, pendingQuery, baseInput, allowCancel } = pendingCommunityRegionQuery;
+    pendingCommunityRegionQuery = null;
+    const nextQuery = normalizeListingQuery(query, { region: regionKey });
     continueListingGuidance(nextQuery, pendingQuery, baseInput, { allowCancel });
 }
 
