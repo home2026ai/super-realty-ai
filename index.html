@@ -6008,6 +6008,7 @@
     let base64Image = ""; 
     let composerAttachment = null;
     let currentListingState = null;
+    let currentListingStream = null;
     const listingCache = {};
     const detailCache = {};
     let currentDetailSn = null;
@@ -7407,7 +7408,10 @@ function cancelListingIntentPrompt(kind) {
     requestGeneralChatResponse(payload.baseInput);
 }
 
-function continueListingGuidance(query, pendingQuery, baseInput, options = {}) {
+async function continueListingGuidance(query, pendingQuery, baseInput, options = {}) {
+    if (communityLoadPromise) {
+        try { await communityLoadPromise; } catch (error) {}
+    }
     const normalized = normalizeListingQuery(query);
     const allowCancel = !!options.allowCancel;
     if (shouldAskCommunityRegion(normalized)) {
@@ -7537,6 +7541,7 @@ function hasExplicitListingRegion(query) {
 function shouldAskCommunityRegion(query) {
     const communityName = extractCommunityNameFromQuery(query);
     if (!communityName) return false;
+    if (inferCommunitySearchRegion(communityName)) return false;
     return !hasExplicitListingRegion(query);
 }
 
@@ -7683,9 +7688,20 @@ function submitAreaRange(minId, maxId, minValId, maxValId) {
     startListingSearch(nextQuery, pendingQuery, baseInput, loadingId);
 }
 
-function startListingSearch(query, pendingQuery, baseInput, loadingId) {
+async function startListingSearch(query, pendingQuery, baseInput, loadingId) {
+    if (currentListingStream) {
+        try { currentListingStream.close(); } catch (error) {}
+        currentListingStream = null;
+    }
+    if (communityLoadPromise) {
+        try { await communityLoadPromise; } catch (error) {}
+    }
     query = normalizeListingQuery(query);
     const communityName = extractCommunityNameFromQuery(query);
+    const inferredCommunityRegion = communityName ? inferCommunitySearchRegion(communityName) : "";
+    if (inferredCommunityRegion && !hasExplicitListingRegion(query)) {
+        query = normalizeListingQuery(query, { region: inferredCommunityRegion });
+    }
     if (communityName) {
         query = `${query} __COMMUNITY__=${encodeURIComponent(communityName)}`;
     }
@@ -7717,7 +7733,10 @@ function startListingSearch(query, pendingQuery, baseInput, loadingId) {
     let totalPages = 0;
     let pagesFetched = 0;
     let criteria = null;
+    let completed = false;
+    const requestId = `listing-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     currentListingState = {
+        requestId,
         statusId,
         cardsId,
         noteId,
@@ -7727,16 +7746,20 @@ function startListingSearch(query, pendingQuery, baseInput, loadingId) {
         criteria: null
     };
     const es = new EventSource(`${API_BASE}/api/listings-stream?q=${encodeURIComponent(query)}`);
+    currentListingStream = es;
 
     es.addEventListener('needCity', (evt) => {
+        if (!currentListingState || currentListingState.requestId !== requestId) return;
         const data = JSON.parse(evt.data);
         setListingPending(pendingQuery || baseInput);
         const statusEl = document.getElementById(statusId);
         if (statusEl) statusEl.innerText = data.text || "請指定城市（例如：桃園/新北）。";
         es.close();
+        if (currentListingStream === es) currentListingStream = null;
     });
 
     es.addEventListener('info', (evt) => {
+        if (!currentListingState || currentListingState.requestId !== requestId) return;
         const data = JSON.parse(evt.data);
         totalPages = data.totalPages || 0;
         pagesFetched = data.pagesFetched || 0;
@@ -7759,6 +7782,7 @@ function startListingSearch(query, pendingQuery, baseInput, loadingId) {
     });
 
     es.addEventListener('progress', (evt) => {
+        if (!currentListingState || currentListingState.requestId !== requestId) return;
         const data = JSON.parse(evt.data);
         totalPages = data.totalPages || totalPages;
         pagesFetched = data.pagesFetched || pagesFetched;
@@ -7773,6 +7797,7 @@ function startListingSearch(query, pendingQuery, baseInput, loadingId) {
     });
 
     es.addEventListener('item', (evt) => {
+        if (!currentListingState || currentListingState.requestId !== requestId) return;
         const item = JSON.parse(evt.data);
             const clientCriteria = criteria && criteria.serverFiltered
                 ? { ...criteria, nearKeywords: [] }
@@ -7784,6 +7809,9 @@ function startListingSearch(query, pendingQuery, baseInput, loadingId) {
         const cardsEl = document.getElementById(cardsId);
         if (cardsEl) {
             cardsEl.insertAdjacentHTML('beforeend', renderListingCard(item, isMatch, baseMatch));
+            if (cardsEl.lastElementChild) {
+                cardsEl.lastElementChild.dataset.requestId = requestId;
+            }
             if (baseMatch && item.id && requiresNear) {
                 loadListingDetail(item.id, cardsEl.lastElementChild);
             }
@@ -7804,6 +7832,8 @@ function startListingSearch(query, pendingQuery, baseInput, loadingId) {
     });
 
     es.addEventListener('done', () => {
+        if (!currentListingState || currentListingState.requestId !== requestId) return;
+        completed = true;
         clearListingPending();
         const statusEl = document.getElementById(statusId);
         const cardsEl = document.getElementById(cardsId);
@@ -7823,13 +7853,28 @@ function startListingSearch(query, pendingQuery, baseInput, loadingId) {
         const noteEl = document.getElementById(noteId);
         if (noteEl && finalMatchCount > 0) noteEl.innerHTML = renderListingNote();
         es.close();
+        if (currentListingStream === es) currentListingStream = null;
+    });
+
+    es.addEventListener('searchError', (evt) => {
+        if (!currentListingState || currentListingState.requestId !== requestId) return;
+        completed = true;
+        setListingPending(pendingQuery || baseInput);
+        const data = JSON.parse(evt.data || "{}");
+        const statusEl = document.getElementById(statusId);
+        if (statusEl) statusEl.innerText = data.text || "⚠️ 物件搜尋失敗，請稍後再試。";
+        es.close();
+        if (currentListingStream === es) currentListingStream = null;
     });
 
     es.addEventListener('error', () => {
+        if (completed) return;
+        if (!currentListingState || currentListingState.requestId !== requestId) return;
         setListingPending(pendingQuery || baseInput);
         const statusEl = document.getElementById(statusId);
-        if (statusEl) statusEl.innerText = "⚠️ 連線失敗，請稍後再試。";
+        if (statusEl) statusEl.innerText = "⚠️ 搜尋服務連線失敗，請稍後再試。";
         es.close();
+        if (currentListingStream === es) currentListingStream = null;
     });
 }
 
@@ -8090,7 +8135,7 @@ function matchesListingClient(item, criteria) {
     if (!criteria) return true;
     if (criteria.communityName) {
         const hay = `${item.title || ""} ${item.address || ""}`;
-        if (!hay.includes(criteria.communityName)) return false;
+        if (!matchesCommunityName(hay, criteria.communityName)) return false;
     }
     if (criteria.district && item.address && !item.address.includes(criteria.district)) return false;
     if (criteria.rooms !== null) {
@@ -8150,6 +8195,7 @@ async function loadListingDetail(sn, cardEl) {
         const features = Array.isArray(data.features) ? data.features : [];
         const nearby = Array.isArray(data.nearby) ? data.nearby : [];
         const detailText = `${features.join(" ")} ${nearby.join(" ")}`.trim();
+        const requestId = cardEl.dataset.requestId || "";
         const formatList = (list, max) => {
             if (!list.length) return "無";
             const sliced = list.slice(0, max);
@@ -8157,7 +8203,7 @@ async function loadListingDetail(sn, cardEl) {
         };
         setText(featuresEl, formatList(features, 3));
         setText(nearbyEl, formatList(nearby, 3));
-        if (currentListingState && currentListingState.criteria) {
+        if (currentListingState && currentListingState.criteria && currentListingState.requestId === requestId) {
             const { criteria, statusId, cardsId, totalPages, pagesFetched, candidateCount } = currentListingState;
             const requiresNear = Array.isArray(criteria.nearKeywords) && criteria.nearKeywords.length > 0;
             const baseMatch = cardEl.dataset.baseMatch === "1";
@@ -8273,6 +8319,16 @@ function normalizeCommunityText(text) {
         .replace(/(景觀|露台|邊間|捷運|採光|精裝|頂樓|質感|日系|裝潢)/g, "")
         .trim();
 }
+function matchesCommunityName(haystackText, communityName) {
+    const hay = String(haystackText || "");
+    const target = String(communityName || "").trim();
+    if (!target) return true;
+    if (hay.includes(target)) return true;
+    const normalizedHay = normalizeCommunityText(hay);
+    const normalizedTarget = normalizeCommunityText(target);
+    if (!normalizedHay || !normalizedTarget) return false;
+    return normalizedHay.includes(normalizedTarget) || normalizedTarget.includes(normalizedHay);
+}
 function makeBigrams(str) {
     const s = String(str || "");
     const grams = [];
@@ -8378,6 +8434,21 @@ function findBestCommunityAcrossDistricts(text) {
     });
     if (best.len >= 2) return best;
     return { name: "", district: "", len: 0 };
+}
+function inferCommunitySearchRegion(communityName) {
+    const name = String(communityName || "").trim();
+    if (!name) return "";
+    if ((communityDb["林口區"] || []).includes(name)) return "linkou";
+    if (!(communityDb["龜山區"] || []).includes(name)) return "";
+    if (GUISHAN_A8_COMMUNITIES.has(name)) return "a8";
+    if (Object.prototype.hasOwnProperty.call(GUISHAN_A7_COMMUNITY_OVERRIDES, name)) return "a7";
+    const groups = communityRoadGroups["龜山區"] || {};
+    for (const road of Object.keys(groups)) {
+        const names = groups[road] || [];
+        if (!names.includes(name)) continue;
+        return guishanA7RoadSet.has(normalizeRoadName(road)) ? "a7" : "a8";
+    }
+    return "guishan";
 }
 function extractCommunityFromDetailData(data) {
     const details = data && Array.isArray(data.details) ? data.details : [];
