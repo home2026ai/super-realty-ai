@@ -2201,6 +2201,22 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
             cursor: pointer;
         }
+        html[data-bg="mist"] .settings-range::-webkit-slider-runnable-track {
+            background: rgba(104, 85, 60, 0.26);
+        }
+        html[data-bg="mist"] .settings-range::-webkit-slider-thumb {
+            background: #c9ab88;
+            border: 1px solid rgba(124, 93, 53, 0.28);
+            box-shadow: 0 3px 10px rgba(116, 88, 56, 0.24);
+        }
+        html[data-bg="mist"] .settings-range::-moz-range-track {
+            background: rgba(104, 85, 60, 0.26);
+        }
+        html[data-bg="mist"] .settings-range::-moz-range-thumb {
+            background: #c9ab88;
+            border: 1px solid rgba(124, 93, 53, 0.28);
+            box-shadow: 0 3px 10px rgba(116, 88, 56, 0.24);
+        }
         .settings-number {
             width: 100%;
             height: 34px;
@@ -7239,15 +7255,7 @@ async function sendMessage() {
     const shouldSearchListing = !attachment && (isListingQuery(val) || (pendingQuery && hasListingCriteria(val)));
     if (shouldSearchListing) {
         let query = normalizeListingQuery(pendingQuery ? `${pendingQuery} ${val}` : val);
-        if (shouldAskGuishanArea(query)) {
-            showGuishanAreaChoice(query, pendingQuery, val);
-            return;
-        }
-        if (shouldAskAreaRange(query)) {
-            showAreaRangeChoice(query, pendingQuery, val);
-            return;
-        }
-        startListingSearch(query, pendingQuery, val, loadingId);
+        continueListingGuidance(query, pendingQuery, val, { allowCancel: false });
         return;
     }
 
@@ -7260,19 +7268,10 @@ async function sendMessage() {
                 budgetMaxWan: intent.budgetMaxWan
             });
             if (intent.region === 'unknown' || intent.region === 'none') {
-                showListingRegionChoice(query, pendingQuery, val);
+                showListingRegionChoice(query, pendingQuery, val, { allowCancel: true });
                 return;
             }
-            if (intent.region === 'guishan') {
-                showGuishanAreaChoice(query, pendingQuery, val);
-                return;
-            }
-            if (shouldAskAreaRange(query)) {
-                showAreaRangeChoice(query, pendingQuery, val);
-                return;
-            }
-            const listingLoadingId = "load-" + Date.now();
-            startListingSearch(query, pendingQuery, val, listingLoadingId);
+            continueListingGuidance(query, pendingQuery, val, { allowCancel: true });
             return;
         }
     }
@@ -7302,6 +7301,9 @@ async function sendMessage() {
 let pendingGuishanAreaQuery = null;
 let pendingAreaRangeQuery = null;
 let pendingListingRegionQuery = null;
+let pendingListingRoomsQuery = null;
+let pendingListingBudgetQuery = null;
+let pendingListingAgeQuery = null;
 
 function extractImplicitBudgetWan(text) {
     const raw = String(text || "");
@@ -7341,6 +7343,19 @@ function normalizeListingQuery(query, overrides = {}) {
         next += ` ${implicitBudget}萬`;
     }
     return next.replace(/\s+/g, " ").trim();
+}
+
+function hasRoomsCriteria(query) {
+    return /(\d+|[一二兩三四五六七八九十])\s*房/.test(String(query || ""));
+}
+
+function hasBudgetCriteria(query) {
+    const raw = String(query || "");
+    return /(\d+)\s*萬/.test(raw) || extractImplicitBudgetWan(raw) !== null;
+}
+
+function hasAgeCriteria(query) {
+    return /屋齡\s*\d+(?:\.\d+)?\s*年\s*(?:內|以下|以內)/.test(String(query || ""));
 }
 
 async function detectListingIntent(text) {
@@ -7390,35 +7405,132 @@ function cancelListingIntentPrompt(kind) {
     } else if (kind === 'guishan') {
         payload = pendingGuishanAreaQuery;
         pendingGuishanAreaQuery = null;
+    } else if (kind === 'rooms') {
+        payload = pendingListingRoomsQuery;
+        pendingListingRoomsQuery = null;
+    } else if (kind === 'budget') {
+        payload = pendingListingBudgetQuery;
+        pendingListingBudgetQuery = null;
+    } else if (kind === 'age') {
+        payload = pendingListingAgeQuery;
+        pendingListingAgeQuery = null;
     }
     if (!payload?.baseInput) return;
     requestGeneralChatResponse(payload.baseInput);
 }
 
-function showListingRegionChoice(query, pendingQuery, baseInput) {
-    pendingListingRegionQuery = { query, pendingQuery, baseInput };
+function continueListingGuidance(query, pendingQuery, baseInput, options = {}) {
+    const normalized = normalizeListingQuery(query);
+    const allowCancel = !!options.allowCancel;
+    if (shouldAskGuishanArea(normalized)) {
+        showGuishanAreaChoice(normalized, pendingQuery, baseInput, { allowCancel });
+        return;
+    }
+    if (!hasRoomsCriteria(normalized)) {
+        showListingRoomsChoice(normalized, pendingQuery, baseInput, { allowCancel });
+        return;
+    }
+    if (!hasBudgetCriteria(normalized)) {
+        showListingBudgetChoice(normalized, pendingQuery, baseInput, { allowCancel });
+        return;
+    }
+    if (shouldAskAgeRange(normalized)) {
+        showListingAgeChoice(normalized, pendingQuery, baseInput, { allowCancel });
+        return;
+    }
+    if (shouldAskAreaRange(normalized)) {
+        showAreaRangeChoice(normalized, pendingQuery, baseInput);
+        return;
+    }
+    const loadingId = "load-" + Date.now();
+    startListingSearch(normalized, pendingQuery, baseInput, loadingId);
+}
+
+function showListingRegionChoice(query, pendingQuery, baseInput, options = {}) {
+    const allowCancel = !!options.allowCancel;
+    pendingListingRegionQuery = { query, pendingQuery, baseInput, allowCancel };
     addBotMsgHTML(`我猜你可能是在找房，先幫你確認區域：<div class="interaction-container">
         <div class="int-btn ripple-btn" onclick="selectListingRegion('linkou')">林口區</div>
         <div class="int-btn ripple-btn" onclick="selectListingRegion('guishan')">龜山區</div>
-        <div class="int-btn ripple-btn" onclick="cancelListingIntentPrompt('region')">我不是要找房</div>
+        ${allowCancel ? `<div class="int-btn ripple-btn" onclick="cancelListingIntentPrompt('region')">我不是要找房</div>` : ''}
     </div>`);
 }
 
 function selectListingRegion(regionKey) {
     if (!pendingListingRegionQuery) return;
-    const { query, pendingQuery, baseInput } = pendingListingRegionQuery;
+    const { query, pendingQuery, baseInput, allowCancel } = pendingListingRegionQuery;
     pendingListingRegionQuery = null;
     const nextQuery = normalizeListingQuery(query, { region: regionKey });
-    const loadingId = "load-" + Date.now();
-    if (regionKey === 'guishan') {
-        showGuishanAreaChoice(nextQuery, pendingQuery, baseInput);
-        return;
-    }
-    if (shouldAskAreaRange(nextQuery)) {
-        showAreaRangeChoice(nextQuery, pendingQuery, baseInput);
-        return;
-    }
-    startListingSearch(nextQuery, pendingQuery, baseInput, loadingId);
+    continueListingGuidance(nextQuery, pendingQuery, baseInput, { allowCancel });
+}
+
+function showListingRoomsChoice(query, pendingQuery, baseInput, options = {}) {
+    const allowCancel = !!options.allowCancel;
+    pendingListingRoomsQuery = { query, pendingQuery, baseInput, allowCancel };
+    addBotMsgHTML(`我猜你是在找房，請問你想找幾房？<div class="interaction-container">
+        <div class="int-btn ripple-btn" onclick="selectListingRooms('1房')">1房</div>
+        <div class="int-btn ripple-btn" onclick="selectListingRooms('2房')">2房</div>
+        <div class="int-btn ripple-btn" onclick="selectListingRooms('3房')">3房</div>
+        <div class="int-btn ripple-btn" onclick="selectListingRooms('4房以上')">4房以上</div>
+        <div class="int-btn ripple-btn" onclick="selectListingRooms('')">不限房數</div>
+        ${allowCancel ? `<div class="int-btn ripple-btn" onclick="cancelListingIntentPrompt('rooms')">我不是要找房</div>` : ''}
+    </div>`);
+}
+
+function selectListingRooms(roomLabel) {
+    if (!pendingListingRoomsQuery) return;
+    const { query, pendingQuery, baseInput, allowCancel } = pendingListingRoomsQuery;
+    pendingListingRoomsQuery = null;
+    const nextQuery = roomLabel ? normalizeListingQuery(`${query} ${roomLabel}`) : normalizeListingQuery(query);
+    continueListingGuidance(nextQuery, pendingQuery, baseInput, { allowCancel });
+}
+
+function showListingBudgetChoice(query, pendingQuery, baseInput, options = {}) {
+    const allowCancel = !!options.allowCancel;
+    pendingListingBudgetQuery = { query, pendingQuery, baseInput, allowCancel };
+    const idBase = `budget-${Date.now()}`;
+    const budgetId = `${idBase}-value`;
+    const budgetTextId = `${idBase}-text`;
+    addBotMsgHTML(`我猜你是在找房，請拉出你的預算上限：<div class="interaction-container" style="flex-direction:column;align-items:stretch;gap:10px;">
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:#555;">
+            <span>預算上限：<strong id="${budgetTextId}">2000</strong> 萬</span>
+            <span>可再調整</span>
+        </div>
+        <input id="${budgetId}" class="settings-range" type="range" min="500" max="5000" value="2000" step="50">
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button class="int-btn ripple-btn" onclick="submitListingBudget('${budgetId}','${budgetTextId}')">用這個預算找房</button>
+            <button class="int-btn ripple-btn" onclick="submitListingBudgetUnlimited()">不限預算</button>
+            ${allowCancel ? `<button class="int-btn ripple-btn" onclick="cancelListingIntentPrompt('budget')">我不是要找房</button>` : ''}
+        </div>
+    </div>`);
+    setTimeout(() => {
+        const budgetEl = document.getElementById(budgetId);
+        const budgetTextEl = document.getElementById(budgetTextId);
+        if (!budgetEl || !budgetTextEl) return;
+        const sync = () => {
+            budgetTextEl.textContent = String(parseInt(budgetEl.value, 10));
+        };
+        budgetEl.addEventListener('input', sync);
+        sync();
+    }, 0);
+}
+
+function submitListingBudget(budgetId, budgetTextId) {
+    if (!pendingListingBudgetQuery) return;
+    const budgetEl = document.getElementById(budgetId);
+    if (!budgetEl) return;
+    const value = parseInt(budgetEl.value, 10);
+    const { query, pendingQuery, baseInput, allowCancel } = pendingListingBudgetQuery;
+    pendingListingBudgetQuery = null;
+    const nextQuery = normalizeListingQuery(`${query} ${value}萬內`);
+    continueListingGuidance(nextQuery, pendingQuery, baseInput, { allowCancel });
+}
+
+function submitListingBudgetUnlimited() {
+    if (!pendingListingBudgetQuery) return;
+    const { query, pendingQuery, baseInput, allowCancel } = pendingListingBudgetQuery;
+    pendingListingBudgetQuery = null;
+    continueListingGuidance(query, pendingQuery, baseInput, { allowCancel });
 }
 
 function shouldAskGuishanArea(query) {
@@ -7435,26 +7547,67 @@ function shouldAskAreaRange(query) {
     return !hasAreaCriteria(query);
 }
 
-function showGuishanAreaChoice(query, pendingQuery, baseInput) {
-    pendingGuishanAreaQuery = { query, pendingQuery, baseInput };
+function shouldAskAgeRange(query) {
+    if (!/新成屋/.test(String(query || ""))) return false;
+    return !hasAgeCriteria(query);
+}
+
+function showGuishanAreaChoice(query, pendingQuery, baseInput, options = {}) {
+    const allowCancel = !!options.allowCancel;
+    pendingGuishanAreaQuery = { query, pendingQuery, baseInput, allowCancel };
     addBotMsgHTML(`我猜你想找龜山物件，請再選擇細區：<div class="interaction-container">
         <div class="int-btn ripple-btn" onclick="selectGuishanArea('A7')">A7 地區</div>
         <div class="int-btn ripple-btn" onclick="selectGuishanArea('A8')">A8 地區</div>
-        <div class="int-btn ripple-btn" onclick="cancelListingIntentPrompt('guishan')">我不是要找房</div>
+        ${allowCancel ? `<div class="int-btn ripple-btn" onclick="cancelListingIntentPrompt('guishan')">我不是要找房</div>` : ''}
     </div>`);
 }
 
 function selectGuishanArea(areaKey) {
     if (!pendingGuishanAreaQuery) return;
-    const { query, pendingQuery, baseInput } = pendingGuishanAreaQuery;
+    const { query, pendingQuery, baseInput, allowCancel } = pendingGuishanAreaQuery;
     pendingGuishanAreaQuery = null;
-    const nextQuery = `${query} ${areaKey}`;
-    const loadingId = "load-" + Date.now();
-    if (shouldAskAreaRange(nextQuery)) {
-        showAreaRangeChoice(nextQuery, pendingQuery, baseInput);
-        return;
-    }
-    startListingSearch(nextQuery, pendingQuery, baseInput, loadingId);
+    const nextQuery = normalizeListingQuery(`${query} ${areaKey}`);
+    continueListingGuidance(nextQuery, pendingQuery, baseInput, { allowCancel });
+}
+
+function showListingAgeChoice(query, pendingQuery, baseInput, options = {}) {
+    const allowCancel = !!options.allowCancel;
+    pendingListingAgeQuery = { query, pendingQuery, baseInput, allowCancel };
+    const idBase = `age-${Date.now()}`;
+    const ageId = `${idBase}-value`;
+    const ageTextId = `${idBase}-text`;
+    addBotMsgHTML(`無法直接判定「新成屋」的定義，請再用屋齡幫我縮小範圍：<div class="interaction-container" style="flex-direction:column;align-items:stretch;gap:10px;">
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:#555;">
+            <span>屋齡上限：<strong id="${ageTextId}">5</strong> 年內</span>
+            <span>越小越接近新成屋</span>
+        </div>
+        <input id="${ageId}" class="settings-range" type="range" min="0" max="20" value="5" step="1">
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button class="int-btn ripple-btn" onclick="submitListingAge('${ageId}')">用這個屋齡找房</button>
+            ${allowCancel ? `<button class="int-btn ripple-btn" onclick="cancelListingIntentPrompt('age')">我不是要找房</button>` : ''}
+        </div>
+    </div>`);
+    setTimeout(() => {
+        const ageEl = document.getElementById(ageId);
+        const ageTextEl = document.getElementById(ageTextId);
+        if (!ageEl || !ageTextEl) return;
+        const sync = () => {
+            ageTextEl.textContent = String(parseInt(ageEl.value, 10));
+        };
+        ageEl.addEventListener('input', sync);
+        sync();
+    }, 0);
+}
+
+function submitListingAge(ageId) {
+    if (!pendingListingAgeQuery) return;
+    const ageEl = document.getElementById(ageId);
+    if (!ageEl) return;
+    const value = parseInt(ageEl.value, 10);
+    const { query, pendingQuery, baseInput, allowCancel } = pendingListingAgeQuery;
+    pendingListingAgeQuery = null;
+    const nextQuery = normalizeListingQuery(`${query} 屋齡${value}年內`);
+    continueListingGuidance(nextQuery, pendingQuery, baseInput, { allowCancel });
 }
 
 function showAreaRangeChoice(query, pendingQuery, baseInput) {
@@ -7469,8 +7622,8 @@ function showAreaRangeChoice(query, pendingQuery, baseInput) {
             <span>下限：<strong id="${minValId}">20</strong> 坪</span>
             <span>上限：<strong id="${maxValId}">60</strong> 坪</span>
         </div>
-        <input id="${minId}" type="range" min="10" max="100" value="20" step="1">
-        <input id="${maxId}" type="range" min="10" max="120" value="60" step="1">
+        <input id="${minId}" class="settings-range" type="range" min="10" max="100" value="20" step="1">
+        <input id="${maxId}" class="settings-range" type="range" min="10" max="120" value="60" step="1">
         <button class="int-btn ripple-btn" onclick="submitAreaRange('${minId}','${maxId}','${minValId}','${maxValId}')">送出</button>
     </div>`);
     setTimeout(() => {
@@ -7604,7 +7757,7 @@ function startListingSearch(query, pendingQuery, baseInput, loadingId) {
         const cardsEl = document.getElementById(cardsId);
         if (cardsEl) {
             cardsEl.insertAdjacentHTML('beforeend', renderListingCard(item, isMatch, baseMatch));
-            if (baseMatch && item.id && requiresNear) {
+            if (baseMatch && item.id) {
                 loadListingDetail(item.id, cardsEl.lastElementChild);
             }
         }
@@ -7796,6 +7949,29 @@ function parseAreaValue(area) {
     const num = parseFloat(String(area).replace(/[^\d.]/g, ""));
     return Number.isFinite(num) ? num : null;
 }
+
+function extractParkingValueFromDetailData(data) {
+    const lines = data && Array.isArray(data.details) ? data.details : [];
+    const parkingLines = lines
+        .map((line) => String(line || "").trim())
+        .filter((line) => /^車位：/.test(line));
+    if (!parkingLines.length) return "";
+    return parkingLines[parkingLines.length - 1].split("：").slice(1).join("：").trim();
+}
+
+function classifyParkingValue(parkingValue) {
+    const raw = String(parkingValue || "").trim();
+    if (!raw) return "unknown";
+    if (/^(無|沒有|無車位|未附車位|無附車位)/.test(raw)) return "without";
+    return "with";
+}
+
+function updateListingCardParking(cardEl, parkingValue) {
+    const parkingEl = cardEl ? cardEl.querySelector('.listing-parking-value') : null;
+    if (!parkingEl) return;
+    parkingEl.textContent = parkingValue || "不明";
+}
+
 function matchesRoomsByText(item, rooms) {
     if (rooms === null || rooms === undefined) return true;
     const hay = `${item.title || ""} ${item.desc || ""}`;
@@ -7817,14 +7993,22 @@ function matchesListingClient(item, criteria) {
     if (criteria.maxPrice !== null) {
         if (item.price && item.price > criteria.maxPrice) return false;
     }
+    if (criteria.maxAge !== null) {
+        const ageVal = parseFloat(String(item.ageYears || "").replace(/[^\d.]/g, ""));
+        if (!Number.isFinite(ageVal)) return false;
+        if (ageVal > criteria.maxAge) return false;
+    }
     if (criteria.minArea !== null || criteria.maxArea !== null) {
         const areaVal = parseAreaValue(item.area);
         if (areaVal === null) return false;
         if (criteria.minArea !== null && areaVal < criteria.minArea) return false;
         if (criteria.maxArea !== null && areaVal > criteria.maxArea) return false;
     }
-    if (criteria.requireCar) {
-        if (!item.parking) return false;
+    if (criteria.parkingMode === "without") {
+        if (classifyParkingValue(item.parking) !== "without") return false;
+    }
+    if (criteria.parkingMode === "with") {
+        if (classifyParkingValue(item.parking) !== "with") return false;
     }
     return true;
 }
@@ -7863,6 +8047,11 @@ async function loadListingDetail(sn, cardEl) {
         detailCache[sn] = data;
         const features = Array.isArray(data.features) ? data.features : [];
         const nearby = Array.isArray(data.nearby) ? data.nearby : [];
+        const parkingValue = extractParkingValueFromDetailData(data);
+        if (parkingValue && listingCache[sn]) {
+            listingCache[sn].parking = parkingValue;
+            listingCache[sn].parkingResolved = true;
+        }
         const detailText = `${features.join(" ")} ${nearby.join(" ")}`.trim();
         const formatList = (list, max) => {
             if (!list.length) return "無";
@@ -7871,6 +8060,7 @@ async function loadListingDetail(sn, cardEl) {
         };
         setText(featuresEl, formatList(features, 3));
         setText(nearbyEl, formatList(nearby, 3));
+        updateListingCardParking(cardEl, parkingValue || (listingCache[sn] && listingCache[sn].parking) || "");
         if (currentListingState && currentListingState.criteria) {
             const { criteria, statusId, cardsId, totalPages, pagesFetched, candidateCount } = currentListingState;
             const requiresNear = Array.isArray(criteria.nearKeywords) && criteria.nearKeywords.length > 0;
@@ -7907,7 +8097,7 @@ function renderListingCard(item, isMatch = true, baseMatch = isMatch) {
     } else if (item.totalFloor) {
         floorText = `${item.totalFloor} 樓`;
     }
-    const parking = item.parking || "不明";
+    const parking = item.parkingResolved ? (item.parking || "不明") : "查詢中";
     const img = item.image
         ? `<img class="listing-image" src="${item.image}">`
         : "";
@@ -7930,6 +8120,7 @@ function renderListingCard(item, isMatch = true, baseMatch = isMatch) {
                     <div class="listing-line"><strong>格局</strong> ${rooms || "?"} 房 / ${halls || "?"} 廳 / ${baths || "?"} 衛</div>
                     <div class="listing-line"><strong>屋齡</strong> ${age}</div>
                     <div class="listing-line"><strong>樓層</strong> ${floorText}</div>
+                    <div class="listing-line listing-line--parking"><strong>車位</strong> <span class="listing-parking-value">${parking}</span></div>
                 </div>
                 <div class="listing-link">${link}</div>
             </div>
