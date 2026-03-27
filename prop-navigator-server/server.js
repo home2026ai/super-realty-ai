@@ -775,10 +775,31 @@ function matchesRoomsByText(item, rooms) {
     return re.test(hay);
 }
 
+function normalizeCommunityText(text) {
+    return String(text || "")
+        .replace(/\s+/g, "")
+        .replace(/[0-9A-Za-z]/g, "")
+        .replace(/[（）()【】[\]·.,，。:：/\\_\-]/g, "")
+        .replace(/(社區|大樓|華廈|公寓|別墅|住宅|社區型|建案)/g, "")
+        .replace(/(景觀|露台|邊間|捷運|採光|精裝|頂樓|質感|日系|裝潢)/g, "")
+        .trim();
+}
+
+function matchesCommunityName(haystackText, communityName) {
+    const hay = String(haystackText || "");
+    const target = String(communityName || "").trim();
+    if (!target) return true;
+    if (hay.includes(target)) return true;
+    const normalizedHay = normalizeCommunityText(hay);
+    const normalizedTarget = normalizeCommunityText(target);
+    if (!normalizedHay || !normalizedTarget) return false;
+    return normalizedHay.includes(normalizedTarget) || normalizedTarget.includes(normalizedHay);
+}
+
 function matchesCriteria(item, criteria) {
     if (criteria.communityName) {
         const hay = `${item.title || ""} ${item.address || ""}`;
-        if (!hay.includes(criteria.communityName)) return false;
+        if (!matchesCommunityName(hay, criteria.communityName)) return false;
     }
     if (criteria.district && item.address && !item.address.includes(criteria.district)) return false;
     if (criteria.rooms !== null) {
@@ -1162,13 +1183,13 @@ app.get('/api/listings-stream', async (req, res) => {
             }
             if (!needsDetail) {
                 for (const item of firstItems) {
-                    if (matchesStreetWhitelist(item, criteria) && matchesKeywordTag(item, criteria)) {
+                    if (matchesCriteria(item, criteria) && matchesStreetWhitelist(item, criteria) && matchesKeywordTag(item, criteria)) {
                         sendEvent("item", item);
                     }
                 }
             } else {
                 await runWithConcurrency(firstItems, DETAIL_CONCURRENCY, async (item) => {
-                    if (!matchesStreetWhitelist(item, criteria) || !matchesKeywordTag(item, criteria)) return;
+                    if (!matchesCriteria(item, criteria) || !matchesStreetWhitelist(item, criteria) || !matchesKeywordTag(item, criteria)) return;
                     let detail = null;
                     try {
                         detail = await fetchListingDetailData(item.id);
@@ -1196,13 +1217,13 @@ app.get('/api/listings-stream', async (req, res) => {
                 pagesFetched += 1;
                 if (!needsDetail) {
                     for (const item of items) {
-                        if (matchesStreetWhitelist(item, criteria) && matchesKeywordTag(item, criteria)) {
+                        if (matchesCriteria(item, criteria) && matchesStreetWhitelist(item, criteria) && matchesKeywordTag(item, criteria)) {
                             sendEvent("item", item);
                         }
                     }
                 } else {
                     await runWithConcurrency(items, DETAIL_CONCURRENCY, async (item) => {
-                        if (!matchesStreetWhitelist(item, criteria) || !matchesKeywordTag(item, criteria)) return;
+                        if (!matchesCriteria(item, criteria) || !matchesStreetWhitelist(item, criteria) || !matchesKeywordTag(item, criteria)) return;
                         let detail = null;
                         try {
                             detail = await fetchListingDetailData(item.id);
@@ -1221,7 +1242,7 @@ app.get('/api/listings-stream', async (req, res) => {
         sendEvent("done", { pagesFetched, totalPages, criteria });
     } catch (error) {
         console.error("❌ Listing Stream API 錯誤詳情:", error);
-        sendEvent("error", { text: "物件搜尋失敗：" + error.message });
+        sendEvent("searchError", { text: "物件搜尋失敗：" + error.message });
     }
 
     res.end();
@@ -1556,7 +1577,7 @@ app.post('/api/listings', async (req, res) => {
                 }
             } else {
                 await runWithConcurrency(firstItems, DETAIL_CONCURRENCY, async (item) => {
-                    if (!matchesStreetWhitelist(item, criteria) || !matchesKeywordTag(item, criteria)) return;
+                    if (!matchesCriteria(item, criteria) || !matchesStreetWhitelist(item, criteria) || !matchesKeywordTag(item, criteria)) return;
                     let detail = null;
                     try {
                         detail = await fetchListingDetailData(item.id);
@@ -1589,7 +1610,7 @@ app.post('/api/listings', async (req, res) => {
                     }
                 } else {
                     await runWithConcurrency(items, DETAIL_CONCURRENCY, async (item) => {
-                        if (!matchesStreetWhitelist(item, criteria) || !matchesKeywordTag(item, criteria)) return;
+                        if (!matchesCriteria(item, criteria) || !matchesStreetWhitelist(item, criteria) || !matchesKeywordTag(item, criteria)) return;
                         let detail = null;
                         try {
                             detail = await fetchListingDetailData(item.id);
