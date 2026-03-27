@@ -332,7 +332,6 @@ function parseSearchQuery(text) {
         maxAge: null,
         minArea: null,
         maxArea: null,
-        parkingMode: "any",
         startPage: 1,
         streetWhitelistKey: null,
         keywordTag: null
@@ -402,12 +401,6 @@ function parseSearchQuery(text) {
     const ageMatch = raw.match(/屋齡\s*(\d+(?:\.\d+)?)\s*年\s*(?:內|以下|以內)/);
     if (ageMatch) criteria.maxAge = parseFloat(ageMatch[1]);
 
-    if (/(無車位|不要車位|免車位|沒車位|不需要車位)/.test(raw)) {
-        criteria.parkingMode = "without";
-    } else if (/(車位|有車位|要車位|需要車位|車)/.test(raw) && !/(無車位|不要車位|免車位|沒車位|不需要車位|無車)/.test(raw)) {
-        criteria.parkingMode = "with";
-    }
-
     const areaRangeMatch = raw.match(/坪數\s*(\d+(?:\.\d+)?)\s*坪?\s*(?:到|~|-|－|—|至)\s*(\d+(?:\.\d+)?)\s*坪?/);
     if (areaRangeMatch) {
         criteria.minArea = parseFloat(areaRangeMatch[1]);
@@ -468,9 +461,17 @@ function buildListUrl(cityKey, page, criteria) {
     if (!entry) return null;
     const params = new URLSearchParams();
     if (page && page > 1) params.set("pi", String(page));
-    if (criteria && criteria.keywordTag === "a7") params.set("kw", "A7");
+    if (criteria && criteria.communityName) {
+        params.set("kw", criteria.communityName);
+    } else if (criteria && criteria.keywordTag === "a7") {
+        params.set("kw", "A7");
+    }
     const query = params.toString();
     return `${LISTING_HTML_BASE}/${encodeURIComponent(entry.name)}/${entry.zip}${query ? `?${query}` : ""}`;
+}
+
+function shouldUseHtmlListing(criteria) {
+    return USE_LIST_HTML || Boolean(criteria && criteria.communityName);
 }
 
 function normalizeImage(url) {
@@ -732,25 +733,6 @@ function parseAreaValue(area) {
     return Number.isFinite(num) ? num : null;
 }
 
-function extractParkingValueFromDetail(detail) {
-    if (!detail) return "";
-    const lines = Array.isArray(detail.details) ? detail.details : [];
-    const parkingLines = lines
-        .map((line) => String(line || "").trim())
-        .filter((line) => /^車位：/.test(line));
-    if (parkingLines.length) {
-        return parkingLines[parkingLines.length - 1].split("：").slice(1).join("：").trim();
-    }
-    return "";
-}
-
-function classifyParkingValue(value) {
-    const raw = String(value || "").trim();
-    if (!raw) return "unknown";
-    if (/^(無|沒有|無車位|未附車位|無附車位)/.test(raw)) return "without";
-    return "with";
-}
-
 function matchesNearKeywords(text, keywords) {
     if (!keywords || !keywords.length) return true;
     const rules = {
@@ -769,12 +751,6 @@ function matchesNearKeywords(text, keywords) {
 
 function matchesCriteriaWithDetail(item, criteria, detail) {
     if (!matchesCriteria(item, criteria)) return false;
-    if (criteria.parkingMode && criteria.parkingMode !== "any") {
-        const parkingValue = extractParkingValueFromDetail(detail);
-        const parkingState = classifyParkingValue(parkingValue);
-        if (criteria.parkingMode === "without" && parkingState !== "without") return false;
-        if (criteria.parkingMode === "with" && parkingState !== "with") return false;
-    }
     if (criteria.nearKeywords && criteria.nearKeywords.length) {
         const detailText = `${(detail?.features || []).join(" ")} ${(detail?.nearby || []).join(" ")} ${(detail?.details || []).join(" ")} ${item.desc || ""}`.trim();
         if (!matchesNearKeywords(detailText, criteria.nearKeywords)) return false;
@@ -1157,15 +1133,13 @@ app.get('/api/listings-stream', async (req, res) => {
         let pagesFetched = 0;
         let totalPages = 0;
         const firstPages = [];
-        const needsDetail = !!(
-            (criteria && Array.isArray(criteria.nearKeywords) && criteria.nearKeywords.length > 0) ||
-            (criteria && criteria.parkingMode && criteria.parkingMode !== "any")
-        );
+        const useHtmlMode = shouldUseHtmlListing(criteria);
+        const needsDetail = !!(criteria && Array.isArray(criteria.nearKeywords) && criteria.nearKeywords.length > 0);
 
         for (const key of cityKeys) {
             let firstPage = null;
             let cityTotal = 0;
-            if (USE_LIST_HTML) {
+            if (useHtmlMode) {
                 const html = await fetchListingPageHtml(key, criteria.startPage, criteria);
                 firstPage = { html };
                 cityTotal = extractTotalPagesFromHtml(html) || criteria.startPage;
@@ -1183,7 +1157,7 @@ app.get('/api/listings-stream', async (req, res) => {
 
         for (const entry of firstPages) {
             let firstItems = [];
-            if (USE_LIST_HTML) {
+            if (useHtmlMode) {
                 firstItems = parseListItemsFromHtml(entry.firstPage.html || "");
             } else {
                 firstItems = (entry.firstPage.json && entry.firstPage.json.data) ? entry.firstPage.json.data.map(mapListing) : [];
@@ -1204,11 +1178,6 @@ app.get('/api/listings-stream', async (req, res) => {
                         return;
                     }
                     if (matchesCriteriaWithDetail(item, criteria, detail)) {
-                        const parkingValue = extractParkingValueFromDetail(detail);
-                        if (parkingValue) {
-                            item.parking = parkingValue;
-                            item.parkingResolved = true;
-                        }
                         sendEvent("item", item);
                     }
                 });
@@ -1219,7 +1188,7 @@ app.get('/api/listings-stream', async (req, res) => {
             for (let p = criteria.startPage + 1; p <= entry.cityTotal; p += 1) {
                 if (aborted) break;
                 let items = [];
-                if (USE_LIST_HTML) {
+                if (useHtmlMode) {
                     const html = await fetchListingPageHtml(entry.key, p, criteria);
                     items = parseListItemsFromHtml(html || "");
                 } else {
@@ -1243,11 +1212,6 @@ app.get('/api/listings-stream', async (req, res) => {
                             return;
                         }
                         if (matchesCriteriaWithDetail(item, criteria, detail)) {
-                            const parkingValue = extractParkingValueFromDetail(detail);
-                            if (parkingValue) {
-                                item.parking = parkingValue;
-                                item.parkingResolved = true;
-                            }
                             sendEvent("item", item);
                         }
                     });
@@ -1560,14 +1524,12 @@ app.post('/api/listings', async (req, res) => {
 
         let totalPages = 0;
         const firstPages = [];
-        const needsDetail = !!(
-            (criteria && Array.isArray(criteria.nearKeywords) && criteria.nearKeywords.length > 0) ||
-            (criteria && criteria.parkingMode && criteria.parkingMode !== "any")
-        );
+        const useHtmlMode = shouldUseHtmlListing(criteria);
+        const needsDetail = !!(criteria && Array.isArray(criteria.nearKeywords) && criteria.nearKeywords.length > 0);
         for (const key of cityKeys) {
             let firstPage = null;
             let cityTotal = 0;
-            if (USE_LIST_HTML) {
+            if (useHtmlMode) {
                 const html = await fetchListingPageHtml(key, criteria.startPage, criteria);
                 firstPage = { html };
                 cityTotal = extractTotalPagesFromHtml(html) || criteria.startPage;
@@ -1583,7 +1545,7 @@ app.post('/api/listings', async (req, res) => {
 
         for (const entry of firstPages) {
             let firstItems = [];
-            if (USE_LIST_HTML) {
+            if (useHtmlMode) {
                 firstItems = parseListItemsFromHtml(entry.firstPage.html || "");
             } else {
                 firstItems = (entry.firstPage.json && entry.firstPage.json.data) ? entry.firstPage.json.data.map(mapListing) : [];
@@ -1604,11 +1566,6 @@ app.post('/api/listings', async (req, res) => {
                         return;
                     }
                     if (matchesCriteriaWithDetail(item, criteria, detail)) {
-                        const parkingValue = extractParkingValueFromDetail(detail);
-                        if (parkingValue) {
-                            item.parking = parkingValue;
-                            item.parkingResolved = true;
-                        }
                         results.push(item);
                     }
                 });
@@ -1618,7 +1575,7 @@ app.post('/api/listings', async (req, res) => {
         for (const entry of firstPages) {
             for (let p = criteria.startPage + 1; p <= entry.cityTotal; p += 1) {
                 let items = [];
-                if (USE_LIST_HTML) {
+                if (useHtmlMode) {
                     const html = await fetchListingPageHtml(entry.key, p, criteria);
                     items = parseListItemsFromHtml(html || "");
                 } else {
@@ -1642,11 +1599,6 @@ app.post('/api/listings', async (req, res) => {
                             return;
                         }
                         if (matchesCriteriaWithDetail(item, criteria, detail)) {
-                            const parkingValue = extractParkingValueFromDetail(detail);
-                            if (parkingValue) {
-                                item.parking = parkingValue;
-                                item.parkingResolved = true;
-                            }
                             results.push(item);
                         }
                     });
