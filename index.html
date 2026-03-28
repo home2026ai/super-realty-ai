@@ -2734,12 +2734,19 @@
             display: none;
         }
         .media-stage {
-            position: relative;
-            display: none;
-            flex: 1;
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
             min-height: 0;
             padding: 6px 16px 16px;
             isolation: isolate;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transform: translateX(100%);
+            transition: transform 0.36s ease, opacity 0.24s ease, visibility 0s linear 0.24s;
+            z-index: 40;
         }
         .media-stage::before,
         .media-stage::after {
@@ -2766,8 +2773,13 @@
             background: radial-gradient(circle, rgba(108, 138, 255, 0.24) 0%, rgba(108, 138, 255, 0) 74%);
         }
         .chat-card.is-media-mode .media-stage {
-            display: flex;
-            flex-direction: column;
+            visibility: visible;
+        }
+        .chat-card.is-media-stage-active .media-stage {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateX(0);
+            transition: transform 0.36s ease, opacity 0.24s ease;
         }
         .chat-card.is-media-reels-mode .media-stage {
             padding: 0;
@@ -4749,6 +4761,303 @@
         .unit-suffix { font-size: 12px; color: #000; white-space: nowrap; font-weight: 700; }
         .int-btn { background: white; color: var(--ai-purple); border: 1.1px solid var(--ai-purple); padding: 10px 16px; border-radius: 12px; font-size: 13px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; transition: 0.3s; }
         .int-btn:hover { background: var(--ai-purple); color: white; }
+        .review-card {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        #reviewOverlay {
+            z-index: 625;
+            display: flex;
+            align-items: stretch;
+            justify-content: center;
+            padding: 0;
+            background: rgba(0,0,0,0.52);
+            backdrop-filter: blur(10px);
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.24s ease, visibility 0s linear 0.24s;
+        }
+        #reviewOverlay.is-open {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            transition: opacity 0.24s ease;
+        }
+        #reviewOverlay .review-card {
+            width: 100%;
+            max-width: none;
+            max-height: none;
+            min-height: 100dvh;
+            border-radius: 0;
+            border: none;
+            background: linear-gradient(180deg, rgba(30,30,32,0.94) 0%, rgba(12,12,14,0.96) 100%);
+            color: rgba(255,255,255,0.9);
+            box-shadow: none;
+            padding: calc(var(--safe-top) + 18px) 18px calc(var(--safe-bottom) + 20px);
+            transform: translateY(100%);
+            opacity: 0;
+            transition: transform 0.36s ease, opacity 0.24s ease;
+        }
+        #reviewOverlay.is-open .review-card {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        html[data-bg="mist"] #reviewOverlay {
+            background: rgba(142, 127, 109, 0.18);
+            backdrop-filter: blur(12px);
+        }
+        html[data-bg="mist"] #reviewOverlay .review-card {
+            background: linear-gradient(180deg, rgba(255,248,242,0.96) 0%, rgba(228,210,191,0.94) 100%);
+            color: rgba(23,20,18,0.92);
+            box-shadow: none;
+        }
+        .review-card-head {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .review-card-top {
+            display: grid;
+            grid-template-columns: 68px 1fr 68px;
+            align-items: center;
+            gap: 12px;
+        }
+        .review-card-title {
+            margin: 0;
+            color: rgba(255,255,255,0.96);
+            font-size: 20px;
+            font-weight: 800;
+            line-height: 1.2;
+            text-align: center;
+        }
+        html[data-bg="mist"] .review-card-title {
+            color: rgba(27, 22, 18, 0.94);
+        }
+        .review-card-close {
+            justify-self: end;
+            border: none;
+            background: transparent;
+            color: rgba(255,255,255,0.76);
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            padding: 0;
+        }
+        .review-card-close:hover,
+        .review-card-close:active,
+        .review-card-close:focus-visible {
+            background: transparent;
+            color: rgba(255,255,255,0.92);
+            box-shadow: none;
+            outline: none;
+            transform: none;
+        }
+        html[data-bg="mist"] .review-card-close {
+            color: rgba(48, 39, 32, 0.7);
+        }
+        html[data-bg="mist"] .review-card-close:hover,
+        html[data-bg="mist"] .review-card-close:active,
+        html[data-bg="mist"] .review-card-close:focus-visible {
+            color: rgba(27, 22, 18, 0.92);
+        }
+        .review-card-desc {
+            color: rgba(255,255,255,0.68);
+            font-size: 14px;
+            line-height: 1.55;
+        }
+        html[data-bg="mist"] .review-card-desc {
+            color: rgba(58, 47, 39, 0.72);
+        }
+        .review-select-list {
+            display: grid;
+            gap: 10px;
+            max-height: min(42vh, 360px);
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+        .review-select-item {
+            width: 100%;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            background: rgba(255,255,255,0.05);
+            color: rgba(255,255,255,0.92);
+            text-align: left;
+            padding: 12px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            cursor: pointer;
+            box-shadow: none;
+        }
+        html[data-bg="mist"] .review-select-item {
+            border: 1px solid rgba(126, 102, 78, 0.14);
+            background: linear-gradient(180deg, rgba(255,255,255,0.62) 0%, rgba(231,214,196,0.64) 100%);
+            color: rgba(29, 24, 20, 0.92);
+        }
+        .review-select-item.is-active {
+            border-color: rgba(227, 191, 104, 0.68);
+            box-shadow: inset 0 0 0 1px rgba(227, 191, 104, 0.22);
+        }
+        html[data-bg="mist"] .review-select-item.is-active {
+            border-color: rgba(172, 132, 86, 0.54);
+            box-shadow: inset 0 0 0 1px rgba(172, 132, 86, 0.18);
+        }
+        .review-select-name {
+            font-size: 15px;
+            font-weight: 800;
+            line-height: 1.4;
+        }
+        .review-select-meta {
+            font-size: 13px;
+            color: rgba(255,255,255,0.64);
+            line-height: 1.5;
+        }
+        html[data-bg="mist"] .review-select-meta {
+            color: rgba(84, 66, 52, 0.72);
+        }
+        .review-select-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .review-select-badge {
+            display: inline-flex;
+            align-items: center;
+            min-height: 24px;
+            padding: 4px 8px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.82);
+            font-size: 12px;
+            font-weight: 700;
+        }
+        html[data-bg="mist"] .review-select-badge {
+            background: rgba(154, 128, 102, 0.14);
+            color: rgba(41, 32, 25, 0.82);
+        }
+        .review-note-box {
+            display: grid;
+            gap: 8px;
+        }
+        .review-note-box label {
+            font-size: 14px;
+            font-weight: 700;
+            color: rgba(255,255,255,0.82);
+        }
+        html[data-bg="mist"] .review-note-box label {
+            color: rgba(48, 39, 32, 0.78);
+        }
+        .review-note-box textarea {
+            width: 100%;
+            min-height: 92px;
+            resize: vertical;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 14px;
+            padding: 12px 14px;
+            font-size: 14px;
+            line-height: 1.55;
+            outline: none;
+            color: rgba(255,255,255,0.92);
+            background: rgba(255,255,255,0.05);
+        }
+        .review-note-box textarea:focus,
+        .review-note-box textarea:focus-visible {
+            outline: none;
+            box-shadow: none;
+        }
+        html[data-bg="mist"] .review-note-box textarea {
+            border: 1px solid rgba(126, 102, 78, 0.16);
+            color: rgba(29, 24, 20, 0.92);
+            background: rgba(255,255,255,0.56);
+        }
+        .review-note-box textarea::placeholder {
+            color: rgba(255,255,255,0.44);
+        }
+        html[data-bg="mist"] .review-note-box textarea::placeholder {
+            color: rgba(84, 66, 52, 0.52);
+        }
+        .review-card-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .review-card-actions .int-btn {
+            min-height: 42px;
+            margin-top: 0;
+            border-radius: 14px;
+            border: 1px solid rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.06);
+            color: rgba(255,255,255,0.92);
+            font-size: 14px;
+            font-weight: 700;
+        }
+        .review-card-actions .int-btn:hover,
+        .review-card-actions .int-btn:active,
+        .review-card-actions .int-btn:focus-visible {
+            background: rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.96);
+            box-shadow: none;
+            outline: none;
+        }
+        .review-card-actions .send-action {
+            border-color: rgba(227, 191, 104, 0.18);
+            background: rgba(227, 191, 104, 0.16);
+            color: rgba(255,255,255,0.96);
+        }
+        .review-card-actions .send-action:hover,
+        .review-card-actions .send-action:active,
+        .review-card-actions .send-action:focus-visible {
+            background: rgba(227, 191, 104, 0.22);
+            color: rgba(255,255,255,0.98);
+        }
+        html[data-bg="mist"] .review-card-actions .int-btn {
+            border-color: rgba(126, 102, 78, 0.16);
+            background: rgba(255,255,255,0.56);
+            color: rgba(28, 22, 18, 0.92);
+        }
+        html[data-bg="mist"] .review-card-actions .int-btn:hover,
+        html[data-bg="mist"] .review-card-actions .int-btn:active,
+        html[data-bg="mist"] .review-card-actions .int-btn:focus-visible {
+            background: rgba(255,255,255,0.68);
+            color: rgba(24, 18, 14, 0.96);
+        }
+        html[data-bg="mist"] .review-card-actions .send-action {
+            border-color: rgba(166, 133, 101, 0.28);
+            background: rgba(201, 175, 148, 0.4);
+            color: rgba(24, 18, 14, 0.94);
+        }
+        html[data-bg="mist"] .review-card-actions .send-action:hover,
+        html[data-bg="mist"] .review-card-actions .send-action:active,
+        html[data-bg="mist"] .review-card-actions .send-action:focus-visible {
+            background: rgba(201, 175, 148, 0.52);
+            color: rgba(20, 15, 12, 0.98);
+        }
+        .review-cancel-link {
+            text-align: center;
+            margin-top: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            color: rgba(255,255,255,0.54);
+        }
+        html[data-bg="mist"] .review-cancel-link {
+            color: rgba(84, 66, 52, 0.58);
+        }
+        .review-empty {
+            border: 1px dashed rgba(255,255,255,0.16);
+            border-radius: 18px;
+            padding: 18px 16px;
+            color: rgba(255,255,255,0.7);
+            font-size: 14px;
+            line-height: 1.6;
+            background: rgba(255,255,255,0.04);
+        }
+        html[data-bg="mist"] .review-empty {
+            border: 1px dashed rgba(126, 102, 78, 0.22);
+            color: rgba(84, 66, 52, 0.78);
+            background: rgba(255,255,255,0.45);
+        }
         .chat-box .interaction-container {
             display: flex;
             flex-wrap: wrap;
@@ -6181,6 +6490,28 @@
             <div style="text-align:center; margin-top:15px; cursor:pointer; font-size:12px; color:#999;" onclick="closeCommunityLookup()">返回</div>
         </div>
     </div>
+    <div class="calc-overlay" id="reviewOverlay">
+        <div class="calc-card review-card">
+            <div class="review-card-head">
+                <div class="review-card-top">
+                    <div aria-hidden="true"></div>
+                    <h4 class="review-card-title">AI點評物件</h4>
+                    <button type="button" class="review-card-close" onclick="closeReviewOverlay()">關閉</button>
+                </div>
+                <div class="review-card-desc">從目前物件裡先選 1 筆，AI 會整理優點、風險、議價觀察與適合客群。面板內保留看房排程入口。</div>
+            </div>
+            <div class="review-select-list" id="reviewSelectList"></div>
+            <div class="review-note-box">
+                <label for="reviewExtraNote">補充條件（選填）</label>
+                <textarea id="reviewExtraNote" placeholder="例如：以自住為主、重視學區、希望一起看議價空間或轉手性"></textarea>
+            </div>
+            <div class="review-card-actions">
+                <button class="int-btn ripple-btn" type="button" onclick="openReviewCalendarShortcut()">看房排程</button>
+                <button class="int-btn ripple-btn send-action" type="button" id="reviewSubmitBtn">開始點評</button>
+            </div>
+            <div class="review-cancel-link" onclick="closeReviewOverlay()">取消</div>
+        </div>
+    </div>
 </div>
 <canvas id="rippleCanvas"></canvas>
 
@@ -6198,6 +6529,7 @@
     const browseAppointmentStoreKey = "browse_appointments";
     let browseAppointmentMode = false;
     let browseSelectedSns = [];
+    let reviewSelectedSn = "";
     let calendarMode = "general";
     let calendarAppointmentSelection = [];
     let detailImageList = [];
@@ -8944,6 +9276,187 @@ function closeBrowseList() {
     const plus = document.getElementById('toggleBtn');
     if (plus) plus.classList.remove('shifted');
 }
+function getReviewableItems() {
+    const ordered = [];
+    const seen = new Set();
+    const pushItem = (item) => {
+        if (!item || item.type === 'media') return;
+        const sn = String(item.sn || item.id || "").trim();
+        if (!sn || seen.has(sn)) return;
+        const cached = listingCache[sn] || {};
+        const merged = {
+            ...item,
+            ...cached,
+            sn,
+            id: cached.id || item.id || sn,
+            title: cached.title || item.title || "未命名物件",
+            price: cached.price ?? item.price ?? null,
+            address: cached.address || item.address || "",
+            area: cached.area ?? item.area ?? null,
+            rooms: cached.rooms ?? item.rooms ?? null,
+            halls: cached.halls ?? item.halls ?? null,
+            baths: cached.baths ?? item.baths ?? null,
+            ageYears: cached.ageYears ?? item.ageYears ?? null,
+            floor: cached.floor ?? item.floor ?? null,
+            totalFloor: cached.totalFloor ?? item.totalFloor ?? null,
+            image: cached.image || item.image || ""
+        };
+        seen.add(sn);
+        ordered.push(merged);
+    };
+    if (currentDetailSn) {
+        pushItem(listingCache[currentDetailSn] || getBrowseList().find((x) => x.sn === currentDetailSn));
+    }
+    getBrowseList().forEach(pushItem);
+    return ordered;
+}
+function getReviewSelection() {
+    const items = getReviewableItems();
+    if (!items.length) return { items, selected: null };
+    const selected = items.find((item) => item.sn === reviewSelectedSn) || items[0];
+    reviewSelectedSn = selected?.sn || "";
+    return { items, selected };
+}
+function formatReviewPrice(value) {
+    if (value === null || value === undefined || value === "") return "價格未提供";
+    if (typeof value === "number") return `${value} 萬`;
+    const num = Number(String(value).replace(/[^\d.]/g, ""));
+    return Number.isFinite(num) && num > 0 ? `${num} 萬` : String(value);
+}
+function formatReviewFloor(item, detailMap = {}) {
+    if (item.totalFloor) {
+        return item.floor ? `${item.floor} / ${item.totalFloor} 樓` : `${item.totalFloor} 樓`;
+    }
+    return detailMap["樓層"] || "不明";
+}
+function formatReviewLayout(item) {
+    if (item.rooms === null || item.rooms === undefined) return "不明";
+    return `${item.rooms ?? "?"} 房 / ${item.halls ?? "?"} 廳 / ${item.baths ?? "?"} 衛`;
+}
+function renderReviewSelection() {
+    const listEl = document.getElementById('reviewSelectList');
+    if (!listEl) return;
+    const { items, selected } = getReviewSelection();
+    if (!items.length) {
+        listEl.innerHTML = `<div class="review-empty">目前沒有可點評的物件。先把物件加入「瀏覽清單」，或先打開任一物件詳情，再回來用 AI 點評。</div>`;
+        return;
+    }
+    listEl.innerHTML = items.map((item) => {
+        const floorText = item.totalFloor ? (item.floor ? `${item.floor}/${item.totalFloor}樓` : `${item.totalFloor}樓`) : "樓層不明";
+        return `
+            <button type="button" class="review-select-item${selected?.sn === item.sn ? ' is-active' : ''}" data-review-sn="${escapeHtml(item.sn)}">
+                <div class="review-select-name">${escapeHtml(item.title || "未命名物件")}</div>
+                <div class="review-select-meta">${escapeHtml(item.address || "地址待補充")}</div>
+                <div class="review-select-badges">
+                    <span class="review-select-badge">${escapeHtml(formatReviewPrice(item.price))}</span>
+                    <span class="review-select-badge">${escapeHtml(item.area ? `${item.area} 坪` : '建坪不明')}</span>
+                    <span class="review-select-badge">${escapeHtml(formatReviewLayout(item))}</span>
+                    <span class="review-select-badge">${escapeHtml(item.ageYears ? `${item.ageYears} 年` : '屋齡不明')}</span>
+                    <span class="review-select-badge">${escapeHtml(floorText)}</span>
+                </div>
+            </button>
+        `;
+    }).join('');
+}
+function openReviewOverlay() {
+    closeDrawer();
+    renderReviewSelection();
+    document.getElementById('reviewOverlay')?.classList.add('is-open');
+}
+function closeReviewOverlay() {
+    document.getElementById('reviewOverlay')?.classList.remove('is-open');
+}
+function openReviewCalendarShortcut() {
+    closeReviewOverlay();
+    openCalendarOverlay();
+}
+async function ensureReviewDetail(sn) {
+    if (!sn) return null;
+    if (detailCache[sn]) return detailCache[sn];
+    try {
+        const resp = await fetch(`${API_BASE}/api/listing-detail?sn=${encodeURIComponent(sn)}`);
+        if (!resp.ok) return null;
+        const data = await resp.json();
+        detailCache[sn] = data;
+        return data;
+    } catch (error) {
+        return null;
+    }
+}
+function buildReviewDetailMap(detailData) {
+    const details = detailData && Array.isArray(detailData.details) ? detailData.details : [];
+    return details.reduce((acc, line) => {
+        const idx = String(line || "").indexOf("：");
+        if (idx <= -1) return acc;
+        const key = String(line).slice(0, idx).trim();
+        const value = String(line).slice(idx + 1).trim();
+        if (key && value && !acc[key]) acc[key] = value;
+        return acc;
+    }, {});
+}
+function buildObjectReviewPrompt(item, detailData, extraNote = "") {
+    const detailMap = buildReviewDetailMap(detailData);
+    const areaValue = item.area ? `${item.area} 坪` : (detailMap["建物面積"] || detailMap["建坪"] || "不明");
+    const ageValue = item.ageYears ? `${item.ageYears} 年` : (detailMap["屋齡"] || "不明");
+    const floorValue = formatReviewFloor(item, detailMap);
+    const extraDetails = [
+        detailMap["主要用途"] ? `主要用途：${detailMap["主要用途"]}` : "",
+        detailMap["建物類型"] ? `建物類型：${detailMap["建物類型"]}` : "",
+        detailMap["管理費"] ? `管理費：${detailMap["管理費"]}` : "",
+        detailMap["車位"] ? `車位：${detailMap["車位"]}` : ""
+    ].filter(Boolean);
+    const summaryLines = [
+        `物件名稱：${item.title || "未命名物件"}`,
+        `價格：${formatReviewPrice(item.price)}`,
+        `地址：${item.address || "地址待補充"}`,
+        `建坪：${areaValue}`,
+        `格局：${formatReviewLayout(item)}`,
+        `屋齡：${ageValue}`,
+        `樓層：${floorValue}`,
+        ...extraDetails
+    ];
+    if (extraNote.trim()) summaryLines.push(`使用者補充條件：${extraNote.trim()}`);
+    return [
+        "請用房仲顧問口吻，幫我做這個物件的 AI 點評。",
+        "請依序輸出：1. 一句總評 2. 三個優點 3. 三個風險或注意事項 4. 議價/出價觀察 5. 適合客群。",
+        "請用繁體中文、條列清楚、避免過度誇大；如果資料不足要直接講資料不足，不要亂補。",
+        "",
+        "物件資料：",
+        ...summaryLines
+    ].join("\n");
+}
+async function submitObjectReview() {
+    const submitBtn = document.getElementById('reviewSubmitBtn');
+    const noteEl = document.getElementById('reviewExtraNote');
+    const { selected } = getReviewSelection();
+    if (!selected) {
+        alert('目前沒有可點評的物件');
+        return;
+    }
+    const extraNote = noteEl?.value || "";
+    const originalText = submitBtn?.textContent || "開始點評";
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'AI 點評中...';
+    }
+    try {
+        const detailData = await ensureReviewDetail(selected.sn);
+        const prompt = buildObjectReviewPrompt(selected, detailData, extraNote);
+        addUserMsg(`請點評物件：${selected.title || '未命名物件'}`);
+        closeReviewOverlay();
+        await streamChatResponse({
+            message: prompt,
+            sessionId: getSessionId()
+        });
+    } catch (error) {
+        addBotMsg('AI 點評失敗，請稍後再試。');
+    } finally {
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+        }
+    }
+}
 const calendarToday = new Date();
 const calendarMonthState = {
     year: calendarToday.getFullYear(),
@@ -9907,6 +10420,35 @@ function setMediaMode(nextMode) {
     reels.classList.toggle('is-active', nextMode === 'reels');
 }
 
+let mediaStageTransitionTimer = null;
+
+function showMediaStage(mode) {
+    const card = document.querySelector('.chat-card');
+    if (!card) return;
+    if (mediaStageTransitionTimer) clearTimeout(mediaStageTransitionTimer);
+    setMediaMode(mode);
+    card.classList.remove('is-media-stage-active');
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            card.classList.add('is-media-stage-active');
+        });
+    });
+}
+
+function hideMediaStage() {
+    const card = document.querySelector('.chat-card');
+    if (!card) {
+        setMediaMode('chat');
+        return;
+    }
+    if (mediaStageTransitionTimer) clearTimeout(mediaStageTransitionTimer);
+    card.classList.remove('is-media-stage-active');
+    mediaStageTransitionTimer = setTimeout(() => {
+        setMediaMode('chat');
+        mediaStageTransitionTimer = null;
+    }, 360);
+}
+
 function resetMediaReelsPlayer() {
     const playerHolder = document.getElementById('mediaReelsPlayer');
     try {
@@ -9939,14 +10481,14 @@ function resetMediaReelsPlayer() {
 
 function exitMediaMode() {
     resetMediaReelsPlayer();
-    setMediaMode('chat');
+    hideMediaStage();
 }
 
 function openMediaHome() {
     closeDrawer();
     resetMediaReelsPlayer();
     renderMediaHome();
-    setMediaMode('home');
+    showMediaStage('home');
 }
 
 function ensureYouTubePlayerApi() {
@@ -10416,7 +10958,11 @@ async function openMediaReels(categoryKey, targetVideoId = '') {
     mediaDescriptionExpanded = false;
     setMediaReelsMenuOpen(false);
     mediaPlaylistMeta = await fetchMediaPlaylistMeta(category.playlistId, { forceRefresh: true });
-    setMediaMode('reels');
+    if (mediaMode === 'chat') {
+        showMediaStage('reels');
+    } else {
+        setMediaMode('reels');
+    }
     updateMediaReelsMeta(category);
     const playerHolder = document.getElementById('mediaReelsPlayer');
     if (!playerHolder) return;
@@ -10803,7 +11349,7 @@ document.getElementById('composerToolFeatured')?.addEventListener('click', () =>
     const href = document.getElementById('composerToolFeatured')?.dataset.href;
     if (href) window.open(href, '_blank', 'noopener');
 });
-document.getElementById('composerToolCalendar')?.addEventListener('click', openCalendarOverlay);
+document.getElementById('composerToolCalendar')?.addEventListener('click', openReviewOverlay);
 document.getElementById('calendarPrevBtn')?.addEventListener('click', () => shiftCalendarMonth(-1));
 document.getElementById('calendarNextBtn')?.addEventListener('click', () => shiftCalendarMonth(1));
 document.getElementById('composerToolMedia')?.addEventListener('click', () => {
@@ -10902,6 +11448,13 @@ window.addEventListener('mouseup', (event) => {
 });
 document.getElementById('browseBackBtn')?.addEventListener('click', closeBrowseList);
 document.getElementById('browseSendBtn')?.addEventListener('click', sendBrowseListToLine);
+document.getElementById('reviewSelectList')?.addEventListener('click', (event) => {
+    const btn = event.target.closest('[data-review-sn]');
+    if (!btn) return;
+    reviewSelectedSn = btn.dataset.reviewSn || "";
+    renderReviewSelection();
+});
+document.getElementById('reviewSubmitBtn')?.addEventListener('click', submitObjectReview);
 document.querySelectorAll('.calc-overlay').forEach((overlay) => {
     overlay.addEventListener('click', (event) => {
         if (event.target !== overlay) return;
