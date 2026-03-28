@@ -822,6 +822,100 @@
             display: flex;
             opacity: 1;
         }
+        .listing-review-workspace {
+            position: absolute;
+            inset: 0;
+            z-index: 35;
+            display: none;
+            flex-direction: column;
+            background: var(--app-surface);
+        }
+        .listing-review-workspace.is-active {
+            display: flex;
+        }
+        .listing-review-stage {
+            flex: 0 0 70%;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            padding: calc(var(--safe-top) + 12px) 0 8px;
+            overflow: hidden;
+        }
+        .listing-review-stage-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 0 18px 10px;
+        }
+        .listing-review-stage-title {
+            font-size: 19px;
+            font-weight: 900;
+            line-height: 1.2;
+            color: var(--main-text);
+        }
+        .listing-review-stage-status {
+            font-size: 12px;
+            line-height: 1.4;
+            color: var(--muted-text);
+            padding: 0 18px 10px;
+        }
+        .listing-review-stage-row {
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            gap: 0;
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 4px max(18px, calc(50% - 144px)) 14px;
+            box-sizing: border-box;
+            scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
+            scroll-snap-type: x mandatory;
+            scroll-padding-left: max(18px, calc(50% - 144px));
+            scroll-padding-right: max(18px, calc(50% - 144px));
+        }
+        .listing-review-stage-row::-webkit-scrollbar {
+            width: 0;
+            height: 0;
+        }
+        .listing-review-stage-row .listing-card {
+            min-width: 288px;
+            max-width: 288px;
+            margin-right: 14px;
+            scroll-snap-align: center;
+            scroll-snap-stop: always;
+        }
+        .listing-review-stage-row .listing-card:last-child {
+            margin-right: 0;
+        }
+        .listing-review-stage-empty {
+            margin: auto 18px;
+            padding: 18px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.08);
+            color: var(--muted-text);
+            font-size: 14px;
+            line-height: 1.6;
+            text-align: center;
+        }
+        .listing-review-workspace .listing-review-dock {
+            display: grid;
+            flex: 1 1 30%;
+            min-height: 0;
+            margin: 0;
+            padding: 14px 16px calc(var(--safe-bottom) + 14px);
+            border-radius: 28px 28px 0 0;
+            background: rgba(255,255,255,0.1);
+            height: auto;
+            grid-template-rows: auto minmax(0, 1fr) auto auto;
+        }
+        html[data-bg="mist"] .listing-review-workspace {
+            background: #f6efe8;
+        }
+        html[data-bg="mist"] .listing-review-workspace .listing-review-dock {
+            background: rgba(255,255,255,0.78);
+        }
         html[data-bg="mist"] .listing-review-dock {
             background: rgba(255,255,255,0.72);
         }
@@ -6155,6 +6249,16 @@
                 </div>
             </div>
         </div>
+        <div class="listing-review-workspace" id="listingReviewWorkspace">
+            <div class="listing-review-stage">
+                <div class="listing-review-stage-head">
+                    <div class="listing-review-stage-title">AI 點評選房</div>
+                </div>
+                <div class="listing-review-stage-status" id="listingReviewStageStatus">請勾選想比較的物件，卡片會固定停在畫面中央。</div>
+                <div class="listing-review-stage-row" id="listingReviewStageRow"></div>
+            </div>
+            <div class="listing-review-dock" id="listingReviewWorkspaceDock"></div>
+        </div>
         <div class="chat-box" id="chatBox">
             <div class="msg ai msg-ai-welcome"><strong>你好，我是你的 AI 房產助理👋
 專門幫你快速搞懂 林口 / 龜山的房子值不值得買</strong>
@@ -6768,6 +6872,8 @@
     let listingReviewSelectedSns = [];
     let listingReviewPanelOpen = false;
     let listingReviewToastTimer = null;
+    let listingReviewWorkspaceItems = [];
+    let listingReviewWorkspaceStatus = "請勾選想比較的物件，卡片會固定停在畫面中央。";
     let reviewDragActive = false;
     let reviewDragStartY = 0;
     let reviewDragCurrentY = 0;
@@ -8511,6 +8617,9 @@ async function startListingSearch(query, pendingQuery, baseInput, loadingId) {
     let criteria = null;
     let completed = false;
     const requestId = `listing-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    listingReviewWorkspaceItems = [];
+    listingReviewWorkspaceStatus = "搜尋中...";
+    if (listingReviewPanelOpen) updateListingReviewUI();
     currentListingState = {
         requestId,
         statusId,
@@ -8530,6 +8639,8 @@ async function startListingSearch(query, pendingQuery, baseInput, loadingId) {
         setListingPending(pendingQuery || baseInput);
         const statusEl = document.getElementById(statusId);
         if (statusEl) statusEl.innerText = data.text || "請指定城市（例如：桃園/新北）。";
+        listingReviewWorkspaceStatus = data.text || "請指定城市（例如：桃園/新北）。";
+        if (listingReviewPanelOpen) renderListingReviewWorkspaceCards();
         es.close();
         if (currentListingStream === es) currentListingStream = null;
     });
@@ -8555,6 +8666,8 @@ async function startListingSearch(query, pendingQuery, baseInput, loadingId) {
         if (statusEl) {
             statusEl.innerText = `搜尋中 第 ${pagesFetched} / ${totalPages} 頁，已找到 ${itemCount} 筆（候選 ${candidateCount} 筆）`;
         }
+        listingReviewWorkspaceStatus = `搜尋中 第 ${pagesFetched} / ${totalPages} 頁，已找到 ${itemCount} 筆（候選 ${candidateCount} 筆）`;
+        if (listingReviewPanelOpen) renderListingReviewWorkspaceCards();
     });
 
     es.addEventListener('progress', (evt) => {
@@ -8570,6 +8683,8 @@ async function startListingSearch(query, pendingQuery, baseInput, loadingId) {
         if (statusEl) {
             statusEl.innerText = `搜尋中 第 ${pagesFetched} / ${totalPages} 頁，已找到 ${itemCount} 筆（候選 ${candidateCount} 筆）`;
         }
+        listingReviewWorkspaceStatus = `搜尋中 第 ${pagesFetched} / ${totalPages} 頁，已找到 ${itemCount} 筆（候選 ${candidateCount} 筆）`;
+        if (listingReviewPanelOpen) renderListingReviewWorkspaceCards();
     });
 
     es.addEventListener('item', (evt) => {
@@ -8595,6 +8710,7 @@ async function startListingSearch(query, pendingQuery, baseInput, loadingId) {
         if (item.id) {
             listingCache[item.id] = item;
         }
+        listingReviewWorkspaceItems.push({ item, isMatch, baseMatch });
         candidateCount += 1;
         if (isMatch) itemCount += 1;
         if (currentListingState) {
@@ -8605,6 +8721,8 @@ async function startListingSearch(query, pendingQuery, baseInput, loadingId) {
             const totalText = totalPages ? `${pagesFetched} / ${totalPages}` : `${pagesFetched}`;
             statusEl.innerText = `搜尋中 第 ${totalText} 頁，已找到 ${itemCount} 筆（候選 ${candidateCount} 筆）`;
         }
+        listingReviewWorkspaceStatus = `搜尋中 第 ${totalPages ? `${pagesFetched} / ${totalPages}` : `${pagesFetched}`} 頁，已找到 ${itemCount} 筆（候選 ${candidateCount} 筆）`;
+        if (listingReviewPanelOpen) renderListingReviewWorkspaceCards();
     });
 
     es.addEventListener('done', () => {
@@ -8619,15 +8737,21 @@ async function startListingSearch(query, pendingQuery, baseInput, loadingId) {
         }
         if (statusEl && finalMatchCount === 0) {
             statusEl.innerText = `找不到完全符合的物件，先顯示候選 ${candidateCount} 筆。`;
+            listingReviewWorkspaceStatus = `找不到完全符合的物件，先顯示候選 ${candidateCount} 筆。`;
         } else if (statusEl) {
             const totalText = totalPages ? `${totalPages}` : `${pagesFetched}`;
             statusEl.innerText = `搜尋完成，共找到 ${finalMatchCount} 筆（共 ${totalText} 頁）`;
+            listingReviewWorkspaceStatus = `搜尋完成，共找到 ${finalMatchCount} 筆（共 ${totalText} 頁）`;
         }
         if (cardsEl && finalMatchCount > 0) {
             cardsEl.querySelectorAll('[data-match="0"]').forEach((node) => node.remove());
         }
+        if (finalMatchCount > 0) {
+            listingReviewWorkspaceItems = listingReviewWorkspaceItems.filter((entry) => entry.isMatch);
+        }
         const noteEl = document.getElementById(noteId);
         if (noteEl && finalMatchCount > 0) noteEl.innerHTML = renderListingNote();
+        if (listingReviewPanelOpen) renderListingReviewWorkspaceCards();
         es.close();
         if (currentListingStream === es) currentListingStream = null;
     });
@@ -8639,6 +8763,8 @@ async function startListingSearch(query, pendingQuery, baseInput, loadingId) {
         const data = JSON.parse(evt.data || "{}");
         const statusEl = document.getElementById(statusId);
         if (statusEl) statusEl.innerText = data.text || "⚠️ 物件搜尋失敗，請稍後再試。";
+        listingReviewWorkspaceStatus = data.text || "⚠️ 物件搜尋失敗，請稍後再試。";
+        if (listingReviewPanelOpen) renderListingReviewWorkspaceCards();
         es.close();
         if (currentListingStream === es) currentListingStream = null;
     });
@@ -8649,6 +8775,8 @@ async function startListingSearch(query, pendingQuery, baseInput, loadingId) {
         setListingPending(pendingQuery || baseInput);
         const statusEl = document.getElementById(statusId);
         if (statusEl) statusEl.innerText = "⚠️ 搜尋服務連線失敗，請稍後再試。";
+        listingReviewWorkspaceStatus = "⚠️ 搜尋服務連線失敗，請稍後再試。";
+        if (listingReviewPanelOpen) renderListingReviewWorkspaceCards();
         es.close();
         if (currentListingStream === es) currentListingStream = null;
     });
@@ -9771,8 +9899,25 @@ function getListingReviewItems() {
         })
         .filter(Boolean);
 }
+function getListingWorkspaceCards() {
+    if (listingReviewWorkspaceItems.length) return listingReviewWorkspaceItems;
+    return getListingReviewItems().map((item) => ({ item, isMatch: true, baseMatch: true }));
+}
+function renderListingReviewWorkspaceCards() {
+    const row = document.getElementById('listingReviewStageRow');
+    const statusEl = document.getElementById('listingReviewStageStatus');
+    if (!row || !statusEl) return;
+    statusEl.textContent = listingReviewWorkspaceStatus;
+    const cards = getListingWorkspaceCards();
+    if (!cards.length) {
+        row.innerHTML = `<div class="listing-review-stage-empty">正在等待搜尋結果或物件資料。<br>勾選後，這裡會顯示搜尋到的所有物件，並可左右滑動選房。</div>`;
+        return;
+    }
+    row.innerHTML = cards.map(({ item, isMatch, baseMatch }) => renderListingCard(item, isMatch, baseMatch)).join('');
+}
 function renderListingReviewDock() {
-    const dock = document.getElementById('listingReviewDock');
+    const dock = document.getElementById('listingReviewWorkspaceDock');
+    const workspace = document.getElementById('listingReviewWorkspace');
     const footer = document.querySelector('.chat-footer');
     if (!dock) return;
     const items = getListingReviewItems();
@@ -9781,6 +9926,7 @@ function renderListingReviewDock() {
         dock.classList.remove('is-active');
         dock.innerHTML = '';
         footer?.classList.remove('is-review-selection-mode');
+        workspace?.classList.remove('is-active');
         return;
     }
     const picks = items.map((item) => {
@@ -9803,8 +9949,9 @@ function renderListingReviewDock() {
         `;
     }).join('');
     const isReady = items.length >= 2;
-    footer?.classList.toggle('is-review-selection-mode', listingReviewPanelOpen);
-    dock.classList.toggle('is-active', listingReviewPanelOpen);
+    footer?.classList.remove('is-review-selection-mode');
+    workspace?.classList.toggle('is-active', listingReviewPanelOpen);
+    dock.classList.add('is-active');
     dock.innerHTML = `
         <div class="listing-review-dock-head">
             <div class="listing-review-dock-title">AI點評已選物件</div>
@@ -9829,6 +9976,7 @@ function syncListingReviewButtons() {
 }
 function updateListingReviewUI() {
     syncListingReviewButtons();
+    renderListingReviewWorkspaceCards();
     renderListingReviewDock();
 }
 function toggleListingReviewSelection(sn) {
@@ -9871,6 +10019,8 @@ function showListingReviewToast(message) {
 function endListingReviewSelection() {
     listingReviewSelectedSns = [];
     listingReviewPanelOpen = false;
+    listingReviewWorkspaceItems = [];
+    listingReviewWorkspaceStatus = "請勾選想比較的物件，卡片會固定停在畫面中央。";
     updateListingReviewUI();
 }
 function buildMultiObjectReviewPrompt(items, detailDataList) {
