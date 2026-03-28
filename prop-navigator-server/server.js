@@ -748,9 +748,9 @@ function matchesNearKeywords(text, keywords) {
 }
 
 function matchesCriteriaWithDetail(item, criteria, detail) {
-    if (!matchesCriteria(item, criteria)) return false;
+    const detailText = `${(detail?.features || []).join(" ")} ${(detail?.nearby || []).join(" ")} ${(detail?.details || []).join(" ")} ${item.desc || ""}`.trim();
+    if (!matchesCriteria(item, criteria, detailText)) return false;
     if (criteria.nearKeywords && criteria.nearKeywords.length) {
-        const detailText = `${(detail?.features || []).join(" ")} ${(detail?.nearby || []).join(" ")} ${(detail?.details || []).join(" ")} ${item.desc || ""}`.trim();
         if (!matchesNearKeywords(detailText, criteria.nearKeywords)) return false;
     }
     return true;
@@ -796,9 +796,9 @@ function matchesCommunityName(haystackText, communityName) {
     return normalizedHay.includes(normalizedTarget) || normalizedTarget.includes(normalizedHay);
 }
 
-function matchesCriteria(item, criteria) {
+function matchesCriteria(item, criteria, detailText = "") {
     if (criteria.communityName) {
-        const hay = `${item.title || ""} ${item.address || ""}`;
+        const hay = `${item.title || ""} ${item.address || ""} ${detailText || ""}`;
         if (!matchesCommunityName(hay, criteria.communityName)) return false;
     }
     if (criteria.district && item.address && !item.address.includes(criteria.district)) return false;
@@ -822,6 +822,12 @@ function matchesCriteria(item, criteria) {
         if (criteria.maxArea !== null && areaVal > criteria.maxArea) return false;
     }
     return true;
+}
+
+function matchesCriteriaWithoutCommunity(item, criteria) {
+    if (!criteria) return true;
+    const nextCriteria = { ...criteria, communityName: null };
+    return matchesCriteria(item, nextCriteria, "");
 }
 
 function matchesStreetWhitelist(item, criteria) {
@@ -1153,7 +1159,13 @@ app.get('/api/listings-stream', async (req, res) => {
         let totalPages = 0;
         const firstPages = [];
         const useHtmlMode = shouldUseHtmlListing(criteria);
-        const needsDetail = !!(criteria && Array.isArray(criteria.nearKeywords) && criteria.nearKeywords.length > 0);
+        const needsDetail = !!(
+            criteria &&
+            (
+                (Array.isArray(criteria.nearKeywords) && criteria.nearKeywords.length > 0) ||
+                criteria.communityName
+            )
+        );
 
         for (const key of cityKeys) {
             let firstPage = null;
@@ -1189,7 +1201,7 @@ app.get('/api/listings-stream', async (req, res) => {
                 }
             } else {
                 await runWithConcurrency(firstItems, DETAIL_CONCURRENCY, async (item) => {
-                    if (!matchesCriteria(item, criteria) || !matchesStreetWhitelist(item, criteria) || !matchesKeywordTag(item, criteria)) return;
+                    if (!matchesCriteriaWithoutCommunity(item, criteria) || !matchesStreetWhitelist(item, criteria) || !matchesKeywordTag(item, criteria)) return;
                     let detail = null;
                     try {
                         detail = await fetchListingDetailData(item.id);
@@ -1223,7 +1235,7 @@ app.get('/api/listings-stream', async (req, res) => {
                     }
                 } else {
                     await runWithConcurrency(items, DETAIL_CONCURRENCY, async (item) => {
-                        if (!matchesCriteria(item, criteria) || !matchesStreetWhitelist(item, criteria) || !matchesKeywordTag(item, criteria)) return;
+                        if (!matchesCriteriaWithoutCommunity(item, criteria) || !matchesStreetWhitelist(item, criteria) || !matchesKeywordTag(item, criteria)) return;
                         let detail = null;
                         try {
                             detail = await fetchListingDetailData(item.id);
@@ -1544,7 +1556,13 @@ app.post('/api/listings', async (req, res) => {
         let totalPages = 0;
         const firstPages = [];
         const useHtmlMode = shouldUseHtmlListing(criteria);
-        const needsDetail = !!(criteria && Array.isArray(criteria.nearKeywords) && criteria.nearKeywords.length > 0);
+        const needsDetail = !!(
+            criteria &&
+            (
+                (Array.isArray(criteria.nearKeywords) && criteria.nearKeywords.length > 0) ||
+                criteria.communityName
+            )
+        );
         for (const key of cityKeys) {
             let firstPage = null;
             let cityTotal = 0;
@@ -1577,7 +1595,7 @@ app.post('/api/listings', async (req, res) => {
                 }
             } else {
                 await runWithConcurrency(firstItems, DETAIL_CONCURRENCY, async (item) => {
-                    if (!matchesCriteria(item, criteria) || !matchesStreetWhitelist(item, criteria) || !matchesKeywordTag(item, criteria)) return;
+                    if (!matchesCriteriaWithoutCommunity(item, criteria) || !matchesStreetWhitelist(item, criteria) || !matchesKeywordTag(item, criteria)) return;
                     let detail = null;
                     try {
                         detail = await fetchListingDetailData(item.id);
@@ -1610,7 +1628,7 @@ app.post('/api/listings', async (req, res) => {
                     }
                 } else {
                     await runWithConcurrency(items, DETAIL_CONCURRENCY, async (item) => {
-                        if (!matchesCriteria(item, criteria) || !matchesStreetWhitelist(item, criteria) || !matchesKeywordTag(item, criteria)) return;
+                        if (!matchesCriteriaWithoutCommunity(item, criteria) || !matchesStreetWhitelist(item, criteria) || !matchesKeywordTag(item, criteria)) return;
                         let detail = null;
                         try {
                             detail = await fetchListingDetailData(item.id);
