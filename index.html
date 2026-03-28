@@ -5917,19 +5917,18 @@
             </div>
         </div>
         <div class="chat-box" id="chatBox">
-            <div class="msg ai msg-ai-welcome"><strong>你好，我是你的 AI 房產助理👋</strong> 
-<strong>專門幫你快速搞懂 林口 / 龜山的房子值不值得買</strong>
+            <div class="msg ai msg-ai-welcome"><strong>你好，我是你的 AI 房產助理👋
+專門幫你快速搞懂 林口 / 龜山的房子值不值得買</strong>
 
 <strong>你可以直接跟我說👇</strong> 
 <strong>🏠找房：例如「我要找龜山3房車2500萬」</strong>
-
-<strong>其他功能表👇</strong>
+其他功能表👇</strong>
 💰 房貸試算（含寬限期）
 📈 投報率分析（租金 vs 房價）
 📊 社區行情 / 實價登錄
 🧾 交易流程 & 費用整理
 
-👉 <strong>我會幫你精準篩選，還可以直接幫你安排看房🏠</strong> 
+<strong>👉我會幫你精準篩選，還可以直接幫你安排看房🏠</strong> 
 
 <strong>試試看輸入一句話，我幫你找最接近的物件👇</strong> </div>
         </div>
@@ -7696,15 +7695,15 @@ function calculateUnifiedTax() {
     };
     addBotMsg(
         `**🏠 房地合一稅2.0 試算結果**\n` +
-        `1.成交價：${sellTenThousand} 萬\n` +
-        (feePct ? `1-1.仲介服務費：${feePct}%\n` : "") +
-        `2.取得成本：${acquireTenThousand} 萬\n` +
-        `3.房地合一稅：${ratePct}%\n` +
-        (canUseExempt ? `3-1.免稅額：400 萬\n` : "") +
-        `4.認列獲利：${toWan(taxable)}\n` +
-        `5.預估稅額：${toWan(tax)}\n` +
-        `6.稅後獲利：${toWan(afterTaxProfit)}` +
-        (canAddExemptBack ? ` +400萬 = ${toWan(afterTaxWithExempt)}` : ""),
+        `1.成交價：\n${sellTenThousand} 萬\n` +
+        (feePct ? `1-1.仲介服務費：\n${feePct}%\n` : "") +
+        `2.取得成本：\n${acquireTenThousand} 萬\n` +
+        `3.房地合一稅：\n${ratePct}%\n` +
+        (canUseExempt ? `3-1.免稅額：\n400 萬\n` : "") +
+        `4.認列獲利：\n${toWan(taxable)}\n` +
+        `5.預估稅額：\n${toWan(tax)}\n` +
+        `6.稅後獲利：\n${toWan(afterTaxProfit)}` +
+        (canAddExemptBack ? `\n+400萬免稅額回加後：\n${toWan(afterTaxWithExempt)}` : ""),
         null,
         'msg-ai-unified-tax'
     );
@@ -8406,7 +8405,11 @@ async function startListingSearch(query, pendingQuery, baseInput, loadingId) {
 
 function addBotMsg(text, id = null, extraClass = 'msg-ai-reply') {
     const d = document.createElement('div'); d.className = `msg ai ${extraClass}`.trim(); if(id) d.id = id;
-    d.innerHTML = formatMarkdownTable(text);
+    if (String(extraClass || "").split(/\s+/).includes('msg-ai-unified-tax')) {
+        d.innerHTML = `<p>${String(text || "").split('\n').map((part) => formatInlineMarkdown(part)).join('<br>')}</p>`;
+    } else {
+        d.innerHTML = formatMarkdownTable(text);
+    }
     chatBox.appendChild(d); updateChatThumb();
 }
 function createStreamingShell(container) {
