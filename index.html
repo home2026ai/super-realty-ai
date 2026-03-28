@@ -2734,19 +2734,17 @@
             display: none;
         }
         .media-stage {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            flex-direction: column;
+            position: relative;
+            display: none;
             min-height: 0;
             padding: 6px 16px 16px;
             isolation: isolate;
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
-            transform: translateX(100%);
-            transition: transform 0.36s ease, opacity 0.24s ease, visibility 0s linear 0.24s;
-            z-index: 40;
+            transform: translateX(0);
+            opacity: 1;
+            transition: transform 0.32s ease, opacity 0.24s ease;
+        }
+        .media-stage.is-swipe-dragging {
+            transition: none;
         }
         .media-stage::before,
         .media-stage::after {
@@ -2773,13 +2771,8 @@
             background: radial-gradient(circle, rgba(108, 138, 255, 0.24) 0%, rgba(108, 138, 255, 0) 74%);
         }
         .chat-card.is-media-mode .media-stage {
-            visibility: visible;
-        }
-        .chat-card.is-media-stage-active .media-stage {
-            opacity: 1;
-            pointer-events: auto;
-            transform: translateX(0);
-            transition: transform 0.36s ease, opacity 0.24s ease;
+            display: flex;
+            flex-direction: column;
         }
         .chat-card.is-media-reels-mode .media-stage {
             padding: 0;
@@ -4804,6 +4797,9 @@
             transform: translateY(0);
             opacity: 1;
         }
+        #reviewOverlay .review-card.is-dragging {
+            transition: none;
+        }
         html[data-bg="mist"] #reviewOverlay {
             background: rgba(142, 127, 109, 0.18);
             backdrop-filter: blur(12px);
@@ -6530,11 +6526,19 @@
     let browseAppointmentMode = false;
     let browseSelectedSns = [];
     let reviewSelectedSn = "";
+    let reviewDragActive = false;
+    let reviewDragStartY = 0;
+    let reviewDragCurrentY = 0;
     let calendarMode = "general";
     let calendarAppointmentSelection = [];
     let detailImageList = [];
     let detailImageIndex = 0;
     let detailZoom = 1;
+    let mediaStageSwipeActive = false;
+    let mediaStageSwipeLocked = false;
+    let mediaStageSwipeStartX = 0;
+    let mediaStageSwipeStartY = 0;
+    let mediaStageSwipeCurrentX = 0;
 
     function inferAttachmentMimeType(file) {
         if (file?.type) return file.type;
@@ -9364,11 +9368,65 @@ function openReviewOverlay() {
     document.getElementById('reviewOverlay')?.classList.add('is-open');
 }
 function closeReviewOverlay() {
+    resetReviewDrag(true);
     document.getElementById('reviewOverlay')?.classList.remove('is-open');
 }
 function openReviewCalendarShortcut() {
     closeReviewOverlay();
     openCalendarOverlay();
+}
+function getReviewCard() {
+    return document.querySelector('#reviewOverlay .review-card');
+}
+function beginReviewDrag(startY, eventTarget = null) {
+    const overlay = document.getElementById('reviewOverlay');
+    const card = getReviewCard();
+    if (!overlay?.classList.contains('is-open') || !card) return;
+    if (eventTarget?.closest('textarea, button, .review-select-list')) return;
+    reviewDragActive = true;
+    reviewDragStartY = startY;
+    reviewDragCurrentY = startY;
+    card.classList.add('is-dragging');
+}
+function updateReviewDrag(currentY) {
+    if (!reviewDragActive) return;
+    const card = getReviewCard();
+    if (!card) return;
+    reviewDragCurrentY = currentY;
+    const delta = Math.max(0, currentY - reviewDragStartY);
+    const limited = Math.min(delta, window.innerHeight || 9999);
+    card.style.transform = `translateY(${limited}px)`;
+    card.style.opacity = String(Math.max(0.72, 1 - limited / ((window.innerHeight || 1) * 1.4)));
+}
+function resetReviewDrag(animated = true) {
+    const card = getReviewCard();
+    reviewDragActive = false;
+    reviewDragStartY = 0;
+    reviewDragCurrentY = 0;
+    if (!card) return;
+    card.classList.remove('is-dragging');
+    if (!animated) {
+        card.style.transition = 'none';
+        card.style.transform = '';
+        card.style.opacity = '';
+        requestAnimationFrame(() => {
+            card.style.transition = '';
+        });
+        return;
+    }
+    card.style.transform = '';
+    card.style.opacity = '';
+}
+function endReviewDrag(endY) {
+    if (!reviewDragActive) return;
+    const threshold = (window.innerHeight || 0) * 0.5;
+    const delta = Math.max(0, endY - reviewDragStartY);
+    if (delta >= threshold) {
+        reviewDragActive = false;
+        closeReviewOverlay();
+        return;
+    }
+    resetReviewDrag(true);
 }
 async function ensureReviewDetail(sn) {
     if (!sn) return null;
@@ -10420,33 +10478,92 @@ function setMediaMode(nextMode) {
     reels.classList.toggle('is-active', nextMode === 'reels');
 }
 
-let mediaStageTransitionTimer = null;
-
-function showMediaStage(mode) {
-    const card = document.querySelector('.chat-card');
-    if (!card) return;
-    if (mediaStageTransitionTimer) clearTimeout(mediaStageTransitionTimer);
-    setMediaMode(mode);
-    card.classList.remove('is-media-stage-active');
-    requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-            card.classList.add('is-media-stage-active');
-        });
-    });
+function getMediaStageEl() {
+    return document.getElementById('mediaStage');
 }
 
-function hideMediaStage() {
-    const card = document.querySelector('.chat-card');
-    if (!card) {
+function beginMediaStageSwipe(x, y, eventTarget = null) {
+    if (mediaMode !== 'home') return;
+    if (eventTarget?.closest('#mediaReelsMenu, #mediaShareMenu, button, a, input, textarea, select')) return;
+    mediaStageSwipeActive = true;
+    mediaStageSwipeLocked = false;
+    mediaStageSwipeStartX = x;
+    mediaStageSwipeStartY = y;
+    mediaStageSwipeCurrentX = x;
+}
+
+function updateMediaStageSwipe(x, y) {
+    if (!mediaStageSwipeActive || mediaMode !== 'home') return false;
+    const stage = getMediaStageEl();
+    if (!stage) return false;
+    const dx = x - mediaStageSwipeStartX;
+    const dy = y - mediaStageSwipeStartY;
+    if (!mediaStageSwipeLocked) {
+        if (Math.abs(dx) < 12 && Math.abs(dy) < 12) return false;
+        if (dx <= 0 || Math.abs(dx) <= Math.abs(dy) * 1.1) {
+            mediaStageSwipeActive = false;
+            return false;
+        }
+        mediaStageSwipeLocked = true;
+        stage.classList.add('is-swipe-dragging');
+    }
+    mediaStageSwipeCurrentX = x;
+    const limited = Math.min(Math.max(0, dx), window.innerWidth || stage.offsetWidth || 9999);
+    stage.style.transform = `translateX(${limited}px)`;
+    stage.style.opacity = String(Math.max(0.72, 1 - limited / ((window.innerWidth || 1) * 1.35)));
+    return true;
+}
+
+function resetMediaStageSwipe(animated = true) {
+    const stage = getMediaStageEl();
+    mediaStageSwipeActive = false;
+    mediaStageSwipeLocked = false;
+    mediaStageSwipeStartX = 0;
+    mediaStageSwipeStartY = 0;
+    mediaStageSwipeCurrentX = 0;
+    if (!stage) return;
+    stage.classList.remove('is-swipe-dragging');
+    if (!animated) {
+        stage.style.transition = 'none';
+        stage.style.transform = '';
+        stage.style.opacity = '';
+        requestAnimationFrame(() => {
+            stage.style.transition = '';
+        });
+        return;
+    }
+    stage.style.transform = '';
+    stage.style.opacity = '';
+}
+
+function completeMediaStageSwipe() {
+    const stage = getMediaStageEl();
+    if (!stage) {
         setMediaMode('chat');
         return;
     }
-    if (mediaStageTransitionTimer) clearTimeout(mediaStageTransitionTimer);
-    card.classList.remove('is-media-stage-active');
-    mediaStageTransitionTimer = setTimeout(() => {
-        setMediaMode('chat');
-        mediaStageTransitionTimer = null;
-    }, 360);
+    stage.classList.remove('is-swipe-dragging');
+    stage.style.transform = `translateX(${window.innerWidth || stage.offsetWidth || 0}px)`;
+    stage.style.opacity = '0';
+    window.setTimeout(() => {
+        resetMediaStageSwipe(false);
+        exitMediaMode();
+    }, 220);
+}
+
+function endMediaStageSwipe(x) {
+    if (mediaMode !== 'home') {
+        resetMediaStageSwipe(false);
+        return;
+    }
+    if (!mediaStageSwipeActive && !mediaStageSwipeLocked) return;
+    const dx = Math.max(0, x - mediaStageSwipeStartX);
+    const threshold = (window.innerWidth || 0) * 0.5;
+    if (mediaStageSwipeLocked && dx >= threshold) {
+        completeMediaStageSwipe();
+        return;
+    }
+    resetMediaStageSwipe(true);
 }
 
 function resetMediaReelsPlayer() {
@@ -10480,15 +10597,16 @@ function resetMediaReelsPlayer() {
 }
 
 function exitMediaMode() {
+    resetMediaStageSwipe(false);
     resetMediaReelsPlayer();
-    hideMediaStage();
+    setMediaMode('chat');
 }
 
 function openMediaHome() {
     closeDrawer();
     resetMediaReelsPlayer();
     renderMediaHome();
-    showMediaStage('home');
+    setMediaMode('home');
 }
 
 function ensureYouTubePlayerApi() {
@@ -10958,11 +11076,7 @@ async function openMediaReels(categoryKey, targetVideoId = '') {
     mediaDescriptionExpanded = false;
     setMediaReelsMenuOpen(false);
     mediaPlaylistMeta = await fetchMediaPlaylistMeta(category.playlistId, { forceRefresh: true });
-    if (mediaMode === 'chat') {
-        showMediaStage('reels');
-    } else {
-        setMediaMode('reels');
-    }
+    setMediaMode('reels');
     updateMediaReelsMeta(category);
     const playerHolder = document.getElementById('mediaReelsPlayer');
     if (!playerHolder) return;
@@ -11420,6 +11534,27 @@ document.getElementById('mediaHomeGrid')?.addEventListener('click', (event) => {
     if (!card) return;
     openMediaReels(card.dataset.mediaCategory || '');
 });
+document.getElementById('mediaStage')?.addEventListener('touchstart', (event) => {
+    const touch = event.touches?.[0];
+    if (!touch) return;
+    beginMediaStageSwipe(touch.clientX || 0, touch.clientY || 0, event.target);
+}, { passive: true });
+document.getElementById('mediaStage')?.addEventListener('touchmove', (event) => {
+    const touch = event.touches?.[0];
+    if (!touch) return;
+    if (updateMediaStageSwipe(touch.clientX || 0, touch.clientY || 0)) {
+        event.preventDefault();
+    }
+}, { passive: false });
+document.getElementById('mediaStage')?.addEventListener('touchend', (event) => {
+    endMediaStageSwipe(event.changedTouches?.[0]?.clientX || mediaStageSwipeCurrentX || 0);
+}, { passive: true });
+document.getElementById('mediaStage')?.addEventListener('touchcancel', () => {
+    resetMediaStageSwipe(true);
+}, { passive: true });
+document.getElementById('mediaStage')?.addEventListener('mousedown', (event) => {
+    beginMediaStageSwipe(event.clientX || 0, event.clientY || 0, event.target);
+});
 document.getElementById('mediaReelsSwipe')?.addEventListener('touchstart', (event) => {
     beginMediaSwipe(event.touches?.[0]?.clientY || 0);
 }, { passive: true });
@@ -11439,10 +11574,16 @@ document.getElementById('mediaReelsSwipe')?.addEventListener('mousedown', (event
     beginMediaSwipe(event.clientY || 0);
 });
 window.addEventListener('mousemove', (event) => {
+    if (mediaStageSwipeActive || mediaStageSwipeLocked) {
+        updateMediaStageSwipe(event.clientX || mediaStageSwipeCurrentX || 0, event.clientY || mediaStageSwipeStartY || 0);
+    }
     if (!mediaSwipeActive) return;
     updateMediaSwipe(event.clientY || mediaTouchCurrentY || 0);
 });
 window.addEventListener('mouseup', (event) => {
+    if (mediaStageSwipeActive || mediaStageSwipeLocked) {
+        endMediaStageSwipe(event.clientX || mediaStageSwipeCurrentX || 0);
+    }
     if (!mediaSwipeActive) return;
     endMediaSwipe(event.clientY || mediaTouchCurrentY || 0);
 });
@@ -11455,6 +11596,33 @@ document.getElementById('reviewSelectList')?.addEventListener('click', (event) =
     renderReviewSelection();
 });
 document.getElementById('reviewSubmitBtn')?.addEventListener('click', submitObjectReview);
+document.getElementById('reviewOverlay')?.addEventListener('click', (event) => {
+    if (event.target?.id === 'reviewOverlay') closeReviewOverlay();
+});
+document.querySelector('#reviewOverlay .review-card-head')?.addEventListener('touchstart', (event) => {
+    beginReviewDrag(event.touches?.[0]?.clientY || 0, event.target);
+}, { passive: true });
+document.querySelector('#reviewOverlay .review-card-head')?.addEventListener('touchmove', (event) => {
+    if (!reviewDragActive) return;
+    updateReviewDrag(event.touches?.[0]?.clientY || reviewDragCurrentY || 0);
+}, { passive: true });
+document.querySelector('#reviewOverlay .review-card-head')?.addEventListener('touchend', (event) => {
+    endReviewDrag(event.changedTouches?.[0]?.clientY || reviewDragCurrentY || 0);
+}, { passive: true });
+document.querySelector('#reviewOverlay .review-card-head')?.addEventListener('touchcancel', () => {
+    resetReviewDrag(true);
+}, { passive: true });
+document.querySelector('#reviewOverlay .review-card-head')?.addEventListener('mousedown', (event) => {
+    beginReviewDrag(event.clientY || 0, event.target);
+});
+window.addEventListener('mousemove', (event) => {
+    if (!reviewDragActive) return;
+    updateReviewDrag(event.clientY || reviewDragCurrentY || 0);
+});
+window.addEventListener('mouseup', (event) => {
+    if (!reviewDragActive) return;
+    endReviewDrag(event.clientY || reviewDragCurrentY || 0);
+});
 document.querySelectorAll('.calc-overlay').forEach((overlay) => {
     overlay.addEventListener('click', (event) => {
         if (event.target !== overlay) return;
