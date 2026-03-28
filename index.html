@@ -5579,21 +5579,21 @@
             </div>
         </div>
         <div class="chat-box" id="chatBox">
-            <div class="msg ai welcome-msg">
-                <p class="welcome-head">你好，我是你的 AI 房產助理 👋</p>
-                <p class="welcome-body">專門幫你快速搞懂 林口 / 龜山的房子值不值得買。</p>
-                <p class="welcome-head">你可以直接跟我說👇</p>
-                <p class="welcome-body">🏠 找房：例如「我要找龜山3房車2500萬」</p>
-                <div class="welcome-tools">
-                    <div>其他功能表👇</div>
-                    <div>💰 房貸試算（含寬限期）</div>
-                    <div>📈 投報率分析（租金 vs 房價）</div>
-                    <div>📊 社區行情 / 實價登錄</div>
-                    <div>🧾 交易流程 & 費用整理</div>
-                </div>
-                <p class="welcome-cta">👉 我會幫你精準篩選，還可以直接幫你安排看房 🏠</p>
-                <p class="welcome-cta">試試看輸入一句話，我幫你找最接近的物件 👇</p>
-            </div>
+            <div class="msg ai">你好，我是你的 AI 房產助理 👋
+專門幫你快速搞懂 林口 / 龜山的房子值不值得買
+
+你可以直接跟我說👇
+🏠 找房：例如「我要找龜山3房車2500萬」
+
+其他功能表👇
+💰 房貸試算（含寬限期）
+📈 投報率分析（租金 vs 房價）
+📊 社區行情 / 實價登錄
+🧾 交易流程 & 費用整理
+
+👉 我會幫你精準篩選，還可以直接幫你安排看房 🏠
+
+試試看輸入一句話，我幫你找最接近的物件 👇</div>
         </div>
         <div class="chat-footer">
             <div class="input-area">
@@ -7322,22 +7322,18 @@ function calculateUnifiedTax() {
         const wan = value / 10000;
         return Number.isInteger(wan) ? `${wan} 萬` : `${wan.toFixed(2)} 萬`;
     };
-    const lines = [
-        `1.成交價：${sellTenThousand} 萬`,
-        ...(feePct ? [`1-1.仲介服務費：${feePct}%`] : []),
-        `2.取得成本：${acquireTenThousand} 萬`,
-        `3.房地合一稅：${ratePct}%`,
-        ...(canUseExempt ? [`3-1.免稅額：400 萬`] : []),
-        `4.認列獲利：${toWan(taxable)}`,
-        `5.預估稅額：${toWan(tax)}`,
-        `6.稅後獲利：${toWan(afterTaxProfit)}${canAddExemptBack ? ` +400萬 = ${toWan(afterTaxWithExempt)}` : ""}`
-    ];
-    addBotMsgHTML(`
-        <div>
-            <p>🏠 房地合一稅2.0 試算結果</p>
-            <div>${lines.map((line) => `<div>${escapeHtml(line)}</div>`).join('')}</div>
-        </div>
-    `);
+    addBotMsg(
+        `🏠 房地合一稅2.0 試算結果\n` +
+        `1.成交價：${sellTenThousand} 萬\n` +
+        (feePct ? `1-1.仲介服務費：${feePct}%\n` : "") +
+        `2.取得成本：${acquireTenThousand} 萬\n` +
+        `3.房地合一稅：${ratePct}%\n` +
+        (canUseExempt ? `3-1.免稅額：400 萬\n` : "") +
+        `4.認列獲利：${toWan(taxable)}\n` +
+        `5.預估稅額：${toWan(tax)}\n` +
+        `6.稅後獲利：${toWan(afterTaxProfit)}` +
+        (canAddExemptBack ? ` +400萬 = ${toWan(afterTaxWithExempt)}` : "")
+    );
     closePopups();
 }
 
