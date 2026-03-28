@@ -830,7 +830,7 @@
             inset: 0;
             z-index: 35;
             display: none;
-            grid-template-rows: minmax(0, 7fr) minmax(0, 3fr);
+            grid-template-rows: minmax(0, 76fr) minmax(0, 24fr);
             background: var(--app-surface);
             overflow: hidden;
             overscroll-behavior: none;
@@ -842,7 +842,7 @@
             min-height: 0;
             display: flex;
             flex-direction: column;
-            padding: calc(var(--safe-top) + 12px) 0 8px;
+            padding: calc(var(--safe-top) + 10px) 0 4px;
             overflow: hidden;
         }
         .listing-review-stage-head {
@@ -850,7 +850,7 @@
             align-items: center;
             justify-content: space-between;
             gap: 12px;
-            padding: 0 18px 10px;
+            padding: 0 18px 8px;
         }
         .listing-review-stage-title {
             font-size: 19px;
@@ -862,7 +862,7 @@
             font-size: 12px;
             line-height: 1.4;
             color: var(--muted-text);
-            padding: 0 18px 10px;
+            padding: 0 18px 8px;
         }
         .listing-review-stage-row {
             flex: 1;
@@ -871,13 +871,13 @@
             gap: 0;
             overflow-x: auto;
             overflow-y: hidden;
-            padding: 4px max(18px, calc(50% - 144px)) 14px;
+            padding: 4px max(16px, calc(50% - 132px)) 6px;
             box-sizing: border-box;
             scrollbar-width: none;
             -webkit-overflow-scrolling: touch;
             scroll-snap-type: x mandatory;
-            scroll-padding-left: max(18px, calc(50% - 144px));
-            scroll-padding-right: max(18px, calc(50% - 144px));
+            scroll-padding-left: max(16px, calc(50% - 132px));
+            scroll-padding-right: max(16px, calc(50% - 132px));
             overscroll-behavior-x: contain;
             overscroll-behavior-y: none;
             touch-action: pan-x;
@@ -887,14 +887,49 @@
             height: 0;
         }
         .listing-review-stage-row .listing-card {
-            min-width: 288px;
-            max-width: 288px;
-            margin-right: 14px;
+            flex: 0 0 264px;
+            min-width: 264px;
+            max-width: 264px;
+            margin-right: 10px;
             scroll-snap-align: center;
             scroll-snap-stop: always;
         }
         .listing-review-stage-row .listing-card:last-child {
             margin-right: 0;
+        }
+        .listing-review-stage-row .listing-card .listing-image {
+            height: 126px;
+            margin-bottom: 4px;
+        }
+        .listing-review-stage-row .listing-card .listing-body {
+            gap: 4px;
+        }
+        .listing-review-stage-row .listing-card .listing-badge {
+            min-height: 20px;
+            padding: 3px 8px;
+            font-size: 10px;
+        }
+        .listing-review-stage-row .listing-card .listing-title {
+            font-size: 14px;
+            line-height: 1.24;
+        }
+        .listing-review-stage-row .listing-card .listing-price {
+            font-size: 17px;
+        }
+        .listing-review-stage-row .listing-card .listing-address,
+        .listing-review-stage-row .listing-card .listing-summary,
+        .listing-review-stage-row .listing-card .listing-line {
+            font-size: 11.5px;
+            line-height: 1.36;
+        }
+        .listing-review-stage-row .listing-card .listing-link {
+            gap: 5px;
+            margin-top: 1px;
+        }
+        .listing-review-stage-row .listing-card .listing-ai-toggle,
+        .listing-review-stage-row .listing-card .detail-open-btn {
+            min-height: 36px;
+            font-size: 12px;
         }
         .listing-review-stage-empty {
             margin: auto 18px;
@@ -910,12 +945,65 @@
             display: grid;
             min-height: 0;
             margin: 0;
-            padding: 14px 16px calc(var(--safe-bottom) + 14px);
+            padding: 10px 14px calc(var(--safe-bottom) + 10px);
             border-radius: 28px 28px 0 0;
             background: rgba(255,255,255,0.1);
             height: auto;
             grid-template-rows: auto minmax(0, 1fr) auto auto;
             overflow: hidden;
+        }
+        @media (max-width: 768px) {
+            .listing-review-workspace {
+                grid-template-rows: minmax(0, 78fr) minmax(0, 22fr);
+            }
+            .listing-review-stage {
+                padding: calc(var(--safe-top) + 8px) 0 2px;
+            }
+            .listing-review-stage-head {
+                padding: 0 14px 6px;
+            }
+            .listing-review-stage-status {
+                padding: 0 14px 6px;
+                font-size: 11px;
+            }
+            .listing-review-stage-title {
+                font-size: 17px;
+            }
+            .listing-review-stage-row {
+                padding: 2px max(12px, calc(50% - 126px)) 4px;
+                scroll-padding-left: max(12px, calc(50% - 126px));
+                scroll-padding-right: max(12px, calc(50% - 126px));
+            }
+            .listing-review-stage-row .listing-card {
+                flex-basis: 252px;
+                min-width: 252px;
+                max-width: 252px;
+                margin-right: 8px;
+            }
+            .listing-review-stage-row .listing-card .listing-image {
+                height: 118px;
+            }
+            .listing-review-workspace .listing-review-dock {
+                padding: 8px 12px calc(var(--safe-bottom) + 8px);
+                border-radius: 24px 24px 0 0;
+            }
+            .listing-review-dock-head {
+                gap: 8px;
+            }
+            .listing-review-dock-title {
+                font-size: 12px;
+            }
+            .listing-review-dock-note {
+                font-size: 11px;
+            }
+            .listing-review-actions {
+                gap: 6px;
+            }
+            .listing-review-start,
+            .listing-review-secondary {
+                min-height: 40px;
+                font-size: 13px;
+            }
         }
         html[data-bg="mist"] .listing-review-workspace {
             background: #f6efe8;
@@ -3133,8 +3221,10 @@
         }
         .media-reels {
             position: relative;
+            flex: 1 1 auto;
             gap: 0;
             background: #000;
+            min-height: 0;
         }
         .media-home.is-active,
         .media-reels.is-active {
@@ -3543,6 +3633,7 @@
         .media-reels-frame {
             --media-controls-bottom: 24px;
             position: relative;
+            flex: 1 1 auto;
             flex: 1;
             min-height: 0;
             width: min(100%, 430px);
@@ -3568,11 +3659,13 @@
         .media-reels-player {
             position: absolute;
             inset: 0;
+            background: #050505;
         }
         .media-reels-player iframe,
         .media-reels-player > div {
             width: 100%;
             height: 100%;
+            display: block;
         }
         .media-reels-swipe {
             position: absolute;
@@ -5774,10 +5867,12 @@
 
             .media-reels-frame {
                 --media-controls-bottom: calc(var(--safe-bottom) + 24px);
+                flex: 1 1 auto;
                 width: 100%;
                 max-width: none;
+                min-height: 0;
                 aspect-ratio: auto;
-                height: 100%;
+                height: auto;
                 border-radius: 0;
                 border: none;
                 box-shadow: none;
@@ -6884,10 +6979,11 @@
     let browseSelectedSns = [];
     let reviewSelectedSn = "";
     let listingReviewSelectedSns = [];
-    let listingReviewPanelOpen = false;
-    let listingReviewToastTimer = null;
-    let listingReviewWorkspaceItems = [];
-    let listingReviewWorkspaceStatus = "請勾選想比較的物件，卡片會固定停在畫面中央。";
+let listingReviewPanelOpen = false;
+let listingReviewToastTimer = null;
+let listingReviewWorkspaceItems = [];
+let listingReviewWorkspaceStatus = "請勾選想比較的物件，卡片會固定停在畫面中央。";
+let listingReviewWorkspaceScrollLeft = 0;
     let reviewDragActive = false;
     let reviewDragStartY = 0;
     let reviewDragCurrentY = 0;
@@ -8633,6 +8729,7 @@ async function startListingSearch(query, pendingQuery, baseInput, loadingId) {
     const requestId = `listing-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     listingReviewWorkspaceItems = [];
     listingReviewWorkspaceStatus = "搜尋中...";
+    listingReviewWorkspaceScrollLeft = 0;
     if (listingReviewPanelOpen) updateListingReviewUI();
     currentListingState = {
         requestId,
@@ -8654,7 +8751,7 @@ async function startListingSearch(query, pendingQuery, baseInput, loadingId) {
         const statusEl = document.getElementById(statusId);
         if (statusEl) statusEl.innerText = data.text || "請指定城市（例如：桃園/新北）。";
         listingReviewWorkspaceStatus = data.text || "請指定城市（例如：桃園/新北）。";
-        if (listingReviewPanelOpen) renderListingReviewWorkspaceCards();
+        if (listingReviewPanelOpen) updateListingReviewWorkspaceStatus();
         es.close();
         if (currentListingStream === es) currentListingStream = null;
     });
@@ -8681,7 +8778,7 @@ async function startListingSearch(query, pendingQuery, baseInput, loadingId) {
             statusEl.innerText = `搜尋中 第 ${pagesFetched} / ${totalPages} 頁，已找到 ${itemCount} 筆（候選 ${candidateCount} 筆）`;
         }
         listingReviewWorkspaceStatus = `搜尋中 第 ${pagesFetched} / ${totalPages} 頁，已找到 ${itemCount} 筆（候選 ${candidateCount} 筆）`;
-        if (listingReviewPanelOpen) renderListingReviewWorkspaceCards();
+        if (listingReviewPanelOpen) updateListingReviewWorkspaceStatus();
     });
 
     es.addEventListener('progress', (evt) => {
@@ -8698,7 +8795,7 @@ async function startListingSearch(query, pendingQuery, baseInput, loadingId) {
             statusEl.innerText = `搜尋中 第 ${pagesFetched} / ${totalPages} 頁，已找到 ${itemCount} 筆（候選 ${candidateCount} 筆）`;
         }
         listingReviewWorkspaceStatus = `搜尋中 第 ${pagesFetched} / ${totalPages} 頁，已找到 ${itemCount} 筆（候選 ${candidateCount} 筆）`;
-        if (listingReviewPanelOpen) renderListingReviewWorkspaceCards();
+        if (listingReviewPanelOpen) updateListingReviewWorkspaceStatus();
     });
 
     es.addEventListener('item', (evt) => {
@@ -8778,7 +8875,7 @@ async function startListingSearch(query, pendingQuery, baseInput, loadingId) {
         const statusEl = document.getElementById(statusId);
         if (statusEl) statusEl.innerText = data.text || "⚠️ 物件搜尋失敗，請稍後再試。";
         listingReviewWorkspaceStatus = data.text || "⚠️ 物件搜尋失敗，請稍後再試。";
-        if (listingReviewPanelOpen) renderListingReviewWorkspaceCards();
+        if (listingReviewPanelOpen) updateListingReviewWorkspaceStatus();
         es.close();
         if (currentListingStream === es) currentListingStream = null;
     });
@@ -8790,7 +8887,7 @@ async function startListingSearch(query, pendingQuery, baseInput, loadingId) {
         const statusEl = document.getElementById(statusId);
         if (statusEl) statusEl.innerText = "⚠️ 搜尋服務連線失敗，請稍後再試。";
         listingReviewWorkspaceStatus = "⚠️ 搜尋服務連線失敗，請稍後再試。";
-        if (listingReviewPanelOpen) renderListingReviewWorkspaceCards();
+        if (listingReviewPanelOpen) updateListingReviewWorkspaceStatus();
         es.close();
         if (currentListingStream === es) currentListingStream = null;
     });
@@ -9917,17 +10014,32 @@ function getListingWorkspaceCards() {
     if (listingReviewWorkspaceItems.length) return listingReviewWorkspaceItems;
     return getListingReviewItems().map((item) => ({ item, isMatch: true, baseMatch: true }));
 }
+function updateListingReviewWorkspaceStatus() {
+    const statusEl = document.getElementById('listingReviewStageStatus');
+    if (!statusEl) return;
+    statusEl.textContent = listingReviewWorkspaceStatus;
+}
 function renderListingReviewWorkspaceCards() {
     const row = document.getElementById('listingReviewStageRow');
-    const statusEl = document.getElementById('listingReviewStageStatus');
-    if (!row || !statusEl) return;
-    statusEl.textContent = listingReviewWorkspaceStatus;
+    if (!row) return;
+    if (!row.dataset.reviewScrollBound) {
+        row.addEventListener('scroll', () => {
+            listingReviewWorkspaceScrollLeft = row.scrollLeft || 0;
+        }, { passive: true });
+        row.dataset.reviewScrollBound = '1';
+    }
+    listingReviewWorkspaceScrollLeft = row.scrollLeft || listingReviewWorkspaceScrollLeft || 0;
+    updateListingReviewWorkspaceStatus();
     const cards = getListingWorkspaceCards();
     if (!cards.length) {
         row.innerHTML = `<div class="listing-review-stage-empty">正在等待搜尋結果或物件資料。<br>勾選後，這裡會顯示搜尋到的所有物件，並可左右滑動選房。</div>`;
         return;
     }
     row.innerHTML = cards.map(({ item, isMatch, baseMatch }) => renderListingCard(item, isMatch, baseMatch)).join('');
+    requestAnimationFrame(() => {
+        const maxScroll = Math.max(0, row.scrollWidth - row.clientWidth);
+        row.scrollLeft = Math.max(0, Math.min(listingReviewWorkspaceScrollLeft, maxScroll));
+    });
 }
 function renderListingReviewDock() {
     const dock = document.getElementById('listingReviewWorkspaceDock');
@@ -10032,6 +10144,7 @@ function endListingReviewSelection() {
     listingReviewPanelOpen = false;
     listingReviewWorkspaceItems = [];
     listingReviewWorkspaceStatus = "請勾選想比較的物件，卡片會固定停在畫面中央。";
+    listingReviewWorkspaceScrollLeft = 0;
     updateListingReviewUI();
 }
 function hideListingReviewWorkspaceOnly() {
