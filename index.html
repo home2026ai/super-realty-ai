@@ -10030,6 +10030,12 @@ function endListingReviewSelection() {
     listingReviewWorkspaceStatus = "請勾選想比較的物件，卡片會固定停在畫面中央。";
     updateListingReviewUI();
 }
+function hideListingReviewWorkspaceOnly() {
+    listingReviewPanelOpen = false;
+    const workspace = document.getElementById('listingReviewWorkspace');
+    workspace?.classList.remove('is-active');
+    document.querySelector('.chat-footer')?.classList.remove('is-review-selection-mode');
+}
 function buildMultiObjectReviewPrompt(items, detailDataList) {
     const sections = items.map((item, index) => {
         const detailData = detailDataList[index];
@@ -11204,12 +11210,14 @@ function resetMediaReelsPlayer() {
 }
 
 function exitMediaMode() {
+    hideListingReviewWorkspaceOnly();
     resetMediaStageSwipe(false);
     resetMediaReelsPlayer();
     setMediaMode('chat');
 }
 
 function openMediaHome() {
+    hideListingReviewWorkspaceOnly();
     closeDrawer();
     resetMediaReelsPlayer();
     renderMediaHome();
@@ -11672,6 +11680,7 @@ function toggleMediaPlayback() {
 }
 
 async function openMediaReels(categoryKey, targetVideoId = '') {
+    hideListingReviewWorkspaceOnly();
     const categories = getMediaCategories();
     const category = categories.find((item) => item.key === categoryKey);
     if (!category || !category.playlistId) {
