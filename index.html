@@ -3790,6 +3790,15 @@
             width: 100%;
             align-self: stretch;
         }
+        .msg.ai,
+        .msg.ai p,
+        .msg.ai li,
+        .msg.ai ul,
+        .msg.ai ol,
+        .msg.ai strong,
+        .msg.ai code {
+            font-size: 13px;
+        }
         .msg.ai > div,
         .msg.ai > p {
             margin: 0;
@@ -5147,6 +5156,15 @@
                 width: 100%;
                 max-width: none;
                 align-self: stretch;
+                font-size: 13px;
+            }
+            .msg.ai p,
+            .msg.ai li,
+            .msg.ai ul,
+            .msg.ai ol,
+            .msg.ai strong,
+            .msg.ai code {
+                font-size: 13px;
             }
             .msg.user {
                 padding: 10px 12px;
@@ -7304,18 +7322,22 @@ function calculateUnifiedTax() {
         const wan = value / 10000;
         return Number.isInteger(wan) ? `${wan} 萬` : `${wan.toFixed(2)} 萬`;
     };
-    addBotMsg(
-        `🏠 房地合一稅2.0 試算結果\n` +
-        `1.成交價：${sellTenThousand} 萬\n` +
-        (feePct ? `1-1.仲介服務費：${feePct}%\n` : "") +
-        `2.取得成本：${acquireTenThousand} 萬\n` +
-        `3.房地合一稅：${ratePct}%\n` +
-        (canUseExempt ? `3-1.免稅額：400 萬\n` : "") +
-        `4.認列獲利：${toWan(taxable)}\n` +
-        `5.預估稅額：${toWan(tax)}\n` +
-        `6.稅後獲利：${toWan(afterTaxProfit)}` +
-        (canAddExemptBack ? ` +400萬 = ${toWan(afterTaxWithExempt)}` : "")
-    );
+    const lines = [
+        `1.成交價：${sellTenThousand} 萬`,
+        ...(feePct ? [`1-1.仲介服務費：${feePct}%`] : []),
+        `2.取得成本：${acquireTenThousand} 萬`,
+        `3.房地合一稅：${ratePct}%`,
+        ...(canUseExempt ? [`3-1.免稅額：400 萬`] : []),
+        `4.認列獲利：${toWan(taxable)}`,
+        `5.預估稅額：${toWan(tax)}`,
+        `6.稅後獲利：${toWan(afterTaxProfit)}${canAddExemptBack ? ` +400萬 = ${toWan(afterTaxWithExempt)}` : ""}`
+    ];
+    addBotMsgHTML(`
+        <div>
+            <p>🏠 房地合一稅2.0 試算結果</p>
+            <p>${lines.map((line) => escapeHtml(line)).join('<br>')}</p>
+        </div>
+    `);
     closePopups();
 }
 
