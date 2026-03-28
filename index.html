@@ -3788,6 +3788,13 @@
             font-size: 14px;
             line-height: 1.5;
         }
+        .msg-ai-reply,
+        .msg-ai-welcome,
+        .msg-ai-unified-tax,
+        .msg-user-text {
+            font-size: inherit;
+            line-height: inherit;
+        }
         .msg.ai > div,
         .msg.ai > p {
             margin: 0;
@@ -5544,7 +5551,7 @@
             </div>
         </div>
         <div class="chat-box" id="chatBox">
-            <div class="msg ai">你好，我是你的 AI 房產助理 👋
+            <div class="msg ai msg-ai-welcome">你好，我是你的 AI 房產助理 👋
 專門幫你快速搞懂 林口 / 龜山的房子值不值得買
 
 你可以直接跟我說👇
@@ -5583,14 +5590,14 @@
                             </svg>
                             <span class="composer-tool-label">房地產影音</span>
                         </button>
-                        <button type="button" class="composer-tool-btn" id="composerToolCalendar" aria-label="行事曆" title="行事曆">
+                        <button type="button" class="composer-tool-btn" id="composerToolCalendar" aria-label="AI點評物件（行事曆）" title="AI點評物件（行事曆）">
                             <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <path d="M8 3V6"></path>
-                                <path d="M16 3V6"></path>
-                                <path d="M4 10H20"></path>
-                                <rect x="4" y="5" width="16" height="15" rx="2"></rect>
+                                <path d="M4 7.5h6.5"></path>
+                                <path d="M4 16.5h6.5"></path>
+                                <path d="M13.25 6 20 18"></path>
+                                <path d="M20 6 13.25 18"></path>
                             </svg>
-                            <span class="composer-tool-label">行事曆</span>
+                            <span class="composer-tool-label">AI點評物件</span>
                         </button>
                     </div>
                     <div class="send-stack is-send" id="sendStack">
@@ -7297,7 +7304,9 @@ function calculateUnifiedTax() {
         `4.認列獲利：${toWan(taxable)}\n` +
         `5.預估稅額：${toWan(tax)}\n` +
         `6.稅後獲利：${toWan(afterTaxProfit)}` +
-        (canAddExemptBack ? ` +400萬 = ${toWan(afterTaxWithExempt)}` : "")
+        (canAddExemptBack ? ` +400萬 = ${toWan(afterTaxWithExempt)}` : ""),
+        null,
+        'msg-ai-unified-tax'
     );
     closePopups();
 }
@@ -7994,8 +8003,8 @@ async function startListingSearch(query, pendingQuery, baseInput, loadingId) {
     });
 }
 
-function addBotMsg(text, id = null) {
-    const d = document.createElement('div'); d.className = 'msg ai'; if(id) d.id = id;
+function addBotMsg(text, id = null, extraClass = 'msg-ai-reply') {
+    const d = document.createElement('div'); d.className = `msg ai ${extraClass}`.trim(); if(id) d.id = id;
     d.innerHTML = formatMarkdownTable(text);
     chatBox.appendChild(d); updateChatThumb();
 }
@@ -8006,18 +8015,18 @@ function createStreamingShell(container) {
         finalEl: container.querySelector('.stream-final')
     };
 }
-function addStreamingBotMsg(id = null) {
+function addStreamingBotMsg(id = null, extraClass = 'msg-ai-reply') {
     const d = document.createElement('div');
-    d.className = 'msg ai';
+    d.className = `msg ai ${extraClass}`.trim();
     if (id) d.id = id;
     createStreamingShell(d);
     chatBox.appendChild(d);
     updateChatThumb();
     return d;
 }
-function addBotMsgHTML(html) {
+function addBotMsgHTML(html, extraClass = '') {
     const d = document.createElement('div');
-    d.className = 'msg ai';
+    d.className = `msg ai ${extraClass}`.trim();
     if (String(html).includes('community-cards-row')) d.classList.add('community-msg');
     if (String(html).includes('fee-sheet')) d.classList.add('fee-msg');
     d.innerHTML = html;
@@ -8025,7 +8034,7 @@ function addBotMsgHTML(html) {
     revealChatElement(d, true);
 }
 async function streamChatResponse({ message, sessionId, attachmentData = null, attachmentMimeType = null, attachmentName = null, loadingId = null }) {
-    const targetEl = loadingId ? (document.getElementById(loadingId) || addStreamingBotMsg(loadingId)) : addStreamingBotMsg();
+    const targetEl = loadingId ? (document.getElementById(loadingId) || addStreamingBotMsg(loadingId, 'msg-ai-reply')) : addStreamingBotMsg(null, 'msg-ai-reply');
     const initialStatus = attachmentData ? "AI 正在分析附件..." : "AI 思考中...";
     const typingStatus = attachmentData ? "AI 已完成分析，正在輸入內容..." : "AI 正在輸入內容...";
     setStreamingStatus(targetEl, initialStatus);
@@ -8139,12 +8148,15 @@ async function streamChatResponse({ message, sessionId, attachmentData = null, a
                 attachmentName
             })
         });
-        if (!fallbackResponse.ok) {
+        let fallbackText = "";
+        try {
+            const fallbackData = await fallbackResponse.json();
+            fallbackText = String(fallbackData?.text || fallbackData?.error || "");
+        } catch (parseError) {}
+        if (!fallbackResponse.ok && !fallbackText) {
             if (loadingId) document.getElementById(loadingId)?.remove();
             throw error;
         }
-        const fallbackData = await fallbackResponse.json();
-        const fallbackText = String(fallbackData?.text || "");
         finalizeStreamingMessage(targetEl, fallbackText || "連線失敗");
         finalized = true;
         updateChatThumb();
@@ -11179,7 +11191,7 @@ function renderListings(data) {
     `;
 }
 function addUserMsg(text) {
-    const d = document.createElement('div'); d.className = 'msg user'; d.innerText = text;
+    const d = document.createElement('div'); d.className = 'msg user msg-user-text'; d.innerText = text;
     chatBox.appendChild(d); scrollChat(true);
 }
 function addUserMsgContent(text, attachment = null) {
