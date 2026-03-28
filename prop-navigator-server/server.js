@@ -1260,37 +1260,6 @@ app.get('/api/listings-stream', async (req, res) => {
     res.end();
 });
 
-async function logAvailableModels() {
-    if (!hasApiKey) {
-        console.warn("⚠️ GEMINI_API_KEY missing, skip listing models.");
-        return;
-    }
-    try {
-        const url = `https://generativelanguage.googleapis.com/v1beta/models?key=${process.env.GEMINI_API_KEY}`;
-        const resp = await fetch(url);
-        const data = await resp.json();
-        if (!resp.ok) {
-            console.error("❌ ListModels error:", {
-                status: resp.status,
-                statusText: resp.statusText,
-                body: data
-            });
-            return;
-        }
-        const models = data.models || [];
-        console.log("📚 Available models:");
-        models.forEach((m) => {
-            const methods = (m.supportedGenerationMethods || []).join(", ");
-            const label = methods ? `${m.name} [${methods}]` : m.name;
-            console.log(`- ${label}`);
-        });
-    } catch (error) {
-        console.error("❌ ListModels error:", error);
-    }
-}
-
-logAvailableModels();
-
 // --- 順序 4：API 路由開始 ---
 app.post('/api/listing-intent', async (req, res) => {
     try {
@@ -1430,9 +1399,12 @@ promptParts.push({ text: combinedText });
         const details = getErrorDetails(error);
         const status = details.status || 500;
         const isBusy = isRetryableGeminiError(error);
+        const busyText = inlineMimeType
+            ? "附件分析服務目前流量較高，請稍後再試一次。"
+            : "AI 服務目前流量較高，請稍後再試一次。";
         res.status(status).json({
             text: isBusy
-                ? "圖片分析服務目前流量較高，請稍後再試一次。"
+                ? busyText
                 : `分析失敗：${details.message || "未知錯誤"}`
         });
     }
