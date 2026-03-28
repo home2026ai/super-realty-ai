@@ -923,6 +923,9 @@
         html[data-bg="mist"] .listing-review-workspace .listing-review-dock {
             background: rgba(255,255,255,0.78);
         }
+        #listingReviewDock {
+            display: none !important;
+        }
         html[data-bg="mist"] .listing-review-dock {
             background: rgba(255,255,255,0.72);
         }
@@ -2881,9 +2884,13 @@
             mix-blend-mode: multiply;
             z-index: 60;
         }
-        .chat-card > :not(.ripple-wave):not(.chat-scroll-indicator) {
+        .chat-card > :not(.ripple-wave):not(.chat-scroll-indicator):not(.listing-review-workspace) {
             position: relative;
             z-index: 2;
+        }
+        .chat-card > .listing-review-workspace {
+            position: absolute;
+            z-index: 35;
         }
         .chat-card::before,
         .chat-card::after {
@@ -9925,14 +9932,12 @@ function renderListingReviewWorkspaceCards() {
 function renderListingReviewDock() {
     const dock = document.getElementById('listingReviewWorkspaceDock');
     const workspace = document.getElementById('listingReviewWorkspace');
-    const footer = document.querySelector('.chat-footer');
     if (!dock) return;
     const items = getListingReviewItems();
     if (!items.length) {
         listingReviewPanelOpen = false;
         dock.classList.remove('is-active');
         dock.innerHTML = '';
-        footer?.classList.remove('is-review-selection-mode');
         workspace?.classList.remove('is-active');
         return;
     }
@@ -9956,7 +9961,6 @@ function renderListingReviewDock() {
         `;
     }).join('');
     const isReady = items.length >= 2;
-    footer?.classList.remove('is-review-selection-mode');
     workspace?.classList.toggle('is-active', listingReviewPanelOpen);
     dock.classList.add('is-active');
     dock.innerHTML = `
@@ -10034,7 +10038,6 @@ function hideListingReviewWorkspaceOnly() {
     listingReviewPanelOpen = false;
     const workspace = document.getElementById('listingReviewWorkspace');
     workspace?.classList.remove('is-active');
-    document.querySelector('.chat-footer')?.classList.remove('is-review-selection-mode');
 }
 function buildMultiObjectReviewPrompt(items, detailDataList) {
     const sections = items.map((item, index) => {
