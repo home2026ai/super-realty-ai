@@ -5917,21 +5917,21 @@
             </div>
         </div>
         <div class="chat-box" id="chatBox">
-            <div class="msg ai msg-ai-welcome"><strong>你好，我是你的 AI 房產助理👋
+            <div class="msg ai msg-ai-welcome"><strong>你好，我是你的 AI 房產助理👋</strong> 
 <strong>專門幫你快速搞懂 林口 / 龜山的房子值不值得買</strong>
 
-<strong>你可以直接跟我說👇
-🏠 <strong>找房：例如「我要找龜山3房車2500萬」</strong>
+<strong>你可以直接跟我說👇</strong> 
+<strong>🏠找房：例如「我要找龜山3房車2500萬」</strong>
 
-<strong>其他功能表</strong>👇
+<strong>其他功能表👇</strong>
 💰 房貸試算（含寬限期）
 📈 投報率分析（租金 vs 房價）
 📊 社區行情 / 實價登錄
 🧾 交易流程 & 費用整理
 
-👉 <strong>我會幫你精準篩選，還可以直接幫你安排看房🏠
+👉 <strong>我會幫你精準篩選，還可以直接幫你安排看房🏠</strong> 
 
-<strong>試試看輸入一句話，我幫你找最接近的物件👇</div>
+<strong>試試看輸入一句話，我幫你找最接近的物件👇</strong> </div>
         </div>
         <div class="chat-footer">
             <div class="input-area">
@@ -7500,6 +7500,7 @@ function calculateNormalLoan() {
     
     closePopups();
     addBotMsg(`📊 **一般房貸試算結果**：\n貸款：${amt} 萬元\n總年限：${year}年${month}月\n年利率：${rate}%\n\n💰 每月應繳：**NT$ ${pay.toLocaleString()}** 元`);
+    scrollChat(true);
 }
 
 // 2. 寬限期試算
@@ -7528,6 +7529,7 @@ function calculateGraceLoan() {
 
     closePopups();
     addBotMsg(`💡 **寬限期房貸試算結果**：\n貸款金額：${amt} 萬元\n利率：${rate}%\n總期限：${tYear}年${tMonth}月\n寬限期：${pYear}年${pMonth}月\n\n💰 **第 1 ~ ${graceMonths} 個月 (寬限期內)**：\n每月僅需付息：**NT$ ${gracePay.toLocaleString()}** 元\n\n💰 **第 ${graceMonths + 1} 個月起 (寬限期後)**：\n每月本息攤還：**NT$ ${postGracePay.toLocaleString()}** 元`);
+    scrollChat(true);
 }
 
 function setRentMode(mode) {
@@ -7568,6 +7570,7 @@ function calculateRentYield() {
     closePopups();
     const totalPrice = price * 10000;
     addBotMsg(`📊 **租金投報率結果**\n房屋總價：${price} 萬元\n每月租金：NT$ ${monthly.toLocaleString()}\n乘以月份：${months}\n年租金：NT$ ${Math.round(annualRent).toLocaleString()}\n\n公式：${Math.round(annualRent).toLocaleString()} ÷ ${totalPrice.toLocaleString()} × 100%\n結果：${roi.toFixed(2)}%`);
+    scrollChat(true);
 }
 
 function calculateCashYield() {
@@ -7580,6 +7583,7 @@ function calculateCashYield() {
     closePopups();
     const totalPrice = price * 10000;
     addBotMsg(`📊 **現金投報率結果**\n投入現金總價：${price} 萬元\n每月租金：NT$ ${monthly.toLocaleString()}\n乘以月份：${months}\n年租金：NT$ ${Math.round(annualRent).toLocaleString()}\n\n公式：${Math.round(annualRent).toLocaleString()} ÷ ${totalPrice.toLocaleString()} × 100%\n結果：${roi.toFixed(2)}%`);
+    scrollChat(true);
 }
 
 ['rentYield', 'rentCash'].forEach((prefix) => {
@@ -7691,7 +7695,7 @@ function calculateUnifiedTax() {
         return Number.isInteger(wan) ? `${wan} 萬` : `${wan.toFixed(2)} 萬`;
     };
     addBotMsg(
-        `🏠 房地合一稅2.0 試算結果\n` +
+        `**🏠 房地合一稅2.0 試算結果**\n` +
         `1.成交價：${sellTenThousand} 萬\n` +
         (feePct ? `1-1.仲介服務費：${feePct}%\n` : "") +
         `2.取得成本：${acquireTenThousand} 萬\n` +
@@ -7705,6 +7709,7 @@ function calculateUnifiedTax() {
         'msg-ai-unified-tax'
     );
     closePopups();
+    scrollChat(true);
 }
 
 function calculateUnifiedTotalPrice() {
