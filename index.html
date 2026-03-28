@@ -9240,7 +9240,7 @@ const BG_THEMES = [
     }
 ];
 const DEFAULT_UI_SETTINGS = {
-    fontScale: 1.2,
+    fontScale: 1,
     bgTheme: "noir",
     fontScaleTouched: false
 };
@@ -9275,7 +9275,7 @@ function loadUiSettings() {
         const savedPercent = clampFontPercent((saved.fontScale || DEFAULT_UI_SETTINGS.fontScale) * 100);
         const fontScaleTouched = !!saved.fontScaleTouched;
         return {
-            fontScale: (!fontScaleTouched && savedPercent === 100 ? 120 : savedPercent) / 100,
+            fontScale: (!fontScaleTouched && savedPercent === 100 ? 100 : savedPercent) / 100,
             bgTheme,
             fontScaleTouched
         };
