@@ -661,14 +661,16 @@
             padding: 14px 14px 12px;
             border-radius: 24px;
             background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.12);
-            backdrop-filter: blur(18px);
-            box-shadow: 0 10px 24px rgba(0,0,0,0.18);
-            min-height: 164px;
+            border: none;
+            backdrop-filter: none;
+            box-shadow: none;
+            height: 240px;
+            overflow: hidden;
         }
         .listing-review-dock.is-active {
             display: grid;
             gap: 10px;
+            grid-template-rows: auto minmax(0, 1fr) auto auto;
         }
         .listing-review-dock-head {
             display: flex;
@@ -688,9 +690,25 @@
         .listing-review-picks {
             display: grid;
             gap: 8px;
-            max-height: 158px;
+            max-height: none;
             overflow-y: auto;
             padding-right: 2px;
+            min-height: 0;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255,255,255,0.42) transparent;
+        }
+        .listing-review-picks::-webkit-scrollbar {
+            width: 6px;
+        }
+        .listing-review-picks::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .listing-review-picks::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.38);
+            border-radius: 999px;
+        }
+        .listing-review-picks::-webkit-scrollbar-thumb:hover {
+            background: rgba(255,255,255,0.5);
         }
         .listing-review-pick {
             display: grid;
@@ -733,6 +751,9 @@
             font-size: 15px;
             font-weight: 900;
             cursor: pointer;
+            box-shadow: none;
+            transform: none;
+            transition: background 0.2s ease, color 0.2s ease, opacity 0.2s ease;
         }
         .listing-review-start:disabled {
             background: rgba(255,255,255,0.12);
@@ -753,11 +774,39 @@
             font-size: 14px;
             font-weight: 800;
             cursor: pointer;
+            box-shadow: none;
+            transform: none;
+            transition: background 0.2s ease, color 0.2s ease, opacity 0.2s ease;
+        }
+        .listing-review-start:hover,
+        .listing-review-start:active,
+        .listing-review-start:focus-visible,
+        .listing-review-secondary:hover,
+        .listing-review-secondary:active,
+        .listing-review-secondary:focus-visible {
+            box-shadow: none;
+            outline: none;
+            transform: none;
+        }
+        .listing-review-toast {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            min-height: 32px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.12);
+            color: var(--main-text);
+            font-size: 12px;
+            font-weight: 700;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        .listing-review-toast.is-visible {
+            display: flex;
+            opacity: 1;
         }
         html[data-bg="mist"] .listing-review-dock {
-            background: linear-gradient(180deg, rgba(255,255,255,0.66) 0%, rgba(231,214,196,0.68) 100%);
-            border-color: rgba(126, 102, 78, 0.14);
-            box-shadow: 0 10px 24px rgba(145, 123, 98, 0.12);
+            background: rgba(255,255,255,0.72);
         }
         html[data-bg="mist"] .listing-review-pick {
             background: rgba(255,255,255,0.58);
@@ -769,6 +818,19 @@
         html[data-bg="mist"] .listing-review-secondary {
             background: rgba(255,255,255,0.54);
             border-color: rgba(126, 102, 78, 0.16);
+            color: #2f251d;
+        }
+        html[data-bg="mist"] .listing-review-picks {
+            scrollbar-color: rgba(126, 102, 78, 0.42) transparent;
+        }
+        html[data-bg="mist"] .listing-review-picks::-webkit-scrollbar-thumb {
+            background: rgba(126, 102, 78, 0.38);
+        }
+        html[data-bg="mist"] .listing-review-picks::-webkit-scrollbar-thumb:hover {
+            background: rgba(126, 102, 78, 0.52);
+        }
+        html[data-bg="mist"] .listing-review-toast {
+            background: rgba(255,255,255,0.58);
             color: #2f251d;
         }
         .detail-overlay {
@@ -6687,6 +6749,7 @@
     let reviewSelectedSn = "";
     let listingReviewSelectedSns = [];
     let listingReviewPanelOpen = false;
+    let listingReviewToastTimer = null;
     let reviewDragActive = false;
     let reviewDragStartY = 0;
     let reviewDragCurrentY = 0;
@@ -9735,6 +9798,7 @@ function renderListingReviewDock() {
             <button type="button" class="listing-review-secondary" id="listingReviewAddBrowseBtn">全部加入瀏覽</button>
             <button type="button" class="listing-review-secondary" id="listingReviewEndBtn">AI點評結束</button>
         </div>
+        <div class="listing-review-toast" id="listingReviewToast">已加入瀏覽</div>
     `;
 }
 function syncListingReviewButtons() {
@@ -9774,6 +9838,17 @@ function addSelectedReviewsToBrowseList() {
         if (sn) addToBrowseList(sn);
     });
     updateBrowseIndicator(getBrowseList().length);
+    showListingReviewToast('已加入瀏覽');
+}
+function showListingReviewToast(message) {
+    const toast = document.getElementById('listingReviewToast');
+    if (!toast) return;
+    toast.textContent = message;
+    toast.classList.add('is-visible');
+    if (listingReviewToastTimer) clearTimeout(listingReviewToastTimer);
+    listingReviewToastTimer = setTimeout(() => {
+        toast.classList.remove('is-visible');
+    }, 1500);
 }
 function endListingReviewSelection() {
     listingReviewSelectedSns = [];
