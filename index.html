@@ -4080,10 +4080,21 @@
         #composerToolMedia svg {
             color: #e3bf68;
         }
+        #composerToolCalendar,
+        #composerToolCalendar .composer-tool-label,
+        #composerToolCalendar svg {
+            color: #e3bf68;
+        }
         #composerToolMedia:hover,
         #composerToolMedia:active,
         #composerToolMedia:focus-visible,
         #composerToolMedia.is-pressed {
+            color: #e3bf68;
+        }
+        #composerToolCalendar:hover,
+        #composerToolCalendar:active,
+        #composerToolCalendar:focus-visible,
+        #composerToolCalendar.is-pressed {
             color: #e3bf68;
         }
         html[data-bg="mist"] #composerToolMedia,
@@ -4091,10 +4102,21 @@
         html[data-bg="mist"] #composerToolMedia svg {
             color: #c8741f;
         }
+        html[data-bg="mist"] #composerToolCalendar,
+        html[data-bg="mist"] #composerToolCalendar .composer-tool-label,
+        html[data-bg="mist"] #composerToolCalendar svg {
+            color: #c8741f;
+        }
         html[data-bg="mist"] #composerToolMedia:hover,
         html[data-bg="mist"] #composerToolMedia:active,
         html[data-bg="mist"] #composerToolMedia:focus-visible,
         html[data-bg="mist"] #composerToolMedia.is-pressed {
+            color: #c8741f;
+        }
+        html[data-bg="mist"] #composerToolCalendar:hover,
+        html[data-bg="mist"] #composerToolCalendar:active,
+        html[data-bg="mist"] #composerToolCalendar:focus-visible,
+        html[data-bg="mist"] #composerToolCalendar.is-pressed {
             color: #c8741f;
         }
         .calendar-overlay {
@@ -5303,6 +5325,36 @@
                 font-size: 10px;
                 padding: 0 6px;
             }
+
+            .composer-shell {
+                column-gap: 8px;
+                padding: 12px 8px 10px 12px;
+            }
+
+            .composer-tools {
+                gap: 5px;
+                flex-wrap: nowrap;
+                min-width: 0;
+            }
+
+            .composer-tool-btn {
+                min-width: 0;
+                gap: 4px;
+                padding: 0 1px;
+            }
+
+            .composer-tool-label {
+                font-size: 10px;
+                letter-spacing: -0.01em;
+            }
+
+            #composerToolCalendar .composer-tool-label {
+                letter-spacing: -0.03em;
+            }
+
+            .send-stack {
+                --btn-size: 40px;
+            }
         }
     </style>
 </head>
@@ -5592,10 +5644,9 @@
                         </button>
                         <button type="button" class="composer-tool-btn" id="composerToolCalendar" aria-label="AI點評物件（行事曆）" title="AI點評物件（行事曆）">
                             <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <path d="M4 7.5h6.5"></path>
-                                <path d="M4 16.5h6.5"></path>
-                                <path d="M13.25 6 20 18"></path>
-                                <path d="M20 6 13.25 18"></path>
+                                <path d="M4.5 6 7.4 18 10.3 6"></path>
+                                <path d="M19.3 7.4c-.78-.93-1.95-1.4-3.18-1.4-1.56 0-2.82.89-2.82 2.13 0 3.18 6.2 1.62 6.2 5.52 0 2.2-1.99 3.35-4.2 3.35-1.44 0-2.81-.5-3.82-1.55"></path>
+                                <circle cx="21.2" cy="17.5" r="0.9" fill="currentColor" stroke="none"></circle>
                             </svg>
                             <span class="composer-tool-label">AI點評物件</span>
                         </button>
