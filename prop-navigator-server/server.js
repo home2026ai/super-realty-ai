@@ -1396,8 +1396,7 @@ promptParts.push({ text: combinedText });
             ]
             : [
                 "gemini-2.5-flash",
-                "gemini-2.0-flash",
-                "gemini-1.5-flash"
+                "gemini-2.0-flash"
             ];
 
         let usedModel = null;
@@ -1488,8 +1487,7 @@ app.post('/api/chat-stream', async (req, res) => {
             ]
             : [
                 "gemini-2.5-flash",
-                "gemini-2.0-flash",
-                "gemini-1.5-flash"
+                "gemini-2.0-flash"
             ];
 
         let usedModel = null;
