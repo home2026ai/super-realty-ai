@@ -5477,6 +5477,7 @@
         </div>
         <div class="chat-box" id="chatBox">
             <div class="msg ai"><strong>你好，我是你的 AI 房產助理 👋
+
 專門幫你快速搞懂 林口 / 龜山的房子值不值得買
 
 你可以直接跟我說👇
@@ -7929,7 +7930,7 @@ async function startListingSearch(query, pendingQuery, baseInput, loadingId) {
 function addBotMsg(text, id = null) {
     const d = document.createElement('div'); d.className = 'msg ai'; if(id) d.id = id;
     d.innerHTML = formatMarkdownTable(text);
-    chatBox.appendChild(d); scrollChat(false);
+    chatBox.appendChild(d); updateChatThumb();
 }
 function addStreamingBotMsg(id = null) {
     const d = document.createElement('div');
@@ -7937,7 +7938,7 @@ function addStreamingBotMsg(id = null) {
     if (id) d.id = id;
     d.textContent = '';
     chatBox.appendChild(d);
-    scrollChat(false);
+    updateChatThumb();
     return d;
 }
 function addBotMsgHTML(html) {
@@ -7946,15 +7947,14 @@ function addBotMsgHTML(html) {
     if (String(html).includes('community-cards-row')) d.classList.add('community-msg');
     if (String(html).includes('fee-sheet')) d.classList.add('fee-msg');
     d.innerHTML = html;
-    chatBox.appendChild(d); scrollChat(false);
+    chatBox.appendChild(d); updateChatThumb();
 }
 async function streamChatResponse({ message, sessionId, attachmentData = null, attachmentMimeType = null, attachmentName = null, loadingId = null }) {
     const targetEl = loadingId ? (document.getElementById(loadingId) || addStreamingBotMsg(loadingId)) : addStreamingBotMsg();
     targetEl.textContent = attachmentData ? "AI 正在分析附件..." : "AI 思考中...";
     let accumulated = "";
     let firstChunkArrived = false;
-    const shouldFollowOnStart = isNearChatBottom(48);
-    if (shouldFollowOnStart) chatAutoFollow = true;
+    chatAutoFollow = false;
     try {
         const response = await fetch(`${API_BASE}/api/chat-stream`, {
             method: 'POST',
@@ -7996,11 +7996,11 @@ async function streamChatResponse({ message, sessionId, attachmentData = null, a
                     accumulated += payload.text;
                 }
                 targetEl.textContent = accumulated;
-                scrollChat(false);
+                updateChatThumb();
             } else if (eventName === 'done') {
                 const finalText = typeof payload.text === 'string' ? payload.text : accumulated;
                 targetEl.innerHTML = formatMarkdownTable(finalText);
-                scrollChat(false);
+                updateChatThumb();
             } else if (eventName === 'error') {
                 throw new Error(payload.error || "chat-stream failed");
             }
@@ -8021,7 +8021,7 @@ async function streamChatResponse({ message, sessionId, attachmentData = null, a
         if (accumulated && targetEl.textContent === accumulated) {
             targetEl.innerHTML = formatMarkdownTable(accumulated);
         }
-        scrollChat(false);
+        updateChatThumb();
     } catch (error) {
         const fallbackResponse = await fetch(`${API_BASE}/api/chat`, {
             method: 'POST',
@@ -8041,7 +8041,7 @@ async function streamChatResponse({ message, sessionId, attachmentData = null, a
         const fallbackData = await fallbackResponse.json();
         const fallbackText = String(fallbackData?.text || "");
         targetEl.innerHTML = formatMarkdownTable(fallbackText || "連線失敗");
-        scrollChat(false);
+        updateChatThumb();
     }
 }
 function renderFeeSheet({ emoji = "", title = "", subtitle = "", items = [] }) {
