@@ -696,6 +696,9 @@
             min-height: 0;
             scrollbar-width: thin;
             scrollbar-color: rgba(255,255,255,0.42) transparent;
+            overscroll-behavior: contain;
+            -webkit-overflow-scrolling: touch;
+            touch-action: pan-y;
         }
         .listing-review-picks::-webkit-scrollbar {
             width: 6px;
@@ -827,14 +830,15 @@
             inset: 0;
             z-index: 35;
             display: none;
-            flex-direction: column;
+            grid-template-rows: minmax(0, 7fr) minmax(0, 3fr);
             background: var(--app-surface);
+            overflow: hidden;
+            overscroll-behavior: none;
         }
         .listing-review-workspace.is-active {
-            display: flex;
+            display: grid;
         }
         .listing-review-stage {
-            flex: 0 0 70%;
             min-height: 0;
             display: flex;
             flex-direction: column;
@@ -874,6 +878,9 @@
             scroll-snap-type: x mandatory;
             scroll-padding-left: max(18px, calc(50% - 144px));
             scroll-padding-right: max(18px, calc(50% - 144px));
+            overscroll-behavior-x: contain;
+            overscroll-behavior-y: none;
+            touch-action: pan-x;
         }
         .listing-review-stage-row::-webkit-scrollbar {
             width: 0;
@@ -901,7 +908,6 @@
         }
         .listing-review-workspace .listing-review-dock {
             display: grid;
-            flex: 1 1 30%;
             min-height: 0;
             margin: 0;
             padding: 14px 16px calc(var(--safe-bottom) + 14px);
@@ -909,6 +915,7 @@
             background: rgba(255,255,255,0.1);
             height: auto;
             grid-template-rows: auto minmax(0, 1fr) auto auto;
+            overflow: hidden;
         }
         html[data-bg="mist"] .listing-review-workspace {
             background: #f6efe8;
