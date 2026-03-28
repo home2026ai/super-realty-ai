@@ -3789,9 +3789,12 @@
             line-height: 1.5;
         }
         .msg-ai-reply,
-        .msg-ai-welcome,
-        .msg-ai-unified-tax,
         .msg-user-text {
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .msg-ai-welcome,
+        .msg-ai-unified-tax {
             font-size: inherit;
             line-height: inherit;
         }
@@ -4016,7 +4019,7 @@
             outline: none;
             background: transparent;
             color: var(--main-text);
-            font-size: 16px;
+            font-size: 14px;
             backdrop-filter: none;
             -webkit-backdrop-filter: none;
             box-shadow: none;
@@ -6073,7 +6076,7 @@
             </div>
             <div class="input-group">
                 <label>仲介服務費 (%)</label>
-                <input type="number" id="unifiedBrokerFee" class="style-input" placeholder="例: 2" min="0" max="100" step="0.1">
+                <input type="number" id="unifiedBrokerFee" class="style-input" placeholder="例: 4" min="0" max="100" step="0.1">
             </div>
             <div class="calc-note" id="unifiedTaxResult">預估稅額：約 NT$ --</div>
             <button class="int-btn ripple-btn send-action" style="background:var(--ai-purple); color:white; border:none;" onclick="calculateUnifiedTax()">開始試算</button>
@@ -9237,7 +9240,7 @@ const BG_THEMES = [
     }
 ];
 const DEFAULT_UI_SETTINGS = {
-    fontScale: 1.1,
+    fontScale: 1.2,
     bgTheme: "noir",
     fontScaleTouched: false
 };
@@ -9272,7 +9275,7 @@ function loadUiSettings() {
         const savedPercent = clampFontPercent((saved.fontScale || DEFAULT_UI_SETTINGS.fontScale) * 100);
         const fontScaleTouched = !!saved.fontScaleTouched;
         return {
-            fontScale: (!fontScaleTouched && savedPercent === 100 ? 110 : savedPercent) / 100,
+            fontScale: (!fontScaleTouched && savedPercent === 100 ? 120 : savedPercent) / 100,
             bgTheme,
             fontScaleTouched
         };
