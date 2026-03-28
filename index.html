@@ -657,13 +657,14 @@
         }
         .listing-review-dock {
             display: none;
-            margin: 0 20px;
-            padding: 12px;
-            border-radius: 20px;
+            margin: 12px 20px 0;
+            padding: 14px 14px 12px;
+            border-radius: 24px;
             background: rgba(255,255,255,0.1);
             border: 1px solid rgba(255,255,255,0.12);
             backdrop-filter: blur(18px);
             box-shadow: 0 10px 24px rgba(0,0,0,0.18);
+            min-height: 164px;
         }
         .listing-review-dock.is-active {
             display: grid;
@@ -687,7 +688,7 @@
         .listing-review-picks {
             display: grid;
             gap: 8px;
-            max-height: 160px;
+            max-height: 158px;
             overflow-y: auto;
             padding-right: 2px;
         }
@@ -724,7 +725,6 @@
             padding: 0;
         }
         .listing-review-start {
-            width: 100%;
             min-height: 44px;
             border-radius: 14px;
             border: none;
@@ -739,6 +739,21 @@
             color: rgba(255,255,255,0.42);
             cursor: default;
         }
+        .listing-review-actions {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 8px;
+        }
+        .listing-review-secondary {
+            min-height: 44px;
+            border-radius: 14px;
+            border: 1px solid rgba(255,255,255,0.14);
+            background: rgba(255,255,255,0.08);
+            color: var(--main-text);
+            font-size: 14px;
+            font-weight: 800;
+            cursor: pointer;
+        }
         html[data-bg="mist"] .listing-review-dock {
             background: linear-gradient(180deg, rgba(255,255,255,0.66) 0%, rgba(231,214,196,0.68) 100%);
             border-color: rgba(126, 102, 78, 0.14);
@@ -750,6 +765,11 @@
         html[data-bg="mist"] .listing-review-start:disabled {
             background: rgba(145,123,98,0.14);
             color: rgba(62,48,36,0.42);
+        }
+        html[data-bg="mist"] .listing-review-secondary {
+            background: rgba(255,255,255,0.54);
+            border-color: rgba(126, 102, 78, 0.16);
+            color: #2f251d;
         }
         .detail-overlay {
             position: absolute;
@@ -4046,6 +4066,7 @@
         }
 
         .chat-footer { position: absolute; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; gap: 6px; padding-bottom: 12px; --input-offset: 0px; background: var(--app-surface); }
+        .chat-footer.is-review-selection-mode .input-area { display: none; }
         .input-area { padding: 12px 20px 0; margin-top: 0; display: flex; align-items: flex-end; transform: translateY(var(--input-offset)); background: transparent; }
         .composer-shell {
             width: 100%;
@@ -6665,6 +6686,7 @@
     let browseSelectedSns = [];
     let reviewSelectedSn = "";
     let listingReviewSelectedSns = [];
+    let listingReviewPanelOpen = false;
     let reviewDragActive = false;
     let reviewDragStartY = 0;
     let reviewDragCurrentY = 0;
@@ -9670,11 +9692,14 @@ function getListingReviewItems() {
 }
 function renderListingReviewDock() {
     const dock = document.getElementById('listingReviewDock');
+    const footer = document.querySelector('.chat-footer');
     if (!dock) return;
     const items = getListingReviewItems();
     if (!items.length) {
+        listingReviewPanelOpen = false;
         dock.classList.remove('is-active');
         dock.innerHTML = '';
+        footer?.classList.remove('is-review-selection-mode');
         return;
     }
     const picks = items.map((item) => {
@@ -9697,14 +9722,19 @@ function renderListingReviewDock() {
         `;
     }).join('');
     const isReady = items.length >= 2;
-    dock.classList.add('is-active');
+    footer?.classList.toggle('is-review-selection-mode', listingReviewPanelOpen);
+    dock.classList.toggle('is-active', listingReviewPanelOpen);
     dock.innerHTML = `
         <div class="listing-review-dock-head">
             <div class="listing-review-dock-title">AI點評已選物件</div>
             <div class="listing-review-dock-note">${isReady ? `已選 ${items.length} 筆，可開始 AI 點評` : '至少選 2 個物件才可開始 AI 點評'}</div>
         </div>
         <div class="listing-review-picks">${picks}</div>
-        <button type="button" class="listing-review-start" id="listingReviewStartBtn" ${isReady ? '' : 'disabled'}>開始AI點評</button>
+        <div class="listing-review-actions">
+            <button type="button" class="listing-review-start" id="listingReviewStartBtn" ${isReady ? '' : 'disabled'}>開始AI點評</button>
+            <button type="button" class="listing-review-secondary" id="listingReviewAddBrowseBtn">全部加入瀏覽</button>
+            <button type="button" class="listing-review-secondary" id="listingReviewEndBtn">AI點評結束</button>
+        </div>
     `;
 }
 function syncListingReviewButtons() {
@@ -9726,6 +9756,7 @@ function toggleListingReviewSelection(sn) {
         listingReviewSelectedSns = listingReviewSelectedSns.filter((itemSn) => itemSn !== key);
     } else {
         listingReviewSelectedSns = [...listingReviewSelectedSns, key];
+        listingReviewPanelOpen = true;
     }
     updateListingReviewUI();
 }
@@ -9733,6 +9764,20 @@ function removeListingReviewSelection(sn) {
     const key = String(sn || '').trim();
     if (!key) return;
     listingReviewSelectedSns = listingReviewSelectedSns.filter((itemSn) => itemSn !== key);
+    updateListingReviewUI();
+}
+function addSelectedReviewsToBrowseList() {
+    const items = getListingReviewItems();
+    if (!items.length) return;
+    items.forEach((item) => {
+        const sn = String(item.sn || item.id || '').trim();
+        if (sn) addToBrowseList(sn);
+    });
+    updateBrowseIndicator(getBrowseList().length);
+}
+function endListingReviewSelection() {
+    listingReviewSelectedSns = [];
+    listingReviewPanelOpen = false;
     updateListingReviewUI();
 }
 function buildMultiObjectReviewPrompt(items, detailDataList) {
@@ -11734,6 +11779,14 @@ document.addEventListener('click', (e) => {
     if (reviewStartBtn) {
         if (reviewStartBtn.hasAttribute('disabled')) return;
         submitListingReviewSelection();
+        return;
+    }
+    if (e.target.closest('#listingReviewAddBrowseBtn')) {
+        addSelectedReviewsToBrowseList();
+        return;
+    }
+    if (e.target.closest('#listingReviewEndBtn')) {
+        endListingReviewSelection();
         return;
     }
     const detailBtn = e.target.closest('.detail-open-btn');
