@@ -1889,14 +1889,14 @@
             }
 
             .chat-box {
-                padding: 10px 12px 154px;
+                padding: 10px 10px 154px;
                 gap: 10px;
             }
 
             .msg {
-                max-width: 86%;
-                font-size: 14px;
-                line-height: 1.5;
+                max-width: 92%;
+                font-size: 13px;
+                line-height: 1.64;
                 padding: 10px 12px;
             }
 
@@ -2421,7 +2421,7 @@
             transition: padding 0.25s ease;
         }
         .chat-card.menu-shift .msg {
-            max-width: 92%;
+            max-width: 96%;
         }
         .chat-card {
             --g1: radial-gradient(80% 60% at 15% 20%, rgba(255, 180, 220, 0.35), transparent 70%);
@@ -2718,7 +2718,7 @@
             box-shadow: none;
             animation: none;
         }
-        .chat-box { --chat-side-pad: 20px; flex: 1; padding: 20px 20px 160px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; scrollbar-width: none; }
+        .chat-box { --chat-side-pad: 16px; flex: 1; padding: 20px 16px 160px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; scrollbar-width: none; }
         .chat-box::-webkit-scrollbar { width: 0; height: 0; }
         .chat-card.is-media-mode .chat-box,
         .chat-card.is-media-mode .chat-footer,
@@ -3773,13 +3773,18 @@
             background: linear-gradient(180deg, rgba(255, 255, 255, 1) 0%, rgba(235, 245, 255, 0.8) 100%);
             box-shadow: 0 10px 24px rgba(255, 255, 255, 0.45);
         }
-        .msg { max-width: 92%; font-size: 14px; line-height: 1.62; white-space: normal; word-break: break-word; overflow-wrap: anywhere; }
+        .msg { max-width: 96%; font-size: 13px; line-height: 1.68; white-space: normal; word-break: break-word; overflow-wrap: anywhere; }
         .ai { align-self: flex-start; background: transparent; color: var(--main-text); }
         .msg.ai {
             display: flex;
             flex-direction: column;
             gap: 10px;
             letter-spacing: 0.01em;
+            max-width: 96%;
+            font-size: 13px;
+            line-height: 1.72;
+            width: 100%;
+            align-self: stretch;
         }
         .msg.ai > div,
         .msg.ai > p {
@@ -4931,8 +4936,8 @@
             }
 
             .chat-box {
-                --chat-side-pad: 12px;
-                padding: 10px 12px 118px;
+                --chat-side-pad: 10px;
+                padding: 10px 10px 118px;
                 gap: 10px;
             }
 
@@ -5122,9 +5127,14 @@
             }
 
             .msg {
-                max-width: min(86%, 320px);
-                font-size: 14px;
-                line-height: 1.5;
+                max-width: min(92%, 360px);
+                font-size: 13px;
+                line-height: 1.64;
+            }
+            .msg.ai {
+                width: 100%;
+                max-width: none;
+                align-self: stretch;
             }
             .msg.user {
                 padding: 10px 12px;
@@ -8014,11 +8024,14 @@ function addBotMsgHTML(html) {
     if (String(html).includes('community-cards-row')) d.classList.add('community-msg');
     if (String(html).includes('fee-sheet')) d.classList.add('fee-msg');
     d.innerHTML = html;
-    chatBox.appendChild(d); updateChatThumb();
+    chatBox.appendChild(d);
+    revealChatElement(d, true);
 }
 async function streamChatResponse({ message, sessionId, attachmentData = null, attachmentMimeType = null, attachmentName = null, loadingId = null }) {
     const targetEl = loadingId ? (document.getElementById(loadingId) || addStreamingBotMsg(loadingId)) : addStreamingBotMsg();
-    setStreamingStatus(targetEl, attachmentData ? "AI 正在分析附件..." : "AI 思考中...");
+    const initialStatus = attachmentData ? "AI 正在分析附件..." : "AI 思考中...";
+    const typingStatus = attachmentData ? "AI 已完成分析，正在輸入內容..." : "AI 正在輸入內容...";
+    setStreamingStatus(targetEl, initialStatus);
     let accumulated = "";
     chatAutoFollow = false;
     let lastRenderedText = "";
@@ -8026,11 +8039,11 @@ async function streamChatResponse({ message, sessionId, attachmentData = null, a
     let finalized = false;
 
     const flushPreview = (force = false) => {
-        const nextText = accumulated.trim() ? accumulated : (attachmentData ? "AI 正在分析附件..." : "AI 思考中...");
+        const nextText = accumulated.trim() ? accumulated : initialStatus;
         if (!force && nextText === lastRenderedText) return;
         lastRenderedText = nextText;
         setStreamingPreview(targetEl, nextText);
-        scrollChat();
+        updateChatThumb();
     };
 
     const schedulePreviewRender = () => {
@@ -8072,7 +8085,15 @@ async function streamChatResponse({ message, sessionId, attachmentData = null, a
             if (!dataText) return;
             let payload = null;
             try { payload = JSON.parse(dataText); } catch (e) { return; }
-            if (eventName === 'chunk' && typeof payload.text === 'string') {
+            if (eventName === 'start') {
+                if (payload && payload.phase === 'streaming' && !accumulated.trim()) {
+                    setStreamingStatus(targetEl, typingStatus);
+                    updateChatThumb();
+                } else if (payload && payload.phase === 'connecting' && !accumulated.trim()) {
+                    setStreamingStatus(targetEl, initialStatus);
+                    updateChatThumb();
+                }
+            } else if (eventName === 'chunk' && typeof payload.text === 'string') {
                 if (payload.text.startsWith(accumulated)) {
                     accumulated = payload.text;
                 } else {
@@ -8084,7 +8105,7 @@ async function streamChatResponse({ message, sessionId, attachmentData = null, a
                 flushPreview(true);
                 finalizeStreamingMessage(targetEl, finalText);
                 finalized = true;
-                scrollChat();
+                updateChatThumb();
             } else if (eventName === 'error') {
                 throw new Error(payload.error || "chat-stream failed");
             }
@@ -8108,7 +8129,7 @@ async function streamChatResponse({ message, sessionId, attachmentData = null, a
         if (accumulated && !finalized) {
             finalizeStreamingMessage(targetEl, accumulated);
         }
-        scrollChat();
+        updateChatThumb();
     } catch (error) {
         const fallbackResponse = await fetch(`${API_BASE}/api/chat`, {
             method: 'POST',
@@ -8129,7 +8150,7 @@ async function streamChatResponse({ message, sessionId, attachmentData = null, a
         const fallbackText = String(fallbackData?.text || "");
         finalizeStreamingMessage(targetEl, fallbackText || "連線失敗");
         finalized = true;
-        scrollChat();
+        updateChatThumb();
     }
 }
 function renderFeeSheet({ emoji = "", title = "", subtitle = "", items = [] }) {
@@ -11403,6 +11424,33 @@ function scrollChat(force = false) {
     chatBox.scrollTop = chatBox.scrollHeight;
     chatAutoFollow = true;
     updateChatThumb();
+}
+
+function revealChatElement(element, smooth = false, margin = 18) {
+    if (!chatBox || !element) {
+        updateChatThumb();
+        return;
+    }
+    requestAnimationFrame(() => {
+        const currentTop = chatBox.scrollTop;
+        const viewTop = currentTop;
+        const viewBottom = currentTop + chatBox.clientHeight;
+        const targetTop = Math.max(0, element.offsetTop - margin);
+        const targetBottom = element.offsetTop + element.offsetHeight + margin;
+
+        if (targetTop >= viewTop && targetBottom <= viewBottom) {
+            updateChatThumb();
+            return;
+        }
+
+        const nextTop = Math.max(0, Math.min(targetTop, chatBox.scrollHeight - chatBox.clientHeight));
+        chatBox.scrollTo({
+            top: nextTop,
+            behavior: smooth ? 'smooth' : 'auto'
+        });
+        chatAutoFollow = true;
+        updateChatThumb();
+    });
 }
 // --- 圖片讀取與轉換 ---
 
