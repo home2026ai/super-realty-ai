@@ -3777,7 +3777,7 @@
             background: linear-gradient(180deg, rgba(255, 255, 255, 1) 0%, rgba(235, 245, 255, 0.8) 100%);
             box-shadow: 0 10px 24px rgba(255, 255, 255, 0.45);
         }
-        .msg { max-width: 96%; font-size: 13px; line-height: 1.68; white-space: normal; word-break: break-word; overflow-wrap: anywhere; }
+        .msg { max-width: 96%; font-size: 14px; line-height: 1.72; white-space: normal; word-break: break-word; overflow-wrap: anywhere; }
         .ai { align-self: flex-start; background: transparent; color: var(--main-text); }
         .msg.ai {
             display: flex;
@@ -3785,7 +3785,7 @@
             gap: 10px;
             letter-spacing: 0.01em;
             max-width: 96%;
-            font-size: 13px;
+            font-size: 14px;
             line-height: 1.72;
             width: 100%;
             align-self: stretch;
@@ -3797,7 +3797,7 @@
         .msg.ai ol,
         .msg.ai strong,
         .msg.ai code {
-            font-size: 13px;
+            font-size: 14px;
         }
         .msg.ai > div,
         .msg.ai > p {
@@ -3851,7 +3851,7 @@
             white-space: pre-wrap;
             word-break: break-word;
             overflow-wrap: anywhere;
-            font-size: 13px;
+            font-size: 14px;
             line-height: 1.6;
         }
         .msg.ai .stream-preview ul,
@@ -3885,7 +3885,7 @@
             line-height: 1.65;
         }
         .ai table, .ai th, .ai td { color: var(--main-text); }
-        .user { align-self: flex-end; padding: 10px 14px; border-radius: 18px; background: var(--ai-purple); color: white; font-size: 13px; line-height: 1.68; }
+        .user { align-self: flex-end; padding: 10px 14px; border-radius: 18px; background: var(--ai-purple); color: white; font-size: 14px; line-height: 1.72; }
         .listing-msg {
             color: var(--main-text);
         }
@@ -5149,14 +5149,14 @@
 
             .msg {
                 max-width: min(92%, 360px);
-                font-size: 13px;
-                line-height: 1.64;
+                font-size: 14px;
+                line-height: 1.7;
             }
             .msg.ai {
                 width: 100%;
                 max-width: none;
                 align-self: stretch;
-                font-size: 13px;
+                font-size: 14px;
             }
             .msg.ai p,
             .msg.ai li,
@@ -5164,12 +5164,12 @@
             .msg.ai ol,
             .msg.ai strong,
             .msg.ai code {
-                font-size: 13px;
+                font-size: 14px;
             }
             .msg.user {
                 padding: 10px 12px;
-                font-size: 13px;
-                line-height: 1.64;
+                font-size: 14px;
+                line-height: 1.7;
             }
             .msg.listing-msg {
                 width: calc(100% + (var(--chat-side-pad, 12px) * 2));
@@ -7335,7 +7335,7 @@ function calculateUnifiedTax() {
     addBotMsgHTML(`
         <div>
             <p>🏠 房地合一稅2.0 試算結果</p>
-            <p>${lines.map((line) => escapeHtml(line)).join('<br>')}</p>
+            <div>${lines.map((line) => `<div>${escapeHtml(line)}</div>`).join('')}</div>
         </div>
     `);
     closePopups();
