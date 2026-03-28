@@ -595,6 +595,7 @@
             font-size: 12px;
             margin-top: 4px;
             display: grid;
+            gap: 8px;
         }
         .listing-card .listing-link .detail-open-btn {
             width: 100%;
@@ -612,6 +613,143 @@
         .listing-card .listing-link .detail-open-btn:focus-visible {
             box-shadow: none;
             outline: none;
+        }
+        .listing-card .listing-ai-toggle {
+            width: 100%;
+            min-height: 42px;
+            border-radius: 12px;
+            border: 1px solid rgba(31, 31, 31, 0.12);
+            background: #fff;
+            color: #272727;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .listing-card .listing-ai-toggle:hover,
+        .listing-card .listing-ai-toggle:active,
+        .listing-card .listing-ai-toggle:focus-visible {
+            box-shadow: none;
+            outline: none;
+        }
+        .listing-card .listing-ai-toggle.is-active {
+            background: #fff7f1;
+            color: #ff7a00;
+            border-color: rgba(255, 122, 0, 0.45);
+        }
+        .listing-card .listing-ai-toggle-circle {
+            width: 18px;
+            height: 18px;
+            border-radius: 999px;
+            border: 1.8px solid currentColor;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 auto;
+            font-size: 11px;
+            line-height: 1;
+        }
+        .listing-card .listing-ai-toggle.is-active .listing-ai-toggle-circle::before {
+            content: "✓";
+        }
+        .listing-review-dock {
+            display: none;
+            margin: 0 20px;
+            padding: 12px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.12);
+            backdrop-filter: blur(18px);
+            box-shadow: 0 10px 24px rgba(0,0,0,0.18);
+        }
+        .listing-review-dock.is-active {
+            display: grid;
+            gap: 10px;
+        }
+        .listing-review-dock-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .listing-review-dock-title {
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--main-text);
+        }
+        .listing-review-dock-note {
+            font-size: 12px;
+            color: var(--muted-text);
+        }
+        .listing-review-picks {
+            display: grid;
+            gap: 8px;
+            max-height: 160px;
+            overflow-y: auto;
+            padding-right: 2px;
+        }
+        .listing-review-pick {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 10px;
+            align-items: start;
+            padding: 10px 12px;
+            border-radius: 16px;
+            background: rgba(255,255,255,0.07);
+        }
+        .listing-review-pick-title {
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--main-text);
+            line-height: 1.35;
+        }
+        .listing-review-pick-meta {
+            margin-top: 4px;
+            display: grid;
+            gap: 2px;
+            font-size: 12px;
+            line-height: 1.45;
+            color: var(--muted-text);
+        }
+        .listing-review-pick-remove {
+            border: none;
+            background: transparent;
+            color: var(--muted-text);
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            padding: 0;
+        }
+        .listing-review-start {
+            width: 100%;
+            min-height: 44px;
+            border-radius: 14px;
+            border: none;
+            background: linear-gradient(135deg, #f1b64d 0%, #e38d2d 100%);
+            color: #1f1408;
+            font-size: 15px;
+            font-weight: 900;
+            cursor: pointer;
+        }
+        .listing-review-start:disabled {
+            background: rgba(255,255,255,0.12);
+            color: rgba(255,255,255,0.42);
+            cursor: default;
+        }
+        html[data-bg="mist"] .listing-review-dock {
+            background: linear-gradient(180deg, rgba(255,255,255,0.66) 0%, rgba(231,214,196,0.68) 100%);
+            border-color: rgba(126, 102, 78, 0.14);
+            box-shadow: 0 10px 24px rgba(145, 123, 98, 0.12);
+        }
+        html[data-bg="mist"] .listing-review-pick {
+            background: rgba(255,255,255,0.58);
+        }
+        html[data-bg="mist"] .listing-review-start:disabled {
+            background: rgba(145,123,98,0.14);
+            color: rgba(62,48,36,0.42);
         }
         .detail-overlay {
             position: absolute;
@@ -5933,6 +6071,7 @@
 <strong>試試看輸入一句話，我幫你找最接近的物件👇</strong> </div>
         </div>
         <div class="chat-footer">
+            <div class="listing-review-dock" id="listingReviewDock"></div>
             <div class="input-area">
                 <div class="composer-shell">
                     <div class="composer-attachment-slot" id="composerAttachmentSlot"></div>
@@ -6493,7 +6632,7 @@
                     <h4 class="review-card-title">AI點評物件</h4>
                     <button type="button" class="review-card-close" onclick="closeReviewOverlay()">關閉</button>
                 </div>
-                <div class="review-card-desc">AI 會整理出物件的優點及缺點、風險、價格分析與適合客群。提醒說明：AI依物件資訊分析，並非完全正確，僅供參考。</div>
+                <div class="review-card-desc">本工具將自動比對多個物件，針對優缺點、風險、價格及適合客群進行深度分析。<br>免責聲明： 分析內容由 AI 自動生成，可能存在誤差，僅供初步評估參考。</div>
             </div>
             <div class="review-select-list" id="reviewSelectList"></div>
             <div class="review-note-box">
@@ -6525,6 +6664,7 @@
     let browseAppointmentMode = false;
     let browseSelectedSns = [];
     let reviewSelectedSn = "";
+    let listingReviewSelectedSns = [];
     let reviewDragActive = false;
     let reviewDragStartY = 0;
     let reviewDragCurrentY = 0;
@@ -7702,20 +7842,19 @@ function calculateUnifiedTax() {
         const wan = value / 10000;
         return Number.isInteger(wan) ? `${wan} 萬` : `${wan.toFixed(2)} 萬`;
     };
-    addBotMsg(
-        `**🏠 房地合一稅2.0 試算結果**\n` +
-        `1.成交價：\n${sellTenThousand} 萬\n` +
-        (feePct ? `1-1.仲介服務費：\n${feePct}%\n` : "") +
-        `2.取得成本：\n${acquireTenThousand} 萬\n` +
-        `3.房地合一稅：\n${ratePct}%\n` +
-        (canUseExempt ? `3-1.免稅額：\n400 萬\n` : "") +
-        `4.認列獲利：\n${toWan(taxable)}\n` +
-        `5.預估稅額：\n${toWan(tax)}\n` +
-        `6.稅後獲利：\n${toWan(afterTaxProfit)}` +
-        (canAddExemptBack ? `\n+400萬免稅額回加後：\n${toWan(afterTaxWithExempt)}` : ""),
-        null,
-        'msg-ai-unified-tax'
-    );
+    const unifiedTaxLines = [
+        '**🏠 房地合一稅2.0 試算結果**',
+        `1.成交價：${sellTenThousand} 萬`,
+        ...(feePct ? [`1-1.仲介服務費：${feePct}%`] : []),
+        `2.取得成本：${acquireTenThousand} 萬`,
+        `3.房地合一稅：${ratePct}%`,
+        ...(canUseExempt ? ['3-1.免稅額：400 萬'] : []),
+        `4.認列獲利：${toWan(taxable)}`,
+        `5.預估稅額：${toWan(tax)}`,
+        `6.稅後獲利：${toWan(afterTaxProfit)}`,
+        ...(canAddExemptBack ? [`+400萬免稅額回加後：${toWan(afterTaxWithExempt)}`] : [])
+    ];
+    addBotMsgHTML(renderUnifiedTaxResultHTML(unifiedTaxLines), 'msg-ai-unified-tax');
     closePopups();
     scrollChat(true);
 }
@@ -8446,6 +8585,9 @@ function addBotMsgHTML(html, extraClass = '') {
     chatBox.appendChild(d);
     revealChatElement(d, true);
 }
+function renderUnifiedTaxResultHTML(lines) {
+    return lines.map((line) => `<div>${formatInlineMarkdown(line)}</div>`).join('');
+}
 async function streamChatResponse({ message, sessionId, attachmentData = null, attachmentMimeType = null, attachmentName = null, loadingId = null }) {
     const targetEl = loadingId ? (document.getElementById(loadingId) || addStreamingBotMsg(loadingId, 'msg-ai-reply')) : addStreamingBotMsg(null, 'msg-ai-reply');
     const initialStatus = attachmentData ? "AI 正在分析附件..." : "AI 思考中...";
@@ -8826,6 +8968,12 @@ function renderListingCard(item, isMatch = true, baseMatch = isMatch) {
     const link = item.id
         ? `<button class="press-glow detail-open-btn" data-sn="${item.id}" style="display:inline-flex;align-items:center;padding:6px 10px;border:none;cursor:pointer;">看本案詳情</button>`
         : "";
+    const reviewToggle = item.id
+        ? `<button type="button" class="listing-ai-toggle${listingReviewSelectedSns.includes(String(item.id)) ? ' is-active' : ''}" data-review-toggle-sn="${item.id}">
+                <span class="listing-ai-toggle-circle" aria-hidden="true"></span>
+                <span>AI點評</span>
+           </button>`
+        : "";
     const badge = `<div class="candidate-badge" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.5);color:white;font-size:10px;padding:4px 6px;border-radius:999px;${isMatch ? "display:none;" : ""}">候選</div>`;
     const dimStyle = isMatch ? "" : "opacity:0.55;filter:saturate(0.7);";
     return `
@@ -8843,7 +8991,7 @@ function renderListingCard(item, isMatch = true, baseMatch = isMatch) {
                     <div class="listing-line"><strong>屋齡</strong> ${age}</div>
                     <div class="listing-line"><strong>樓層</strong> ${floorText}</div>
                 </div>
-                <div class="listing-link">${link}</div>
+                <div class="listing-link">${reviewToggle}${link}</div>
             </div>
         </div>
     `;
@@ -9359,7 +9507,7 @@ function renderReviewSelection() {
     if (!listEl) return;
     const { items, selected } = getReviewSelection();
     if (!items.length) {
-        listEl.innerHTML = `<div class="review-empty">目前沒有可點評的物件。先把物件加入「瀏覽清單」，或先打開任一物件詳情，再回來用 AI 點評。</div>`;
+        listEl.innerHTML = `<div class="review-empty">目前沒有可點評的物件。<br>1.可先把物件加入「瀏覽清單」後在此進行AI點評，<br>2.在找房功能將房屋物件多筆勾選，直接進行 AI 點評。</div>`;
         return;
     }
     listEl.innerHTML = items.map((item) => {
@@ -9506,6 +9654,146 @@ function buildObjectReviewPrompt(item, detailData, extraNote = "") {
         "物件資料：",
         ...summaryLines
     ].join("\n");
+}
+function getListingReviewItems() {
+    return listingReviewSelectedSns
+        .map((sn) => {
+            const cached = listingCache[sn] || getBrowseList().find((item) => String(item?.sn || "") === String(sn));
+            if (!cached) return null;
+            return {
+                ...cached,
+                id: cached.id || cached.sn || sn,
+                sn: cached.sn || cached.id || sn
+            };
+        })
+        .filter(Boolean);
+}
+function renderListingReviewDock() {
+    const dock = document.getElementById('listingReviewDock');
+    if (!dock) return;
+    const items = getListingReviewItems();
+    if (!items.length) {
+        dock.classList.remove('is-active');
+        dock.innerHTML = '';
+        return;
+    }
+    const picks = items.map((item) => {
+        const summaryLines = [
+            formatReviewPrice(item.price),
+            item.address || '地址待補充',
+            `${item.area ? `${item.area} 坪` : '建坪不明'} / ${formatReviewLayout(item)}`,
+            `${item.ageYears ? `${item.ageYears} 年` : '屋齡不明'} / ${item.floor ? (item.totalFloor ? `${item.floor}/${item.totalFloor}樓` : `${item.floor}樓`) : (item.totalFloor ? `${item.totalFloor}樓` : '樓層不明')}`
+        ];
+        return `
+            <div class="listing-review-pick">
+                <div>
+                    <div class="listing-review-pick-title">${escapeHtml(item.title || '未命名物件')}</div>
+                    <div class="listing-review-pick-meta">
+                        ${summaryLines.map((line) => `<div>${escapeHtml(line)}</div>`).join('')}
+                    </div>
+                </div>
+                <button type="button" class="listing-review-pick-remove" data-review-remove-sn="${escapeHtml(String(item.sn || item.id || ''))}">移除</button>
+            </div>
+        `;
+    }).join('');
+    const isReady = items.length >= 2;
+    dock.classList.add('is-active');
+    dock.innerHTML = `
+        <div class="listing-review-dock-head">
+            <div class="listing-review-dock-title">AI點評已選物件</div>
+            <div class="listing-review-dock-note">${isReady ? `已選 ${items.length} 筆，可開始 AI 點評` : '至少選 2 個物件才可開始 AI 點評'}</div>
+        </div>
+        <div class="listing-review-picks">${picks}</div>
+        <button type="button" class="listing-review-start" id="listingReviewStartBtn" ${isReady ? '' : 'disabled'}>開始AI點評</button>
+    `;
+}
+function syncListingReviewButtons() {
+    document.querySelectorAll('[data-review-toggle-sn]').forEach((btn) => {
+        const sn = String(btn.getAttribute('data-review-toggle-sn') || '');
+        const active = listingReviewSelectedSns.includes(sn);
+        btn.classList.toggle('is-active', active);
+        btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+    });
+}
+function updateListingReviewUI() {
+    syncListingReviewButtons();
+    renderListingReviewDock();
+}
+function toggleListingReviewSelection(sn) {
+    const key = String(sn || '').trim();
+    if (!key) return;
+    if (listingReviewSelectedSns.includes(key)) {
+        listingReviewSelectedSns = listingReviewSelectedSns.filter((itemSn) => itemSn !== key);
+    } else {
+        listingReviewSelectedSns = [...listingReviewSelectedSns, key];
+    }
+    updateListingReviewUI();
+}
+function removeListingReviewSelection(sn) {
+    const key = String(sn || '').trim();
+    if (!key) return;
+    listingReviewSelectedSns = listingReviewSelectedSns.filter((itemSn) => itemSn !== key);
+    updateListingReviewUI();
+}
+function buildMultiObjectReviewPrompt(items, detailDataList) {
+    const sections = items.map((item, index) => {
+        const detailData = detailDataList[index];
+        const detailMap = buildReviewDetailMap(detailData);
+        const areaValue = item.area ? `${item.area} 坪` : (detailMap["建物面積"] || detailMap["建坪"] || "不明");
+        const ageValue = item.ageYears ? `${item.ageYears} 年` : (detailMap["屋齡"] || "不明");
+        const floorValue = formatReviewFloor(item, detailMap);
+        const extraDetails = [
+            detailMap["主要用途"] ? `主要用途：${detailMap["主要用途"]}` : "",
+            detailMap["建物類型"] ? `建物類型：${detailMap["建物類型"]}` : "",
+            detailMap["管理費"] ? `管理費：${detailMap["管理費"]}` : "",
+            detailMap["車位"] ? `車位：${detailMap["車位"]}` : ""
+        ].filter(Boolean);
+        return [
+            `物件 ${index + 1}`,
+            `名稱：${item.title || "未命名物件"}`,
+            `價格：${formatReviewPrice(item.price)}`,
+            `地址：${item.address || "地址待補充"}`,
+            `建坪：${areaValue}`,
+            `格局：${formatReviewLayout(item)}`,
+            `屋齡：${ageValue}`,
+            `樓層：${floorValue}`,
+            ...extraDetails
+        ].join("\n");
+    });
+    return [
+        "請用房仲顧問口吻，幫我比較以下多個物件並做 AI 點評。",
+        "請依序輸出：1. 一句總評 2. 每個物件的兩個亮點與兩個風險 3. 最推薦與次推薦物件及理由 4. 適合客群 5. 看房順序與議價提醒。",
+        "請用繁體中文、條列清楚、避免過度誇大；如果資料不足要直接講資料不足，不要亂補。",
+        "",
+        ...sections.flatMap((section, index) => index ? ["", section] : [section])
+    ].join("\n");
+}
+async function submitListingReviewSelection() {
+    const items = getListingReviewItems();
+    if (items.length < 2) return;
+    const startBtn = document.getElementById('listingReviewStartBtn');
+    const originalText = startBtn?.textContent || '開始AI點評';
+    if (startBtn) {
+        startBtn.disabled = true;
+        startBtn.textContent = 'AI 點評中...';
+    }
+    try {
+        const detailDataList = await Promise.all(items.map((item) => ensureReviewDetail(item.sn || item.id || '')));
+        const prompt = buildMultiObjectReviewPrompt(items, detailDataList);
+        addUserMsg(`請AI點評比較：${items.map((item) => item.title || '未命名物件').join('、')}`);
+        await streamChatResponse({
+            message: prompt,
+            sessionId: getSessionId()
+        });
+    } catch (error) {
+        addBotMsg('AI 點評失敗，請稍後再試。');
+    } finally {
+        if (startBtn) {
+            startBtn.disabled = items.length < 2;
+            startBtn.textContent = originalText;
+        }
+        updateListingReviewUI();
+    }
 }
 async function submitObjectReview() {
     const submitBtn = document.getElementById('reviewSubmitBtn');
@@ -11432,6 +11720,22 @@ function renderDetailPanel(item, data) {
     }
 }
 document.addEventListener('click', (e) => {
+    const reviewToggleBtn = e.target.closest('[data-review-toggle-sn]');
+    if (reviewToggleBtn) {
+        toggleListingReviewSelection(reviewToggleBtn.getAttribute('data-review-toggle-sn') || '');
+        return;
+    }
+    const reviewRemoveBtn = e.target.closest('[data-review-remove-sn]');
+    if (reviewRemoveBtn) {
+        removeListingReviewSelection(reviewRemoveBtn.getAttribute('data-review-remove-sn') || '');
+        return;
+    }
+    const reviewStartBtn = e.target.closest('#listingReviewStartBtn');
+    if (reviewStartBtn) {
+        if (reviewStartBtn.hasAttribute('disabled')) return;
+        submitListingReviewSelection();
+        return;
+    }
     const detailBtn = e.target.closest('.detail-open-btn');
     if (detailBtn) {
         openListingDetail(detailBtn.dataset.sn);
@@ -11662,6 +11966,7 @@ document.getElementById('detailAddBtn')?.addEventListener('click', () => {
     updateBrowseIndicator(getBrowseList().length);
 });
 updateBrowseIndicator(getBrowseList().length);
+updateListingReviewUI();
 initBackgroundPicker();
 initSettingsPanel();
 bindRocDateInput('unifiedBuyDate');
