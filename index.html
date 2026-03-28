@@ -3209,6 +3209,7 @@
         }
         .chat-card.is-media-reels-mode .media-stage {
             padding: 0;
+            position: relative;
         }
         .media-home,
         .media-reels {
@@ -3225,6 +3226,7 @@
             gap: 0;
             background: #000;
             min-height: 0;
+            overflow: hidden;
         }
         .media-home.is-active,
         .media-reels.is-active {
@@ -5829,7 +5831,10 @@
             }
 
             .media-reels {
-                margin: 0 -10px -12px;
+                position: absolute;
+                inset: 0;
+                margin: 0;
+                min-height: 100%;
             }
 
             .media-reels .media-topbar {
@@ -5867,12 +5872,14 @@
 
             .media-reels-frame {
                 --media-controls-bottom: calc(var(--safe-bottom) + 24px);
-                flex: 1 1 auto;
+                position: absolute;
+                inset: 0;
+                flex: none;
                 width: 100%;
                 max-width: none;
-                min-height: 0;
+                min-height: 100%;
                 aspect-ratio: auto;
-                height: auto;
+                height: 100%;
                 border-radius: 0;
                 border: none;
                 box-shadow: none;
@@ -10010,7 +10017,29 @@ function getListingReviewItems() {
         })
         .filter(Boolean);
 }
+function getCurrentListingWorkspaceCards() {
+    const cardsId = currentListingState?.cardsId;
+    if (!cardsId) return [];
+    const cardsEl = document.getElementById(cardsId);
+    if (!cardsEl) return [];
+    return [...cardsEl.querySelectorAll('.listing-card[data-sn]')].map((cardEl) => {
+        const sn = String(cardEl.getAttribute('data-sn') || '').trim();
+        const item = listingCache[sn];
+        if (!sn || !item) return null;
+        return {
+            item: {
+                ...item,
+                id: item.id || item.sn || sn,
+                sn: item.sn || item.id || sn
+            },
+            isMatch: cardEl.dataset.match !== '0',
+            baseMatch: cardEl.dataset.baseMatch !== '0'
+        };
+    }).filter(Boolean);
+}
 function getListingWorkspaceCards() {
+    const currentCards = getCurrentListingWorkspaceCards();
+    if (currentCards.length) return currentCards;
     if (listingReviewWorkspaceItems.length) return listingReviewWorkspaceItems;
     return getListingReviewItems().map((item) => ({ item, isMatch: true, baseMatch: true }));
 }
