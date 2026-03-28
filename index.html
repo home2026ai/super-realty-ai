@@ -3773,8 +3773,30 @@
             background: linear-gradient(180deg, rgba(255, 255, 255, 1) 0%, rgba(235, 245, 255, 0.8) 100%);
             box-shadow: 0 10px 24px rgba(255, 255, 255, 0.45);
         }
-        .msg { max-width: 92%; font-size: 14px; line-height: 1.5; white-space: pre-line; }
+        .msg { max-width: 92%; font-size: 14px; line-height: 1.62; white-space: normal; word-break: break-word; overflow-wrap: anywhere; }
         .ai { align-self: flex-start; background: transparent; color: var(--main-text); }
+        .msg.ai {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            letter-spacing: 0.01em;
+        }
+        .msg.ai > div,
+        .msg.ai > p {
+            margin: 0;
+        }
+        .msg.ai ul,
+        .msg.ai ol {
+            margin: 2px 0 2px 1.1em;
+            padding: 0;
+        }
+        .msg.ai li {
+            margin: 0 0 6px;
+            line-height: 1.68;
+        }
+        .msg.ai br + br {
+            display: none;
+        }
         .ai table, .ai th, .ai td { color: var(--main-text); }
         .user { align-self: flex-end; padding: 10px 14px; border-radius: 18px; background: var(--ai-purple); color: white; }
         .listing-msg {
@@ -6289,6 +6311,7 @@
     let lastChatScrollTime = 0;
     let chatScrollTimer = null;
     let chatScrollStopTimer = null;
+    let chatAutoFollow = true;
 const toggleBtn = document.getElementById('toggleBtn');
 const toggleIcon = toggleBtn?.querySelector('.plus-icon');
 const menuLabel = document.getElementById('menuLabel');
@@ -6955,6 +6978,7 @@ if (chatBox) {
         showChatIndicator(true);
         if (chatScrollTimer) clearTimeout(chatScrollTimer);
         if (chatScrollStopTimer) clearTimeout(chatScrollStopTimer);
+        chatAutoFollow = isNearChatBottom(36);
         chatScrollStopTimer = setTimeout(() => {
             chatIndicator?.classList.remove('is-scrolling');
             if (chatThumb) chatThumb.style.setProperty('--stretch', '1');
@@ -7905,7 +7929,7 @@ async function startListingSearch(query, pendingQuery, baseInput, loadingId) {
 function addBotMsg(text, id = null) {
     const d = document.createElement('div'); d.className = 'msg ai'; if(id) d.id = id;
     d.innerHTML = formatMarkdownTable(text);
-    chatBox.appendChild(d); scrollChat();
+    chatBox.appendChild(d); scrollChat(false);
 }
 function addStreamingBotMsg(id = null) {
     const d = document.createElement('div');
@@ -7913,7 +7937,7 @@ function addStreamingBotMsg(id = null) {
     if (id) d.id = id;
     d.textContent = '';
     chatBox.appendChild(d);
-    scrollChat();
+    scrollChat(false);
     return d;
 }
 function addBotMsgHTML(html) {
@@ -7922,13 +7946,15 @@ function addBotMsgHTML(html) {
     if (String(html).includes('community-cards-row')) d.classList.add('community-msg');
     if (String(html).includes('fee-sheet')) d.classList.add('fee-msg');
     d.innerHTML = html;
-    chatBox.appendChild(d); scrollChat();
+    chatBox.appendChild(d); scrollChat(false);
 }
 async function streamChatResponse({ message, sessionId, attachmentData = null, attachmentMimeType = null, attachmentName = null, loadingId = null }) {
     const targetEl = loadingId ? (document.getElementById(loadingId) || addStreamingBotMsg(loadingId)) : addStreamingBotMsg();
     targetEl.textContent = attachmentData ? "AI 正在分析附件..." : "AI 思考中...";
     let accumulated = "";
     let firstChunkArrived = false;
+    const shouldFollowOnStart = isNearChatBottom(48);
+    if (shouldFollowOnStart) chatAutoFollow = true;
     try {
         const response = await fetch(`${API_BASE}/api/chat-stream`, {
             method: 'POST',
@@ -7970,11 +7996,11 @@ async function streamChatResponse({ message, sessionId, attachmentData = null, a
                     accumulated += payload.text;
                 }
                 targetEl.textContent = accumulated;
-                scrollChat();
+                scrollChat(false);
             } else if (eventName === 'done') {
                 const finalText = typeof payload.text === 'string' ? payload.text : accumulated;
                 targetEl.innerHTML = formatMarkdownTable(finalText);
-                scrollChat();
+                scrollChat(false);
             } else if (eventName === 'error') {
                 throw new Error(payload.error || "chat-stream failed");
             }
@@ -7995,7 +8021,7 @@ async function streamChatResponse({ message, sessionId, attachmentData = null, a
         if (accumulated && targetEl.textContent === accumulated) {
             targetEl.innerHTML = formatMarkdownTable(accumulated);
         }
-        scrollChat();
+        scrollChat(false);
     } catch (error) {
         const fallbackResponse = await fetch(`${API_BASE}/api/chat`, {
             method: 'POST',
@@ -8015,7 +8041,7 @@ async function streamChatResponse({ message, sessionId, attachmentData = null, a
         const fallbackData = await fallbackResponse.json();
         const fallbackText = String(fallbackData?.text || "");
         targetEl.innerHTML = formatMarkdownTable(fallbackText || "連線失敗");
-        scrollChat();
+        scrollChat(false);
     }
 }
 function renderFeeSheet({ emoji = "", title = "", subtitle = "", items = [] }) {
@@ -11048,7 +11074,7 @@ function renderListings(data) {
 }
 function addUserMsg(text) {
     const d = document.createElement('div'); d.className = 'msg user'; d.innerText = text;
-    chatBox.appendChild(d); scrollChat();
+    chatBox.appendChild(d); scrollChat(true);
 }
 function addUserMsgContent(text, attachment = null) {
     if (!attachment) {
@@ -11062,7 +11088,7 @@ function addUserMsgContent(text, attachment = null) {
         : `<div class="user-attachment-file"><span>📎</span><span>${escapeHtml(attachment.name)}</span></div>`;
     chatBox.appendChild(attachmentNode);
     if (text) addUserMsg(text);
-    scrollChat();
+    scrollChat(true);
 }
 function formatInlineMarkdown(text) {
     const escaped = escapeHtml(text || "");
@@ -11150,7 +11176,7 @@ function formatMarkdownTable(text) {
             paragraph.push(lines[i]);
             i += 1;
         }
-        html.push(`<div>${paragraph.map((part) => formatInlineMarkdown(part)).join('<br>')}</div>`);
+        html.push(`<p>${paragraph.map((part) => formatInlineMarkdown(part)).join('<br>')}</p>`);
     }
 
     return html.join('');
@@ -11198,8 +11224,19 @@ function showChatIndicator(isScrolling) {
     }, 180);
 }
 
-function scrollChat() {
+function isNearChatBottom(threshold = 24) {
+    if (!chatBox) return true;
+    return chatBox.scrollHeight - (chatBox.scrollTop + chatBox.clientHeight) <= threshold;
+}
+
+function scrollChat(force = false) {
+    if (!chatBox) return;
+    if (!force && !chatAutoFollow && !isNearChatBottom(24)) {
+        updateChatThumb();
+        return;
+    }
     chatBox.scrollTop = chatBox.scrollHeight;
+    chatAutoFollow = true;
     updateChatThumb();
 }
 // --- 圖片讀取與轉換 ---
