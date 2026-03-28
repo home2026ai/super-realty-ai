@@ -936,7 +936,7 @@ async function generateGeminiContentWithRetry(model, contents, config = undefine
     throw lastError;
 }
 
-async function generateGeminiContentStreamWithRetry(model, contents, config = undefined, retries = 1) {
+async function generateGeminiContentStreamWithRetry(model, contents, config = undefined, retries = 0) {
     let lastError = null;
     for (let attempt = 0; attempt <= retries; attempt += 1) {
         try {
@@ -1471,11 +1471,13 @@ app.post('/api/chat-stream', async (req, res) => {
         res.setHeader("Content-Type", "text/event-stream; charset=utf-8");
         res.setHeader("Cache-Control", "no-cache");
         res.setHeader("Connection", "keep-alive");
+        res.setHeader("X-Accel-Buffering", "no");
         if (res.flushHeaders) res.flushHeaders();
 
         const sendEvent = (event, payload) => {
             res.write(`event: ${event}\n`);
             res.write(`data: ${JSON.stringify(payload)}\n\n`);
+            if (res.flush) res.flush();
         };
 
         const modelNames = inlineMimeType && /^image\//i.test(inlineMimeType)
@@ -1494,6 +1496,8 @@ app.post('/api/chat-stream', async (req, res) => {
         let stream = null;
         let lastError = null;
 
+        sendEvent("start", { phase: "connecting" });
+
         for (const modelName of modelNames) {
             try {
                 stream = await generateGeminiContentStreamWithRetry(modelName, contents);
@@ -1511,7 +1515,7 @@ app.post('/api/chat-stream', async (req, res) => {
         }
 
         let responseText = "";
-        sendEvent("start", { model: usedModel });
+        sendEvent("start", { phase: "streaming", model: usedModel });
 
         for await (const chunk of stream) {
             const delta = extractResponseText(chunk);
