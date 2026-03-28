@@ -1977,10 +1977,14 @@
         .msg th, .msg td { padding: 8px; border: 1px solid rgba(255, 255, 255, 0.2); text-align: left; color: #111; }
         .msg th { background: rgba(155, 81, 224, 0.2); font-weight: bold; }
         .msg strong {
-            display: inline-block;
-            font-size: 1.08em;
+            display: inline;
+            font-size: 1em;
             font-weight: 800;
-            line-height: 1.45;
+            line-height: inherit;
+        }
+        .msg code {
+            font-size: 1em;
+            line-height: inherit;
         }
 
         /* 主選單樣式 */
@@ -3864,7 +3868,7 @@
             line-height: 1.65;
         }
         .ai table, .ai th, .ai td { color: var(--main-text); }
-        .user { align-self: flex-end; padding: 10px 14px; border-radius: 18px; background: var(--ai-purple); color: white; }
+        .user { align-self: flex-end; padding: 10px 14px; border-radius: 18px; background: var(--ai-purple); color: white; font-size: inherit; line-height: inherit; }
         .listing-msg {
             color: var(--main-text);
         }
@@ -5138,6 +5142,8 @@
             }
             .msg.user {
                 padding: 10px 12px;
+                font-size: inherit;
+                line-height: inherit;
             }
             .msg.listing-msg {
                 width: calc(100% + (var(--chat-side-pad, 12px) * 2));
@@ -7291,16 +7297,16 @@ function calculateUnifiedTax() {
         return Number.isInteger(wan) ? `${wan} 萬` : `${wan.toFixed(2)} 萬`;
     };
     addBotMsg(
-        `🏠 房地合一稅2.0 試算結果\n` +
-        `1.成交價：${sellTenThousand} 萬\n` +
-        (feePct ? `1-1.仲介服務費：${feePct}%\n` : "") +
-        `2.取得成本：${acquireTenThousand} 萬\n` +
-        `3.房地合一稅：${ratePct}%\n` +
-        (canUseExempt ? `3-1.免稅額：400 萬\n` : "") +
-        `4.認列獲利：${toWan(taxable)}\n` +
-        `5.預估稅額：${toWan(tax)}\n` +
-        `6.稅後獲利：${toWan(afterTaxProfit)}` +
-        (canAddExemptBack ? ` +400萬 = ${toWan(afterTaxWithExempt)}` : "")
+        `🏠 房地合一稅2.0 試算結果\n\n` +
+        `1. 成交價：${sellTenThousand} 萬\n` +
+        (feePct ? `1-1. 仲介服務費：${feePct}%\n` : "") +
+        `\n2. 取得成本：${acquireTenThousand} 萬\n\n` +
+        `3. 房地合一稅：${ratePct}%\n` +
+        (canUseExempt ? `3-1. 免稅額：400 萬\n` : "") +
+        `\n4. 認列獲利：${toWan(taxable)}\n\n` +
+        `5. 預估稅額：${toWan(tax)}\n\n` +
+        `6. 稅後獲利：${toWan(afterTaxProfit)}` +
+        (canAddExemptBack ? ` + 400萬 = ${toWan(afterTaxWithExempt)}` : "")
     );
     closePopups();
 }
