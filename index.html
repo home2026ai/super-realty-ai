@@ -3797,6 +3797,46 @@
         .msg.ai br + br {
             display: none;
         }
+        .msg.ai .stream-preview {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            min-height: 1.62em;
+        }
+        .msg.ai .stream-preview.is-hidden,
+        .msg.ai .stream-final.is-hidden {
+            display: none;
+        }
+        .msg.ai .stream-preview p,
+        .msg.ai .stream-preview pre,
+        .msg.ai .stream-final p,
+        .msg.ai .stream-final pre {
+            margin: 0;
+        }
+        .msg.ai .stream-preview p {
+            line-height: 1.68;
+        }
+        .msg.ai .stream-preview pre,
+        .msg.ai .stream-final pre {
+            padding: 12px 14px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            white-space: pre-wrap;
+            word-break: break-word;
+            overflow-wrap: anywhere;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .msg.ai .stream-preview ul,
+        .msg.ai .stream-preview ol {
+            margin: 2px 0 2px 1.1em;
+            padding: 0;
+        }
+        .msg.ai .stream-preview li {
+            margin: 0 0 6px;
+            line-height: 1.68;
+        }
         .welcome-msg {
             gap: 12px;
             line-height: 1.68;
@@ -7952,11 +7992,18 @@ function addBotMsg(text, id = null) {
     d.innerHTML = formatMarkdownTable(text);
     chatBox.appendChild(d); updateChatThumb();
 }
+function createStreamingShell(container) {
+    container.innerHTML = '<div class="stream-preview"></div><div class="stream-final is-hidden"></div>';
+    return {
+        previewEl: container.querySelector('.stream-preview'),
+        finalEl: container.querySelector('.stream-final')
+    };
+}
 function addStreamingBotMsg(id = null) {
     const d = document.createElement('div');
     d.className = 'msg ai';
     if (id) d.id = id;
-    d.textContent = '';
+    createStreamingShell(d);
     chatBox.appendChild(d);
     updateChatThumb();
     return d;
@@ -7971,9 +8018,30 @@ function addBotMsgHTML(html) {
 }
 async function streamChatResponse({ message, sessionId, attachmentData = null, attachmentMimeType = null, attachmentName = null, loadingId = null }) {
     const targetEl = loadingId ? (document.getElementById(loadingId) || addStreamingBotMsg(loadingId)) : addStreamingBotMsg();
-    targetEl.textContent = attachmentData ? "AI 正在分析附件..." : "AI 思考中...";
+    setStreamingStatus(targetEl, attachmentData ? "AI 正在分析附件..." : "AI 思考中...");
     let accumulated = "";
     chatAutoFollow = false;
+    let lastRenderedText = "";
+    let renderScheduled = false;
+    let finalized = false;
+
+    const flushPreview = (force = false) => {
+        const nextText = accumulated.trim() ? accumulated : (attachmentData ? "AI 正在分析附件..." : "AI 思考中...");
+        if (!force && nextText === lastRenderedText) return;
+        lastRenderedText = nextText;
+        setStreamingPreview(targetEl, nextText);
+        scrollChat();
+    };
+
+    const schedulePreviewRender = () => {
+        if (renderScheduled) return;
+        renderScheduled = true;
+        requestAnimationFrame(() => {
+            renderScheduled = false;
+            flushPreview();
+        });
+    };
+
     try {
         const response = await fetch(`${API_BASE}/api/chat-stream`, {
             method: 'POST',
@@ -8010,10 +8078,13 @@ async function streamChatResponse({ message, sessionId, attachmentData = null, a
                 } else {
                     accumulated += payload.text;
                 }
+                schedulePreviewRender();
             } else if (eventName === 'done') {
                 const finalText = typeof payload.text === 'string' ? payload.text : accumulated;
-                targetEl.innerHTML = formatMarkdownTable(finalText);
-                updateChatThumb();
+                flushPreview(true);
+                finalizeStreamingMessage(targetEl, finalText);
+                finalized = true;
+                scrollChat();
             } else if (eventName === 'error') {
                 throw new Error(payload.error || "chat-stream failed");
             }
@@ -8031,10 +8102,13 @@ async function streamChatResponse({ message, sessionId, attachmentData = null, a
                 separatorIndex = buffer.indexOf('\n\n');
             }
         }
-        if (accumulated && !targetEl.innerHTML) {
-            targetEl.innerHTML = formatMarkdownTable(accumulated);
+        if (renderScheduled) {
+            renderScheduled = false;
         }
-        updateChatThumb();
+        if (accumulated && !finalized) {
+            finalizeStreamingMessage(targetEl, accumulated);
+        }
+        scrollChat();
     } catch (error) {
         const fallbackResponse = await fetch(`${API_BASE}/api/chat`, {
             method: 'POST',
@@ -8053,8 +8127,9 @@ async function streamChatResponse({ message, sessionId, attachmentData = null, a
         }
         const fallbackData = await fallbackResponse.json();
         const fallbackText = String(fallbackData?.text || "");
-        targetEl.innerHTML = formatMarkdownTable(fallbackText || "連線失敗");
-        updateChatThumb();
+        finalizeStreamingMessage(targetEl, fallbackText || "連線失敗");
+        finalized = true;
+        scrollChat();
     }
 }
 function renderFeeSheet({ emoji = "", title = "", subtitle = "", items = [] }) {
@@ -11108,6 +11183,83 @@ function formatInlineMarkdown(text) {
     return escaped
         .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
         .replace(/`([^`]+)`/g, '<code>$1</code>');
+}
+
+function splitStreamingTextSections(text) {
+    const raw = String(text || "").replace(/\r\n/g, '\n');
+    const fenceMatches = raw.match(/```/g) || [];
+    if (!fenceMatches.length) return { main: raw, code: "" };
+    if (fenceMatches.length % 2 === 0) return { main: raw, code: "" };
+    const lastFenceIndex = raw.lastIndexOf('```');
+    if (lastFenceIndex === -1) return { main: raw, code: "" };
+    return {
+        main: raw.slice(0, lastFenceIndex).trimEnd(),
+        code: raw.slice(lastFenceIndex + 3).replace(/^\w+\n?/, '')
+    };
+}
+
+function renderStreamingPreview(text) {
+    const source = String(text || "").trim();
+    if (!source) return "";
+    const { main, code } = splitStreamingTextSections(source);
+    const blocks = [];
+    const sections = main ? main.split(/\n{2,}/) : [];
+
+    sections.forEach((section) => {
+        const lines = section.split('\n').map((line) => line.trimEnd());
+        const nonEmpty = lines.filter((line) => line.trim());
+        if (!nonEmpty.length) return;
+
+        if (nonEmpty.every((line) => /^[-*]\s+/.test(line.trim()))) {
+            blocks.push(`<ul>${nonEmpty.map((line) => `<li>${formatInlineMarkdown(line.trim().replace(/^[-*]\s+/, ''))}</li>`).join('')}</ul>`);
+            return;
+        }
+
+        if (nonEmpty.every((line) => /^\d+\.\s+/.test(line.trim()))) {
+            blocks.push(`<ol>${nonEmpty.map((line) => `<li>${formatInlineMarkdown(line.trim().replace(/^\d+\.\s+/, ''))}</li>`).join('')}</ol>`);
+            return;
+        }
+
+        blocks.push(`<p>${nonEmpty.map((line) => formatInlineMarkdown(line)).join('<br>')}</p>`);
+    });
+
+    if (code.trim()) {
+        blocks.push(`<pre>${escapeHtml(code.trimEnd())}</pre>`);
+    }
+
+    return blocks.join('');
+}
+
+function getStreamingNodes(container) {
+    let previewEl = container.querySelector('.stream-preview');
+    let finalEl = container.querySelector('.stream-final');
+    if (!previewEl || !finalEl) {
+        const shell = createStreamingShell(container);
+        previewEl = shell.previewEl;
+        finalEl = shell.finalEl;
+    }
+    return { previewEl, finalEl };
+}
+
+function setStreamingPreview(container, text) {
+    const { previewEl, finalEl } = getStreamingNodes(container);
+    previewEl.classList.remove('is-hidden');
+    finalEl.classList.add('is-hidden');
+    previewEl.innerHTML = renderStreamingPreview(text);
+}
+
+function setStreamingStatus(container, text) {
+    const { previewEl, finalEl } = getStreamingNodes(container);
+    previewEl.classList.remove('is-hidden');
+    finalEl.classList.add('is-hidden');
+    previewEl.innerHTML = `<p>${escapeHtml(text || "")}</p>`;
+}
+
+function finalizeStreamingMessage(container, text) {
+    const { previewEl, finalEl } = getStreamingNodes(container);
+    finalEl.innerHTML = formatMarkdownTable(text);
+    finalEl.classList.remove('is-hidden');
+    previewEl.classList.add('is-hidden');
 }
 
 function isMarkdownTableLine(line) {
