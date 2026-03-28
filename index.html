@@ -3797,6 +3797,27 @@
         .msg.ai br + br {
             display: none;
         }
+        .welcome-msg {
+            gap: 12px;
+            line-height: 1.68;
+        }
+        .welcome-msg p,
+        .welcome-msg div {
+            margin: 0;
+        }
+        .welcome-msg .welcome-head {
+            font-weight: 800;
+            font-size: 1.02em;
+            line-height: 1.6;
+        }
+        .welcome-msg .welcome-body,
+        .welcome-msg .welcome-tools {
+            color: var(--main-text);
+        }
+        .welcome-msg .welcome-cta {
+            font-weight: 800;
+            line-height: 1.65;
+        }
         .ai table, .ai th, .ai td { color: var(--main-text); }
         .user { align-self: flex-end; padding: 10px 14px; border-radius: 18px; background: var(--ai-purple); color: white; }
         .listing-msg {
@@ -5476,22 +5497,21 @@
             </div>
         </div>
         <div class="chat-box" id="chatBox">
-            <div class="msg ai"><strong>你好，我是你的 AI 房產助理 👋
-
-專門幫你快速搞懂 林口 / 龜山的房子值不值得買
-
-你可以直接跟我說👇
-🏠 找房：例如「我要找龜山3房車2500萬」</strong>
-
-其他功能表👇
-💰 房貸試算（含寬限期）
-📈 投報率分析（租金 vs 房價）
-📊 社區行情 / 實價登錄
-🧾 交易流程 & 費用整理
-
-<strong>👉 我會幫你精準篩選，還可以直接幫你安排看房 🏠
-
-試試看輸入一句話，我幫你找最接近的物件 👇</strong></div>
+            <div class="msg ai welcome-msg">
+                <p class="welcome-head">你好，我是你的 AI 房產助理 👋</p>
+                <p class="welcome-body">專門幫你快速搞懂 林口 / 龜山的房子值不值得買。</p>
+                <p class="welcome-head">你可以直接跟我說👇</p>
+                <p class="welcome-body">🏠 找房：例如「我要找龜山3房車2500萬」</p>
+                <div class="welcome-tools">
+                    <div>其他功能表👇</div>
+                    <div>💰 房貸試算（含寬限期）</div>
+                    <div>📈 投報率分析（租金 vs 房價）</div>
+                    <div>📊 社區行情 / 實價登錄</div>
+                    <div>🧾 交易流程 & 費用整理</div>
+                </div>
+                <p class="welcome-cta">👉 我會幫你精準篩選，還可以直接幫你安排看房 🏠</p>
+                <p class="welcome-cta">試試看輸入一句話，我幫你找最接近的物件 👇</p>
+            </div>
         </div>
         <div class="chat-footer">
             <div class="input-area">
@@ -7953,7 +7973,6 @@ async function streamChatResponse({ message, sessionId, attachmentData = null, a
     const targetEl = loadingId ? (document.getElementById(loadingId) || addStreamingBotMsg(loadingId)) : addStreamingBotMsg();
     targetEl.textContent = attachmentData ? "AI 正在分析附件..." : "AI 思考中...";
     let accumulated = "";
-    let firstChunkArrived = false;
     chatAutoFollow = false;
     try {
         const response = await fetch(`${API_BASE}/api/chat-stream`, {
@@ -7986,17 +8005,11 @@ async function streamChatResponse({ message, sessionId, attachmentData = null, a
             let payload = null;
             try { payload = JSON.parse(dataText); } catch (e) { return; }
             if (eventName === 'chunk' && typeof payload.text === 'string') {
-                if (!firstChunkArrived) {
-                    accumulated = "";
-                    firstChunkArrived = true;
-                }
                 if (payload.text.startsWith(accumulated)) {
                     accumulated = payload.text;
                 } else {
                     accumulated += payload.text;
                 }
-                targetEl.textContent = accumulated;
-                updateChatThumb();
             } else if (eventName === 'done') {
                 const finalText = typeof payload.text === 'string' ? payload.text : accumulated;
                 targetEl.innerHTML = formatMarkdownTable(finalText);
@@ -8018,7 +8031,7 @@ async function streamChatResponse({ message, sessionId, attachmentData = null, a
                 separatorIndex = buffer.indexOf('\n\n');
             }
         }
-        if (accumulated && targetEl.textContent === accumulated) {
+        if (accumulated && !targetEl.innerHTML) {
             targetEl.innerHTML = formatMarkdownTable(accumulated);
         }
         updateChatThumb();
