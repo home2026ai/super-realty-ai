@@ -6493,7 +6493,7 @@
                     <h4 class="review-card-title">AI點評物件</h4>
                     <button type="button" class="review-card-close" onclick="closeReviewOverlay()">關閉</button>
                 </div>
-                <div class="review-card-desc">從目前物件裡先選 1 筆，AI 會整理優點、風險、議價觀察與適合客群。面板內保留看房排程入口。</div>
+                <div class="review-card-desc">AI 會整理出物件的優點及缺點、風險、價格分析與適合客群。提醒說明：AI依物件資訊分析，並非完全正確，僅供參考。</div>
             </div>
             <div class="review-select-list" id="reviewSelectList"></div>
             <div class="review-note-box">
@@ -7392,7 +7392,16 @@ document.addEventListener('click', (e) => {
     closeDrawer();
 });
 
-function closePopups() { document.querySelectorAll('.calc-overlay').forEach(el => el.style.display = 'none'); }
+function closePopups() {
+    document.querySelectorAll('.calc-overlay').forEach((el) => {
+        if (el.id === 'reviewOverlay') {
+            el.classList.remove('is-open');
+            el.style.display = '';
+            return;
+        }
+        el.style.display = 'none';
+    });
+}
 function closeDrawer() {
     drawerMenu.classList.remove('active');
     drawerToggle?.classList.remove('active');
@@ -9372,12 +9381,19 @@ function renderReviewSelection() {
 }
 function openReviewOverlay() {
     closeDrawer();
+    closePopups();
     renderReviewSelection();
-    document.getElementById('reviewOverlay')?.classList.add('is-open');
+    const overlay = document.getElementById('reviewOverlay');
+    if (!overlay) return;
+    overlay.style.display = '';
+    overlay.classList.add('is-open');
 }
 function closeReviewOverlay() {
     resetReviewDrag(true);
-    document.getElementById('reviewOverlay')?.classList.remove('is-open');
+    const overlay = document.getElementById('reviewOverlay');
+    if (!overlay) return;
+    overlay.classList.remove('is-open');
+    overlay.style.display = '';
 }
 function openReviewCalendarShortcut() {
     closeReviewOverlay();
