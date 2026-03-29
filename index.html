@@ -954,10 +954,10 @@
         }
         @media (max-width: 768px) {
             .listing-review-workspace {
-                grid-template-rows: minmax(0, 78fr) minmax(0, 22fr);
+                grid-template-rows: minmax(0, 74fr) minmax(0, 26fr);
             }
             .listing-review-stage {
-                padding: calc(var(--safe-top) + 8px) 0 2px;
+                padding: calc(var(--safe-top) + 8px) 0 0;
             }
             .listing-review-stage-head {
                 padding: 0 14px 6px;
@@ -970,7 +970,7 @@
                 font-size: 17px;
             }
             .listing-review-stage-row {
-                padding: 2px max(12px, calc(50% - 126px)) 4px;
+                padding: 2px max(12px, calc(50% - 126px)) 0;
                 scroll-padding-left: max(12px, calc(50% - 126px));
                 scroll-padding-right: max(12px, calc(50% - 126px));
             }
@@ -4335,6 +4335,26 @@
         .msg.ai .stream-preview li {
             margin: 0 0 6px;
             line-height: 1.68;
+        }
+        .listing-review-return-wrap {
+            display: flex;
+            justify-content: flex-start;
+            margin-top: 2px;
+        }
+        .listing-review-return-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 40px;
+            padding: 10px 14px;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 122, 0, 0.4);
+            background: rgba(255, 247, 241, 0.92);
+            color: #ff7a00;
+            font-size: 13px;
+            font-weight: 800;
+            line-height: 1;
+            cursor: pointer;
         }
         .welcome-msg {
             gap: 12px;
@@ -8977,10 +8997,17 @@ function addBotMsgHTML(html, extraClass = '') {
     chatBox.appendChild(d);
     revealChatElement(d, true);
 }
+function appendListingReviewReturnAction(container) {
+    if (!container || container.querySelector('.listing-review-return-btn')) return;
+    const wrap = document.createElement('div');
+    wrap.className = 'listing-review-return-wrap';
+    wrap.innerHTML = '<button type="button" class="listing-review-return-btn press-glow">回到AI點評選房</button>';
+    container.appendChild(wrap);
+}
 function renderUnifiedTaxResultHTML(lines) {
     return lines.map((line) => `<div>${formatInlineMarkdown(line)}</div>`).join('');
 }
-async function streamChatResponse({ message, sessionId, attachmentData = null, attachmentMimeType = null, attachmentName = null, loadingId = null }) {
+async function streamChatResponse({ message, sessionId, attachmentData = null, attachmentMimeType = null, attachmentName = null, loadingId = null, showListingReviewReturnBtn = false }) {
     const targetEl = loadingId ? (document.getElementById(loadingId) || addStreamingBotMsg(loadingId, 'msg-ai-reply')) : addStreamingBotMsg(null, 'msg-ai-reply');
     const initialStatus = attachmentData ? "AI 正在分析附件..." : "AI 思考中...";
     const typingStatus = attachmentData ? "AI 已完成分析，正在輸入內容..." : "AI 正在輸入內容...";
@@ -9057,6 +9084,7 @@ async function streamChatResponse({ message, sessionId, attachmentData = null, a
                 const finalText = typeof payload.text === 'string' ? payload.text : accumulated;
                 flushPreview(true);
                 finalizeStreamingMessage(targetEl, finalText);
+                if (showListingReviewReturnBtn) appendListingReviewReturnAction(targetEl);
                 finalized = true;
                 updateChatThumb();
             } else if (eventName === 'error') {
@@ -9081,6 +9109,7 @@ async function streamChatResponse({ message, sessionId, attachmentData = null, a
         }
         if (accumulated && !finalized) {
             finalizeStreamingMessage(targetEl, accumulated);
+            if (showListingReviewReturnBtn) appendListingReviewReturnAction(targetEl);
         }
         updateChatThumb();
     } catch (error) {
@@ -9105,6 +9134,7 @@ async function streamChatResponse({ message, sessionId, attachmentData = null, a
             throw error;
         }
         finalizeStreamingMessage(targetEl, fallbackText || "連線失敗");
+        if (showListingReviewReturnBtn) appendListingReviewReturnAction(targetEl);
         finalized = true;
         updateChatThumb();
     }
@@ -10152,9 +10182,26 @@ function getCurrentListingWorkspaceCards() {
 }
 function getListingWorkspaceCards() {
     const currentCards = getCurrentListingWorkspaceCards();
-    if (currentCards.length) return currentCards;
-    if (listingReviewWorkspaceItems.length) return listingReviewWorkspaceItems;
-    return getListingReviewItems().map((item) => ({ item, isMatch: true, baseMatch: true }));
+    const sourceCards = currentCards.length
+        ? currentCards
+        : listingReviewWorkspaceItems.length
+            ? listingReviewWorkspaceItems
+            : getListingReviewItems().map((item) => ({ item, isMatch: true, baseMatch: true }));
+    const selectedOrder = new Map(
+        listingReviewSelectedSns.map((sn, index) => [String(sn), index])
+    );
+    return [...sourceCards].sort((a, b) => {
+        const aSn = String(a?.item?.sn || a?.item?.id || '');
+        const bSn = String(b?.item?.sn || b?.item?.id || '');
+        const aSelected = selectedOrder.has(aSn);
+        const bSelected = selectedOrder.has(bSn);
+        if (aSelected && bSelected) {
+            return selectedOrder.get(aSn) - selectedOrder.get(bSn);
+        }
+        if (aSelected) return -1;
+        if (bSelected) return 1;
+        return 0;
+    });
 }
 function updateListingReviewWorkspaceStatus() {
     const statusEl = document.getElementById('listingReviewStageStatus');
@@ -10372,6 +10419,7 @@ async function submitListingReviewSelection() {
     if (items.length < 2) return;
     const startBtn = document.getElementById('listingReviewStartBtn');
     const originalText = startBtn?.textContent || '開始AI點評';
+    hideListingReviewWorkspaceOnly();
     if (startBtn) {
         startBtn.disabled = true;
         startBtn.textContent = 'AI 點評中...';
@@ -10383,7 +10431,8 @@ async function submitListingReviewSelection() {
         addUserMsg(`請AI點評比較：${items.map((item) => item.title || '未命名物件').join('、')}`);
         await streamChatResponse({
             message: prompt,
-            sessionId: getSessionId()
+            sessionId: getSessionId(),
+            showListingReviewReturnBtn: true
         });
     } catch (error) {
         addBotMsg('AI 點評失敗，請稍後再試。');
@@ -12402,6 +12451,12 @@ document.addEventListener('click', (e) => {
     if (reviewStartBtn) {
         if (reviewStartBtn.hasAttribute('disabled')) return;
         submitListingReviewSelection();
+        return;
+    }
+    if (e.target.closest('.listing-review-return-btn')) {
+        listingReviewPanelOpen = true;
+        setAppScreen('listing-review');
+        updateListingReviewUI();
         return;
     }
     if (e.target.closest('#listingReviewAddBrowseBtn')) {
