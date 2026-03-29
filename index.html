@@ -4434,6 +4434,46 @@
         html[data-bg="mist"] .listing-review-rich-kv th {
             color: #7a6757;
         }
+        .listing-review-chat-msg {
+            align-self: stretch;
+        }
+        .listing-review-chat-selection {
+            display: grid;
+            gap: 10px;
+        }
+        .listing-review-chat-selection-head {
+            margin: 0 var(--chat-side-pad, 20px);
+            padding: 0 2px;
+        }
+        .listing-review-chat-selection-kicker {
+            display: inline-flex;
+            align-items: center;
+            min-height: 24px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: rgba(255, 122, 0, 0.14);
+            color: #ffb067;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+        }
+        .listing-review-chat-selection-title {
+            margin-top: 8px;
+            font-size: 17px;
+            font-weight: 900;
+            line-height: 1.3;
+            color: var(--main-text);
+        }
+        .listing-review-chat-selection-note {
+            margin-top: 4px;
+            color: var(--muted-text);
+            font-size: 12px;
+            line-height: 1.5;
+        }
+        html[data-bg="mist"] .listing-review-chat-selection-kicker {
+            color: #c86500;
+            background: rgba(255, 122, 0, 0.12);
+        }
         .listing-review-return-wrap {
             display: flex;
             justify-content: flex-start;
@@ -9095,6 +9135,29 @@ function addBotMsgHTML(html, extraClass = '') {
     chatBox.appendChild(d);
     revealChatElement(d, true);
 }
+function renderListingReviewSelectionMessage(items = []) {
+    const safeItems = Array.isArray(items) ? items.filter(Boolean) : [];
+    const cards = safeItems.map((item) => renderListingCard(item, true, true)).join('');
+    return `
+        <div class="listing-review-chat-selection">
+            <div class="listing-review-chat-selection-head">
+                <div class="listing-review-chat-selection-kicker">AI點評物件</div>
+                <div class="listing-review-chat-selection-title">本次比較的房屋物件</div>
+                <div class="listing-review-chat-selection-note">已選 ${safeItems.length} 筆，以下是送交 AI 比較點評的物件。</div>
+            </div>
+            <div class="listing-cards-row">
+                ${cards}
+            </div>
+        </div>
+    `;
+}
+function addUserListingReviewSelectionMsg(items = []) {
+    const d = document.createElement('div');
+    d.className = 'msg listing-msg listing-review-chat-msg';
+    d.innerHTML = renderListingReviewSelectionMessage(items);
+    chatBox.appendChild(d);
+    revealChatElement(d, true);
+}
 function appendListingReviewReturnAction(container) {
     if (!container || container.querySelector('.listing-review-return-btn')) return;
     const wrap = document.createElement('div');
@@ -10526,7 +10589,7 @@ async function submitListingReviewSelection() {
         const detailDataList = await Promise.all(items.map((item) => ensureReviewDetail(item.sn || item.id || '')));
         const realPriceDataList = await fetchListingReviewRealPriceData(items, detailDataList);
         const prompt = buildMultiObjectReviewPrompt(items, detailDataList, realPriceDataList);
-        addUserMsg(`請AI點評比較：${items.map((item) => item.title || '未命名物件').join('、')}`);
+        addUserListingReviewSelectionMsg(items);
         await streamChatResponse({
             message: prompt,
             sessionId: getSessionId(),
@@ -13360,6 +13423,21 @@ function formatListingReviewBody(text) {
         return formatMarkdownTable(block);
     }).join('');
 }
+function parseListingReviewHeading(line) {
+    const trimmed = String(line || '').trim();
+    if (!trimmed) return null;
+    const normalized = trimmed
+        .replace(/^#{1,6}\s*/, '')
+        .replace(/^\*\*(.+)\*\*$/, '$1')
+        .replace(/^__([^_]+)__$/, '$1')
+        .trim();
+    const match = normalized.match(/^(\d+)\.\s*(.+?)(?:：|:)?$/);
+    if (!match) return null;
+    return {
+        index: match[1],
+        title: match[2].trim()
+    };
+}
 function splitListingReviewSections(text) {
     const lines = String(text || "").replace(/\r\n/g, '\n').split('\n');
     const sections = [];
@@ -13368,12 +13446,12 @@ function splitListingReviewSections(text) {
 
     lines.forEach((line) => {
         const trimmed = line.trim();
-        const headingMatch = trimmed.match(/^(\d+)\.\s+(.+)$/);
-        if (headingMatch) {
+        const heading = parseListingReviewHeading(trimmed);
+        if (heading) {
             if (current) sections.push(current);
             current = {
-                index: headingMatch[1],
-                title: headingMatch[2].trim(),
+                index: heading.index,
+                title: heading.title,
                 lines: []
             };
             return;
