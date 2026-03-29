@@ -3678,6 +3678,12 @@
             height: 100%;
             display: block;
         }
+        #mediaReelsPlayerHost,
+        #mediaReelsPlayerHost iframe {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
         .media-reels-swipe {
             position: absolute;
             inset: 0;
@@ -5740,6 +5746,7 @@
                 padding: 0;
                 flex: 1 1 auto;
                 min-height: 0;
+                height: calc(100dvh - var(--safe-top));
             }
 
             .media-home-hero {
@@ -5842,10 +5849,9 @@
             }
 
             .media-reels {
-                position: absolute;
-                inset: 0;
+                position: relative;
                 margin: 0;
-                min-height: 100%;
+                min-height: 0;
             }
 
             .media-reels .media-topbar {
@@ -5883,14 +5889,14 @@
 
             .media-reels-frame {
                 --media-controls-bottom: calc(var(--safe-bottom) + 24px);
-                position: absolute;
-                inset: 0;
-                flex: none;
+                position: relative;
+                inset: auto;
+                flex: 1 1 auto;
                 width: 100%;
                 max-width: none;
-                min-height: 100%;
+                min-height: 0;
                 aspect-ratio: auto;
-                height: 100%;
+                height: auto;
                 border-radius: 0;
                 border: none;
                 box-shadow: none;
