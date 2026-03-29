@@ -3453,12 +3453,20 @@
             background: none;
         }
         .media-category-preview iframe,
-        .media-category-preview .media-category-fallback {
+        .media-category-preview .media-category-fallback,
+        .media-category-preview .media-category-preview-poster {
             position: absolute;
             inset: 0;
             width: 100%;
             height: 100%;
             border: none;
+        }
+        .media-category-preview .media-category-preview-poster {
+            object-fit: cover;
+            display: block;
+            transform: scale(1);
+            filter: saturate(1.08) contrast(1.03);
+            transition: transform 0.45s ease, filter 0.45s ease;
         }
         .media-category-preview iframe {
             pointer-events: none;
@@ -3499,9 +3507,38 @@
             background: transparent;
         }
         .media-category-card:hover .media-category-preview iframe,
-        .media-category-card:focus-visible .media-category-preview iframe {
+        .media-category-card:focus-visible .media-category-preview iframe,
+        .media-category-card:hover .media-category-preview .media-category-preview-poster,
+        .media-category-card:focus-visible .media-category-preview .media-category-preview-poster {
             transform: scale(1.03);
             filter: saturate(1.18) contrast(1.06);
+        }
+        .media-category-preview-badge {
+            position: absolute;
+            left: 14px;
+            bottom: 14px;
+            z-index: 2;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            min-height: 32px;
+            padding: 0 12px;
+            border-radius: 999px;
+            background: rgba(10,10,12,0.52);
+            border: 1px solid rgba(255,255,255,0.16);
+            color: rgba(255,255,255,0.94);
+            font-size: 12px;
+            font-weight: 800;
+            backdrop-filter: blur(14px);
+        }
+        .media-category-preview-badge::before {
+            content: "";
+            width: 0;
+            height: 0;
+            border-top: 6px solid transparent;
+            border-bottom: 6px solid transparent;
+            border-left: 9px solid #fff;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.26));
         }
         .media-category-card:hover,
         .media-category-card:focus-visible {
@@ -3683,6 +3720,37 @@
             width: 100%;
             height: 100%;
             display: block;
+        }
+        .media-reels-poster {
+            position: absolute;
+            inset: 0;
+            z-index: 3;
+            background:
+                radial-gradient(circle at center, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0) 52%),
+                #050505;
+            opacity: 1;
+            transition: opacity 0.26s ease;
+            pointer-events: none;
+        }
+        .media-reels-poster.is-hidden {
+            opacity: 0;
+        }
+        .media-reels-poster img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .media-reels-poster-fallback {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255,255,255,0.72);
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.02em;
         }
         .media-reels-swipe {
             position: absolute;
@@ -6286,6 +6354,9 @@
                 <div class="media-reels-frame" id="mediaReelsFrame">
                     <div class="media-reels-player" id="mediaReelsPlayer">
                         <div id="mediaReelsPlayerHost"></div>
+                    </div>
+                    <div class="media-reels-poster" id="mediaReelsPoster">
+                        <div class="media-reels-poster-fallback">影片載入中</div>
                     </div>
                     <div class="media-reels-swipe" id="mediaReelsSwipe"></div>
                     <button type="button" class="media-sound-hint" id="mediaSoundHint" aria-label="點一下開聲音">
@@ -11199,15 +11270,20 @@ function getMediaCategories() {
     ].filter((item) => item.playlistId);
 }
 
-function buildCategoryPreviewEmbed(category) {
-    const playlistId = category.playlistId;
-    if (!playlistId) {
+function buildCategoryPreviewEmbed(category, previewMeta = null) {
+    if (!category.playlistId) {
         return `<div class="media-category-fallback">尚未設定播放清單</div>`;
     }
-    return `<iframe src="https://www.youtube.com/embed/videoseries?list=${encodeURIComponent(playlistId)}&playlist=${encodeURIComponent(playlistId)}&autoplay=1&mute=1&controls=0&loop=1&playsinline=1&rel=0&modestbranding=1&iv_load_policy=3" title="${escapeHtml(category.label)} 預覽" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`;
+    if (previewMeta?.thumbnail) {
+        return `
+            <img class="media-category-preview-poster" src="${escapeHtml(previewMeta.thumbnail)}" alt="${escapeHtml(category.label)} 封面">
+            <div class="media-category-preview-badge">點擊播放</div>
+        `;
+    }
+    return `<div class="media-category-fallback">載入預覽封面中</div>`;
 }
 
-function renderMediaHome() {
+async function renderMediaHome() {
     const grid = document.getElementById('mediaHomeGrid');
     const heroTitleEl = document.getElementById('mediaHomeHeroTitle');
     if (heroTitleEl) heroTitleEl.textContent = currentAgent.mediaTitle || DEFAULT_AGENT.mediaTitle || '房地產影音';
@@ -11219,7 +11295,36 @@ function renderMediaHome() {
     }
     grid.innerHTML = categories.map((category, index) => `
         <button type="button" class="media-category-card press-glow" data-media-category="${category.key}" data-category-style="${category.key}" style="--stagger:${index};">
-            <div class="media-category-preview">${buildCategoryPreviewEmbed(category)}</div>
+            <div class="media-category-preview"><div class="media-category-fallback">載入預覽封面中</div></div>
+            <div class="media-category-chrome">
+                <div class="media-category-index">0${index + 1}</div>
+                <div class="media-category-live">短影音</div>
+            </div>
+            <div class="media-category-content">
+                <div class="media-category-pill">${escapeHtml(category.kicker || category.label)}</div>
+                <div class="media-category-title">${escapeHtml(category.label)}</div>
+                <div class="media-category-desc">${escapeHtml(category.desc)}</div>
+                <div class="media-category-meta">
+                    <div class="media-category-count">YouTube 播放清單</div>
+                    <div class="media-category-cta">${escapeHtml(category.entry || '立即播放')}</div>
+                </div>
+            </div>
+            <div class="media-category-arrow" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M5 12h14"></path>
+                    <path d="M13 6l6 6-6 6"></path>
+                </svg>
+            </div>
+        </button>
+    `).join('');
+    const previewMetaList = await Promise.all(categories.map(async (category) => {
+        const items = await fetchMediaPlaylistMeta(category.playlistId);
+        return items[0] || null;
+    }));
+    if (!grid) return;
+    grid.innerHTML = categories.map((category, index) => `
+        <button type="button" class="media-category-card press-glow" data-media-category="${category.key}" data-category-style="${category.key}" style="--stagger:${index};">
+            <div class="media-category-preview">${buildCategoryPreviewEmbed(category, previewMetaList[index])}</div>
             <div class="media-category-chrome">
                 <div class="media-category-index">0${index + 1}</div>
                 <div class="media-category-live">短影音</div>
@@ -11387,6 +11492,7 @@ function resetMediaReelsPlayer() {
     mediaSwipeActive = false;
     mediaSwipeLocked = false;
     if (playerShell) playerShell.innerHTML = '<div id="mediaReelsPlayerHost"></div>';
+    setMediaReelsPoster(null, { hide: false });
     resetMediaReelsDrag(false);
 }
 
@@ -11459,6 +11565,19 @@ function getCurrentMediaMetaItem() {
     }
     const index = getCurrentMediaIndex();
     return mediaPlaylistMeta[index] || null;
+}
+
+function setMediaReelsPoster(meta = null, options = {}) {
+    const poster = document.getElementById('mediaReelsPoster');
+    if (!poster) return;
+    const shouldHide = Boolean(options.hide);
+    poster.classList.toggle('is-hidden', shouldHide);
+    if (shouldHide) return;
+    if (meta?.thumbnail) {
+        poster.innerHTML = `<img src="${escapeHtml(meta.thumbnail)}" alt="${escapeHtml(meta.title || '影音封面')}">`;
+        return;
+    }
+    poster.innerHTML = `<div class="media-reels-poster-fallback">影片載入中</div>`;
 }
 
 function getCurrentMediaCategory() {
@@ -11705,6 +11824,9 @@ function updateMediaReelsMeta(category) {
         counterEl.textContent = `${Math.max(index + 1, 1)} / ${total}`;
     }
     if (statsEl) statsEl.textContent = getMediaReelsStatsText(currentMeta);
+    if (!mediaPlayerReady) {
+        setMediaReelsPoster(currentMeta || mediaPlaylistMeta[0] || null, { hide: false });
+    }
 }
 
 function toggleMediaReelsDescription() {
@@ -11873,6 +11995,10 @@ async function openMediaReels(categoryKey, targetVideoId = '') {
     mediaDescriptionExpanded = false;
     setMediaReelsMenuOpen(false);
     mediaPlaylistMeta = await fetchMediaPlaylistMeta(category.playlistId, { forceRefresh: true });
+    const initialMeta = targetVideoId
+        ? mediaPlaylistMeta.find((item) => item?.videoId === targetVideoId) || mediaPlaylistMeta[0] || null
+        : mediaPlaylistMeta[0] || null;
+    setMediaReelsPoster(initialMeta, { hide: false });
     setMediaMode('reels');
     updateMediaReelsMeta(category);
     const playerHolder = document.getElementById('mediaReelsPlayerHost');
@@ -11917,6 +12043,9 @@ async function openMediaReels(categoryKey, targetVideoId = '') {
                     if (event?.data === window.YT.PlayerState.PLAYING || event?.data === window.YT.PlayerState.BUFFERING) {
                         mediaPaused = false;
                         updateMediaPlayButton();
+                        if (event?.data === window.YT.PlayerState.PLAYING) {
+                            setMediaReelsPoster(getCurrentMediaMetaItem() || mediaPlaylistMeta[0] || null, { hide: true });
+                        }
                     }
                     if (event?.data === window.YT.PlayerState.PAUSED) {
                         mediaPaused = true;
@@ -11937,6 +12066,9 @@ async function openMediaReels(categoryKey, targetVideoId = '') {
                     } catch (error) {}
                     mediaPaused = false;
                     updateMediaPlayButton();
+                }
+                if (window.YT && event?.data === window.YT.PlayerState.CUED) {
+                    setMediaReelsPoster(getCurrentMediaMetaItem() || mediaPlaylistMeta[0] || null, { hide: false });
                 }
                 updateMediaReelsMeta(category);
             }
