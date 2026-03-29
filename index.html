@@ -10605,11 +10605,12 @@ function renderListingReviewDock() {
         `;
     }).join('');
     const isReady = items.length >= 2;
+    const maxReached = items.length >= 4;
     dock.classList.add('is-active');
     dock.innerHTML = `
         <div class="listing-review-dock-head">
             <div class="listing-review-dock-title">AI點評已選物件</div>
-            <div class="listing-review-dock-note">${isReady ? `已選 ${items.length} 筆，可開始 AI 點評` : '至少選 2 個物件才可開始 AI 點評'}</div>
+            <div class="listing-review-dock-note">${isReady ? `已選 ${items.length} / 4 筆，可開始 AI 點評` : '至少選 2 個物件，最多 4 個物件可開始 AI 點評'}${maxReached ? '，已達上限' : ''}</div>
         </div>
         <div class="listing-review-picks">${picks}</div>
         <div class="listing-review-actions">
@@ -10639,6 +10640,10 @@ function toggleListingReviewSelection(sn) {
     if (listingReviewSelectedSns.includes(key)) {
         listingReviewSelectedSns = listingReviewSelectedSns.filter((itemSn) => itemSn !== key);
     } else {
+        if (listingReviewSelectedSns.length >= 4) {
+            showListingReviewToast('AI點評最多只能選 4 間物件');
+            return;
+        }
         listingReviewSelectedSns = [...listingReviewSelectedSns, key];
         listingReviewPanelOpen = true;
         setAppScreen('listing-review');
@@ -13623,7 +13628,7 @@ function parseListingReviewGroupedItems(text) {
         current.details.push(normalized);
     });
     if (current) groups.push(current);
-    return groups.length >= 2 ? groups : [];
+    return groups.length ? groups : [];
 }
 function buildListingReviewGroupedItemsTable(groups) {
     if (!groups.length) return '';
