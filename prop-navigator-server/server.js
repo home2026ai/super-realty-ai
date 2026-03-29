@@ -169,6 +169,93 @@ function getYouTubeMetaCache(playlistId) {
     return cached.payload;
 }
 
+function formatTaiwanDate(date = new Date()) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+function buildRealPriceReviewPrompt(item, todayText) {
+    const communityName = String(item?.communityName || "").trim();
+    const address = String(item?.address || "").trim();
+    const title = String(item?.title || "").trim();
+    const openPrice = Number(item?.price);
+    const openUnitPrice = item?.openUnitPrice || "資料不足";
+    const queryBase = communityName || address || title || "未知物件";
+    return `
+你是台灣房地產資料整理助理。請使用 Google Search 查詢「${queryBase}」相關的社區成交實價登錄公開資訊，並只整理「從 ${todayText} 往前推一年」這段期間內的資料。
+
+重要規則：
+1. 只可整理近一年的公開資訊；超出一年不要納入。
+2. 若找不到足夠可信的近一年資料，hasData 必須為 false，summary 寫「資料不足」。
+3. 不得捏造成交月份、總價、單價、成交筆數、平均值。
+4. 若查到的是同社區或高度相關同案名資料，可整理；若只有模糊路段資料，請在 summary 說明限制。
+5. 請只回傳 JSON，不要回傳 markdown 或額外說明。
+
+你目前已知的開價資訊：
+- 物件名稱：${title || "資料不足"}
+- 社區名稱：${communityName || "資料不足"}
+- 地址：${address || "資料不足"}
+- 開價：${Number.isFinite(openPrice) && openPrice > 0 ? `${openPrice} 萬` : "資料不足"}
+- 開價單價：${openUnitPrice}
+
+請使用這個 JSON 格式：
+{
+  "communityName": "字串",
+  "period": "${todayText} 往前一年",
+  "hasData": true,
+  "summary": "一句到兩句摘要",
+  "avgUnitPriceWanPerPing": "例如 43.2 萬/坪 或 資料不足",
+  "unitPriceRangeWanPerPing": "例如 42.1-44.8 萬/坪 或 資料不足",
+  "sampleDeals": [
+    {
+      "month": "例如 2025-11",
+      "floor": "例如 8樓",
+      "totalPriceWan": "例如 1328 萬",
+      "unitPriceWanPerPing": "例如 43.1 萬/坪"
+    }
+  ]
+}
+    `.trim();
+}
+
+function parseGeminiJsonResponse(text) {
+    const raw = String(text || "").trim();
+    if (!raw) {
+        throw new Error("empty gemini json response");
+    }
+    const jsonText = raw
+        .replace(/^```json\s*/i, "")
+        .replace(/^```\s*/i, "")
+        .replace(/```$/i, "")
+        .trim();
+    return JSON.parse(jsonText);
+}
+
+function normalizeRealPriceReviewResult(item, parsed, todayText) {
+    const sampleDeals = Array.isArray(parsed?.sampleDeals) ? parsed.sampleDeals : [];
+    return {
+        queryKey: String(item?.sn || item?.id || item?.communityName || item?.title || "").trim(),
+        title: String(item?.title || "").trim(),
+        communityName: String(parsed?.communityName || item?.communityName || "").trim() || "資料不足",
+        period: String(parsed?.period || `${todayText} 往前一年`).trim(),
+        hasData: Boolean(parsed?.hasData),
+        summary: String(parsed?.summary || "資料不足").trim() || "資料不足",
+        avgUnitPriceWanPerPing: String(parsed?.avgUnitPriceWanPerPing || "資料不足").trim() || "資料不足",
+        unitPriceRangeWanPerPing: String(parsed?.unitPriceRangeWanPerPing || "資料不足").trim() || "資料不足",
+        sampleDeals: sampleDeals
+            .map((deal) => ({
+                month: String(deal?.month || "").trim(),
+                floor: String(deal?.floor || "").trim(),
+                totalPriceWan: String(deal?.totalPriceWan || "").trim(),
+                unitPriceWanPerPing: String(deal?.unitPriceWanPerPing || "").trim()
+            }))
+            .filter((deal) => deal.month || deal.floor || deal.totalPriceWan || deal.unitPriceWanPerPing)
+            .slice(0, 5)
+    };
+}
+
 function setYouTubeMetaCache(playlistId, payload) {
     youtubePlaylistMetaCache.set(playlistId, {
         payload,
@@ -1407,6 +1494,48 @@ promptParts.push({ text: combinedText });
                 ? busyText
                 : `分析失敗：${details.message || "未知錯誤"}`
         });
+    }
+});
+
+app.post('/api/review-real-price-search', async (req, res) => {
+    try {
+        const items = Array.isArray(req.body?.items) ? req.body.items : [];
+        if (!items.length) {
+            res.status(400).json({ error: "items required" });
+            return;
+        }
+
+        const todayText = formatTaiwanDate(new Date());
+        const results = await Promise.all(items.map(async (item) => {
+            try {
+                const prompt = buildRealPriceReviewPrompt(item, todayText);
+                const response = await generateGeminiContentWithRetry(
+                    "gemini-2.5-flash",
+                    [{ role: 'user', parts: [{ text: prompt }] }],
+                    {
+                        responseMimeType: "application/json",
+                        tools: [{ googleSearch: {} }]
+                    },
+                    1
+                );
+                const parsed = parseGeminiJsonResponse(extractResponseText(response));
+                return normalizeRealPriceReviewResult(item, parsed, todayText);
+            } catch (error) {
+                console.warn("⚠️ review-real-price-search item failed:", getErrorDetails(error));
+                return normalizeRealPriceReviewResult(item, {
+                    hasData: false,
+                    summary: "資料不足",
+                    avgUnitPriceWanPerPing: "資料不足",
+                    unitPriceRangeWanPerPing: "資料不足",
+                    sampleDeals: []
+                }, todayText);
+            }
+        }));
+
+        res.json({ results });
+    } catch (error) {
+        console.error("❌ review-real-price-search error:", getErrorDetails(error));
+        res.status(500).json({ error: "review-real-price-search failed" });
     }
 });
 
