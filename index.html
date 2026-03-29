@@ -3175,6 +3175,7 @@
         .media-stage {
             position: relative;
             display: none;
+            flex: 1 1 auto;
             min-height: 0;
             padding: 6px 16px 16px;
             isolation: isolate;
@@ -3212,6 +3213,8 @@
         .chat-card.is-media-mode .media-stage {
             display: flex;
             flex-direction: column;
+            flex: 1 1 auto;
+            min-height: 0;
         }
         .chat-card.is-media-reels-mode .media-stage {
             padding: 0;
@@ -5735,6 +5738,8 @@
 
             .chat-card.is-media-reels-mode .media-stage {
                 padding: 0;
+                flex: 1 1 auto;
+                min-height: 0;
             }
 
             .media-home-hero {
