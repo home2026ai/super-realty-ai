@@ -3162,6 +3162,12 @@
         .chat-card.is-media-mode .chat-scroll-indicator {
             display: none;
         }
+        .chat-card.is-listing-review-mode .chat-box,
+        .chat-card.is-listing-review-mode .chat-footer,
+        .chat-card.is-listing-review-mode .chat-scroll-indicator,
+        .chat-card.is-listing-review-mode .media-stage {
+            display: none;
+        }
         .chat-card.is-media-reels-mode .chat-header,
         .chat-card.is-media-reels-mode .agent-cta-bar {
             display: none;
@@ -6981,6 +6987,7 @@
     const listingCache = {};
     const detailCache = {};
     let currentDetailSn = null;
+    let currentAppScreen = 'chat';
     const browseListKey = "browse_list";
     const browseAppointmentDraftKey = "browse_appointment_draft";
     const browseAppointmentStoreKey = "browse_appointments";
@@ -10074,14 +10081,13 @@ function renderListingReviewWorkspaceCards() {
 }
 function renderListingReviewDock() {
     const dock = document.getElementById('listingReviewWorkspaceDock');
-    const workspace = document.getElementById('listingReviewWorkspace');
     if (!dock) return;
     const items = getListingReviewItems();
     if (!items.length) {
         listingReviewPanelOpen = false;
         dock.classList.remove('is-active');
         dock.innerHTML = '';
-        workspace?.classList.remove('is-active');
+        if (currentAppScreen === 'listing-review') setAppScreen('chat');
         return;
     }
     const picks = items.map((item) => {
@@ -10104,7 +10110,6 @@ function renderListingReviewDock() {
         `;
     }).join('');
     const isReady = items.length >= 2;
-    workspace?.classList.toggle('is-active', listingReviewPanelOpen);
     dock.classList.add('is-active');
     dock.innerHTML = `
         <div class="listing-review-dock-head">
@@ -10141,6 +10146,7 @@ function toggleListingReviewSelection(sn) {
     } else {
         listingReviewSelectedSns = [...listingReviewSelectedSns, key];
         listingReviewPanelOpen = true;
+        setAppScreen('listing-review');
     }
     updateListingReviewUI();
 }
@@ -10176,12 +10182,12 @@ function endListingReviewSelection() {
     listingReviewWorkspaceItems = [];
     listingReviewWorkspaceStatus = "請勾選想比較的物件，卡片會固定停在畫面中央。";
     listingReviewWorkspaceScrollLeft = 0;
+    setAppScreen('chat');
     updateListingReviewUI();
 }
 function hideListingReviewWorkspaceOnly() {
     listingReviewPanelOpen = false;
-    const workspace = document.getElementById('listingReviewWorkspace');
-    workspace?.classList.remove('is-active');
+    if (currentAppScreen === 'listing-review') setAppScreen('chat');
 }
 function buildMultiObjectReviewPrompt(items, detailDataList) {
     const sections = items.map((item, index) => {
@@ -11226,16 +11232,33 @@ function renderMediaHome() {
     `).join('');
 }
 
-function setMediaMode(nextMode) {
-    mediaMode = nextMode;
+function setAppScreen(nextScreen) {
+    const safeScreen = ['chat', 'media-home', 'media-reels', 'listing-review'].includes(nextScreen)
+        ? nextScreen
+        : 'chat';
+    currentAppScreen = safeScreen;
+    mediaMode = safeScreen === 'media-home' ? 'home' : safeScreen === 'media-reels' ? 'reels' : 'chat';
     const card = document.querySelector('.chat-card');
     const home = document.getElementById('mediaHome');
     const reels = document.getElementById('mediaReels');
-    if (!card || !home || !reels) return;
-    card.classList.toggle('is-media-mode', nextMode !== 'chat');
-    card.classList.toggle('is-media-reels-mode', nextMode === 'reels');
-    home.classList.toggle('is-active', nextMode === 'home');
-    reels.classList.toggle('is-active', nextMode === 'reels');
+    const workspace = document.getElementById('listingReviewWorkspace');
+    if (!card) return;
+    card.dataset.appScreen = safeScreen;
+    card.classList.toggle('is-media-mode', safeScreen === 'media-home' || safeScreen === 'media-reels');
+    card.classList.toggle('is-media-reels-mode', safeScreen === 'media-reels');
+    card.classList.toggle('is-listing-review-mode', safeScreen === 'listing-review');
+    home?.classList.toggle('is-active', safeScreen === 'media-home');
+    reels?.classList.toggle('is-active', safeScreen === 'media-reels');
+    workspace?.classList.toggle('is-active', safeScreen === 'listing-review' && listingReviewPanelOpen);
+}
+
+function setMediaMode(nextMode) {
+    const screen = nextMode === 'home'
+        ? 'media-home'
+        : nextMode === 'reels'
+            ? 'media-reels'
+            : 'chat';
+    setAppScreen(screen);
 }
 
 function getMediaStageEl() {
@@ -13435,6 +13458,8 @@ document.addEventListener('click', (e) => {
         triggerWebGLRipple(e);
     }
 });
+
+setAppScreen('chat');
 </script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </body>
