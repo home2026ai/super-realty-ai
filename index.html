@@ -4350,6 +4350,34 @@
             display: grid;
             gap: 12px;
         }
+        .listing-review-rich-progress {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--muted-text);
+            font-size: 12px;
+            font-weight: 700;
+            line-height: 1.4;
+            width: fit-content;
+        }
+        .listing-review-rich-progress::before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            border-radius: 999px;
+            background: #ff9d3d;
+            box-shadow: 0 0 0 6px rgba(255, 157, 61, 0.14);
+            animation: listingReviewProgressPulse 1.2s ease-in-out infinite;
+            flex: 0 0 auto;
+        }
+        @keyframes listingReviewProgressPulse {
+            0%, 100% { transform: scale(0.9); opacity: 0.72; }
+            50% { transform: scale(1.08); opacity: 1; }
+        }
         .listing-review-rich-card {
             display: grid;
             gap: 12px;
@@ -4385,6 +4413,90 @@
         .listing-review-rich-body {
             display: grid;
             gap: 10px;
+        }
+        .listing-review-rich-compare {
+            display: grid;
+            gap: 10px;
+        }
+        .listing-review-rich-item {
+            display: grid;
+            gap: 10px;
+            padding: 12px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .listing-review-rich-compare-table-wrap {
+            overflow-x: auto;
+            margin: 0 -2px;
+            padding-bottom: 2px;
+            scrollbar-width: thin;
+        }
+        .listing-review-rich-item-head {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        .listing-review-rich-item-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 48px;
+            min-height: 24px;
+            padding: 2px 8px;
+            border-radius: 999px;
+            background: rgba(255, 122, 0, 0.14);
+            color: #ffb067;
+            font-size: 11px;
+            font-weight: 800;
+            flex: 0 0 auto;
+        }
+        .listing-review-rich-item-title {
+            font-size: 14px;
+            font-weight: 800;
+            line-height: 1.45;
+        }
+        .listing-review-rich-compare-table {
+            width: max-content;
+            min-width: 100%;
+            border-collapse: collapse;
+            overflow: hidden;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.04);
+        }
+        .listing-review-rich-compare-table th,
+        .listing-review-rich-compare-table td {
+            padding: 9px 10px;
+            text-align: left;
+            vertical-align: top;
+            font-size: 12.5px;
+            line-height: 1.58;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .listing-review-rich-compare-table tr:last-child th,
+        .listing-review-rich-compare-table tr:last-child td {
+            border-bottom: none;
+        }
+        .listing-review-rich-compare-table thead th {
+            position: sticky;
+            top: 0;
+            background: rgba(28, 28, 28, 0.94);
+            z-index: 1;
+        }
+        .listing-review-rich-compare-table th {
+            width: 78px;
+            color: rgba(255, 255, 255, 0.72);
+            font-weight: 700;
+        }
+        .listing-review-rich-compare-table th:first-child {
+            min-width: 84px;
+        }
+        .listing-review-rich-compare-table td {
+            color: var(--main-text);
+        }
+        .listing-review-rich-compare-table td,
+        .listing-review-rich-compare-table th:not(:first-child) {
+            min-width: 180px;
         }
         .listing-review-rich-kv {
             width: 100%;
@@ -4424,8 +4536,34 @@
             background: rgba(255, 122, 0, 0.14);
             color: #d56a00;
         }
+        html[data-bg="mist"] .listing-review-rich-progress {
+            background: rgba(255, 255, 255, 0.82);
+            border-color: rgba(126, 102, 78, 0.14);
+            color: #7a6757;
+        }
         html[data-bg="mist"] .listing-review-rich-kv {
             background: rgba(250, 244, 237, 0.92);
+        }
+        html[data-bg="mist"] .listing-review-rich-item {
+            background: rgba(250, 244, 237, 0.88);
+            border-color: rgba(126, 102, 78, 0.12);
+        }
+        html[data-bg="mist"] .listing-review-rich-item-badge {
+            color: #d56a00;
+            background: rgba(255, 122, 0, 0.12);
+        }
+        html[data-bg="mist"] .listing-review-rich-compare-table {
+            background: rgba(255, 255, 255, 0.86);
+        }
+        html[data-bg="mist"] .listing-review-rich-compare-table thead th {
+            background: rgba(255, 248, 242, 0.98);
+        }
+        html[data-bg="mist"] .listing-review-rich-compare-table th,
+        html[data-bg="mist"] .listing-review-rich-compare-table td {
+            border-bottom-color: rgba(126, 102, 78, 0.12);
+        }
+        html[data-bg="mist"] .listing-review-rich-compare-table th {
+            color: #7a6757;
         }
         html[data-bg="mist"] .listing-review-rich-kv th,
         html[data-bg="mist"] .listing-review-rich-kv td {
@@ -7187,6 +7325,7 @@
     let browseSelectedSns = [];
     let reviewSelectedSn = "";
     let listingReviewSelectedSns = [];
+let listingReviewLastSubmittedSns = [];
 let listingReviewPanelOpen = false;
 let listingReviewToastTimer = null;
 let listingReviewWorkspaceItems = [];
@@ -9168,10 +9307,10 @@ function appendListingReviewReturnAction(container) {
 function renderUnifiedTaxResultHTML(lines) {
     return lines.map((line) => `<div>${formatInlineMarkdown(line)}</div>`).join('');
 }
-async function streamChatResponse({ message, sessionId, attachmentData = null, attachmentMimeType = null, attachmentName = null, loadingId = null, showListingReviewReturnBtn = false, renderMode = 'default' }) {
+async function streamChatResponse({ message, sessionId, attachmentData = null, attachmentMimeType = null, attachmentName = null, loadingId = null, showListingReviewReturnBtn = false, renderMode = 'default', initialStatusText = '', typingStatusText = '' }) {
     const targetEl = loadingId ? (document.getElementById(loadingId) || addStreamingBotMsg(loadingId, 'msg-ai-reply')) : addStreamingBotMsg(null, 'msg-ai-reply');
-    const initialStatus = attachmentData ? "AI 正在分析附件..." : "AI 思考中...";
-    const typingStatus = attachmentData ? "AI 已完成分析，正在輸入內容..." : "AI 正在輸入內容...";
+    const initialStatus = initialStatusText || (attachmentData ? "AI 正在分析附件..." : "AI 思考中...");
+    const typingStatus = typingStatusText || (attachmentData ? "AI 已完成分析，正在輸入內容..." : "AI 正在輸入內容...");
     setStreamingStatus(targetEl, initialStatus);
     let accumulated = "";
     chatAutoFollow = false;
@@ -9183,7 +9322,7 @@ async function streamChatResponse({ message, sessionId, attachmentData = null, a
         const nextText = accumulated.trim() ? accumulated : initialStatus;
         if (!force && nextText === lastRenderedText) return;
         lastRenderedText = nextText;
-        setStreamingPreview(targetEl, nextText);
+        setStreamingPreview(targetEl, nextText, renderMode);
         updateChatThumb();
     };
 
@@ -9615,7 +9754,7 @@ function extractCommunityNameFromQuery(text) {
     return "";
 }
 const COMMUNITY_NAME_ALIASES = {
-    "華悅城": ["興富發華悅城"]
+    "華悦城": ["華悅城", "興富發華悅城"]
 };
 function getAllCommunityNames() {
     return Object.values(communityDb || {}).flat();
@@ -9656,6 +9795,8 @@ function findCommunityFromTitle(title) {
 }
 function normalizeCommunityText(text) {
     return String(text || "")
+        .replace(/悦/g, "悅")
+        .replace(/台/g, "臺")
         .replace(/\s+/g, "")
         .replace(/[0-9A-Za-z]/g, "")
         .replace(/[（）()【】[\]·.,，。:：/\\_\-]/g, "")
@@ -10620,6 +10761,7 @@ function buildMultiObjectReviewPrompt(items, detailDataList, realPriceDataList =
 async function submitListingReviewSelection() {
     const items = getListingReviewItems();
     if (items.length < 2) return;
+    listingReviewLastSubmittedSns = items.map((item) => String(item?.sn || item?.id || '')).filter(Boolean);
     const startBtn = document.getElementById('listingReviewStartBtn');
     const originalText = startBtn?.textContent || '開始AI點評';
     hideListingReviewWorkspaceOnly();
@@ -10636,7 +10778,9 @@ async function submitListingReviewSelection() {
             message: prompt,
             sessionId: getSessionId(),
             showListingReviewReturnBtn: true,
-            renderMode: 'listing-review'
+            renderMode: 'listing-review',
+            initialStatusText: 'AI點評表格生成中...',
+            typingStatusText: 'AI點評表格生成中...'
         });
     } catch (error) {
         addBotMsg('AI 點評失敗，請稍後再試。');
@@ -12658,6 +12802,9 @@ document.addEventListener('click', (e) => {
         return;
     }
     if (e.target.closest('.listing-review-return-btn')) {
+        if (!listingReviewSelectedSns.length && listingReviewLastSubmittedSns.length) {
+            listingReviewSelectedSns = [...listingReviewLastSubmittedSns];
+        }
         listingReviewPanelOpen = true;
         setAppScreen('listing-review');
         updateListingReviewUI();
@@ -13316,10 +13463,15 @@ function getStreamingNodes(container) {
     return { previewEl, finalEl };
 }
 
-function setStreamingPreview(container, text) {
+function setStreamingPreview(container, text, renderMode = 'default') {
     const { previewEl, finalEl } = getStreamingNodes(container);
     previewEl.classList.remove('is-hidden');
     finalEl.classList.add('is-hidden');
+    if (renderMode === 'listing-review') {
+        const previewHtml = formatListingReviewResponse(text, { previewOnlyCompleted: true });
+        previewEl.innerHTML = previewHtml || '<p>AI點評表格生成中...</p>';
+        return;
+    }
     previewEl.innerHTML = renderStreamingPreview(text);
 }
 
@@ -13449,6 +13601,87 @@ function formatListingReviewKeyValueTable(lines) {
         </table>
     `;
 }
+function parseListingReviewGroupedItems(text) {
+    const lines = String(text || "").split('\n');
+    const groups = [];
+    let current = null;
+    lines.forEach((line) => {
+        const trimmed = line.trim();
+        if (!trimmed) return;
+        const normalized = trimmed.replace(/^[-*]\s+/, '');
+        const headerMatch = normalized.match(/^(物件\s*\d+)\s+(.+)$/);
+        if (headerMatch) {
+            if (current) groups.push(current);
+            current = {
+                badge: headerMatch[1].replace(/\s+/g, ''),
+                title: headerMatch[2].trim(),
+                details: []
+            };
+            return;
+        }
+        if (!current) return;
+        current.details.push(normalized);
+    });
+    if (current) groups.push(current);
+    return groups.length >= 2 ? groups : [];
+}
+function buildListingReviewGroupedItemsTable(groups) {
+    if (!groups.length) return '';
+    const normalizedGroups = groups.map((group) => ({
+        ...group,
+        rows: group.details.map((detail) => {
+            const match = detail.match(/^([^：:]{1,24})[：:]\s*(.+)$/);
+            if (match) {
+                return {
+                    label: match[1].trim(),
+                    value: match[2].trim()
+                };
+            }
+            return {
+                label: '重點',
+                value: detail
+            };
+        })
+    }));
+    const orderedLabels = [];
+    normalizedGroups.forEach((group) => {
+        group.rows.forEach((row) => {
+            if (!orderedLabels.includes(row.label)) orderedLabels.push(row.label);
+        });
+    });
+    return `
+        <div class="listing-review-rich-compare">
+            <div class="listing-review-rich-compare-table-wrap">
+                <table class="listing-review-rich-compare-table">
+                    <thead>
+                        <tr>
+                            <th>分類</th>
+                            ${normalizedGroups.map((group) => `
+                                <th>
+                                    <div class="listing-review-rich-item-head">
+                                        <div class="listing-review-rich-item-badge">${escapeHtml(group.badge)}</div>
+                                        <div class="listing-review-rich-item-title">${escapeHtml(group.title)}</div>
+                                    </div>
+                                </th>
+                            `).join('')}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${orderedLabels.map((label) => `
+                            <tr>
+                                <th>${formatInlineMarkdown(label)}</th>
+                                ${normalizedGroups.map((group) => {
+                                    const row = group.rows.find((item) => item.label === label);
+                                    return `<td>${row ? formatInlineMarkdown(row.value) : '資料不足'}</td>`;
+                                }).join('')}
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    `;
+}
 function formatListingReviewBody(text) {
     const blocks = String(text || "")
         .split(/\n{2,}/)
@@ -13456,6 +13689,8 @@ function formatListingReviewBody(text) {
         .filter(Boolean);
     if (!blocks.length) return '';
     return blocks.map((block) => {
+        const groupedItems = parseListingReviewGroupedItems(block);
+        if (groupedItems.length) return buildListingReviewGroupedItemsTable(groupedItems);
         const lines = block.split('\n').map((line) => line.trim()).filter(Boolean);
         const allKeyValue = lines.length >= 2 && lines.every((line) => {
             const normalized = line.replace(/^[-*]\s+/, '');
@@ -13511,13 +13746,22 @@ function splitListingReviewSections(text) {
         sections
     };
 }
-function formatListingReviewResponse(text) {
+function formatListingReviewResponse(text, options = {}) {
+    const { previewOnlyCompleted = false } = options;
     const { intro, sections } = splitListingReviewSections(text);
-    if (!sections.length) return formatMarkdownTable(text);
+    if (!sections.length) {
+        return previewOnlyCompleted ? '' : formatMarkdownTable(text);
+    }
+    const visibleSections = previewOnlyCompleted
+        ? sections.slice(0, Math.max(0, sections.length - 1))
+        : sections;
+    if (!visibleSections.length) {
+        return '';
+    }
     const introHtml = intro
         ? `<div class="listing-review-rich-lead">${formatMarkdownTable(intro)}</div>`
         : '';
-    const cardsHtml = sections.map((section) => `
+    const cardsHtml = visibleSections.map((section) => `
         <section class="listing-review-rich-card">
             <div class="listing-review-rich-head">
                 <div class="listing-review-rich-index">${escapeHtml(section.index)}</div>
@@ -13526,10 +13770,13 @@ function formatListingReviewResponse(text) {
             <div class="listing-review-rich-body">${formatListingReviewBody(section.lines.join('\n').trim())}</div>
         </section>
     `).join('');
+    const progressHtml = previewOnlyCompleted && visibleSections.length < sections.length
+        ? '<div class="listing-review-rich-progress">正在整理下一段點評...</div>'
+        : '';
     return `
         <div class="listing-review-rich">
             ${introHtml}
-            <div class="listing-review-rich-grid">${cardsHtml}</div>
+            <div class="listing-review-rich-grid">${cardsHtml}${progressHtml}</div>
         </div>
     `;
 }
