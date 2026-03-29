@@ -10016,6 +10016,76 @@ function buildReviewDetailMap(detailData) {
         return acc;
     }, {});
 }
+function formatReviewDownPayment(price, ratio) {
+    const numericPrice = Number(price);
+    const numericRatio = Number(ratio);
+    if (!Number.isFinite(numericPrice) || numericPrice <= 0 || !Number.isFinite(numericRatio)) return "資料不足";
+    const selfPay = numericPrice * (1 - numericRatio);
+    return `${selfPay.toFixed(selfPay % 1 ? 1 : 0)} 萬`;
+}
+function formatReviewUnitPrice(item, detailMap = {}) {
+    const area = Number(item?.area);
+    const price = Number(item?.price);
+    if (Number.isFinite(price) && price > 0 && Number.isFinite(area) && area > 0) {
+        return `${(price / area).toFixed(1)} 萬/坪`;
+    }
+    const unitPrice = detailMap["單價"] || detailMap["每坪單價"] || detailMap["開價單價"] || "";
+    return unitPrice || "資料不足";
+}
+function getCommunityDistrictByName(name) {
+    const communityName = String(name || "").trim();
+    if (!communityName) return "";
+    if ((communityDb["林口區"] || []).includes(communityName)) return "林口區";
+    if ((communityDb["龜山區"] || []).includes(communityName)) return "龜山區";
+    return "";
+}
+function getReviewCommunityName(item, detailData) {
+    const fromDetail = extractCommunityFromDetailData(detailData);
+    if (fromDetail) return fromDetail;
+    const fromTitle = findCommunityFromTitle(item?.title || "");
+    if (fromTitle) return fromTitle;
+    const best = findBestCommunityFromText(`${item?.title || ""} ${item?.address || ""}`);
+    return best || "";
+}
+function getReviewCommunitySummary(communityName) {
+    const district = getCommunityDistrictByName(communityName);
+    const details = district ? communityDetails[district]?.[communityName] : null;
+    if (!details) return ["社區資料庫未命中"];
+    const preferredLabels = ["總戶數", "完工時間", "產品類型", "管理費", "交通", "周邊環境", "公設", "建築設計"];
+    const lines = preferredLabels
+        .map((label) => {
+            const value = String(details[label] || "").trim();
+            return value ? `${label}：${value}` : "";
+        })
+        .filter(Boolean);
+    return lines.length ? lines.slice(0, 6) : ["社區資料庫未命中"];
+}
+async function fetchListingReviewRealPriceData(items, detailDataList) {
+    if (!Array.isArray(items) || !items.length) return [];
+    const payloadItems = items.map((item, index) => {
+        const detailData = detailDataList[index];
+        const detailMap = buildReviewDetailMap(detailData);
+        return {
+            id: item.id || item.sn || `item-${index + 1}`,
+            sn: item.sn || item.id || `item-${index + 1}`,
+            title: item.title || "未命名物件",
+            communityName: getReviewCommunityName(item, detailData),
+            address: item.address || "",
+            price: Number(item.price) || null,
+            openUnitPrice: formatReviewUnitPrice(item, detailMap)
+        };
+    });
+    const resp = await fetch(`${API_BASE}/api/review-real-price-search`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ items: payloadItems })
+    });
+    if (!resp.ok) {
+        throw new Error('review-real-price-search failed');
+    }
+    const data = await resp.json();
+    return Array.isArray(data?.results) ? data.results : [];
+}
 function buildObjectReviewPrompt(item, detailData, extraNote = "") {
     const detailMap = buildReviewDetailMap(detailData);
     const areaValue = item.area ? `${item.area} 坪` : (detailMap["建物面積"] || detailMap["建坪"] || "不明");
@@ -10223,35 +10293,76 @@ function hideListingReviewWorkspaceOnly() {
     listingReviewPanelOpen = false;
     if (currentAppScreen === 'listing-review') setAppScreen('chat');
 }
-function buildMultiObjectReviewPrompt(items, detailDataList) {
+function buildMultiObjectReviewPrompt(items, detailDataList, realPriceDataList = []) {
     const sections = items.map((item, index) => {
         const detailData = detailDataList[index];
         const detailMap = buildReviewDetailMap(detailData);
+        const communityName = getReviewCommunityName(item, detailData);
+        const realPriceData = realPriceDataList[index] || null;
         const areaValue = item.area ? `${item.area} 坪` : (detailMap["建物面積"] || detailMap["建坪"] || "不明");
         const ageValue = item.ageYears ? `${item.ageYears} 年` : (detailMap["屋齡"] || "不明");
         const floorValue = formatReviewFloor(item, detailMap);
-        const extraDetails = [
+        const officialDetails = [
             detailMap["主要用途"] ? `主要用途：${detailMap["主要用途"]}` : "",
             detailMap["建物類型"] ? `建物類型：${detailMap["建物類型"]}` : "",
             detailMap["管理費"] ? `管理費：${detailMap["管理費"]}` : "",
             detailMap["車位"] ? `車位：${detailMap["車位"]}` : ""
         ].filter(Boolean);
+        const communityLines = communityName
+            ? [`社區名稱：${communityName}`, ...getReviewCommunitySummary(communityName)]
+            : ["社區名稱：資料不足", "社區資料庫未命中"];
+        const realPriceLines = realPriceData?.hasData
+            ? [
+                `資料期間：${realPriceData.period || "資料不足"}`,
+                `行情摘要：${realPriceData.summary || "資料不足"}`,
+                `近一年平均成交單價：${realPriceData.avgUnitPriceWanPerPing || "資料不足"}`,
+                `近一年成交單價區間：${realPriceData.unitPriceRangeWanPerPing || "資料不足"}`,
+                "近一年成交抽樣：",
+                ...((Array.isArray(realPriceData.sampleDeals) ? realPriceData.sampleDeals : []).length
+                    ? realPriceData.sampleDeals.map((deal) => {
+                        const month = deal?.month || "月份不明";
+                        const floor = deal?.floor || "樓層不明";
+                        const total = deal?.totalPriceWan || "總價不明";
+                        const unit = deal?.unitPriceWanPerPing || "單價不明";
+                        return `- ${month} / ${floor} / ${total} / ${unit}`;
+                    })
+                    : ["- 無可用抽樣資料"])
+            ]
+            : [
+                `資料期間：${realPriceData?.period || "資料不足"}`,
+                `行情摘要：${realPriceData?.summary || "資料不足"}`,
+                "資料不足，暫無法完成實價登錄比對。"
+            ];
         return [
             `物件 ${index + 1}`,
             `名稱：${item.title || "未命名物件"}`,
             `價格：${formatReviewPrice(item.price)}`,
+            `開價單價：${formatReviewUnitPrice(item, detailMap)}`,
+            `貸款 8 成自備款：${formatReviewDownPayment(item.price, 0.8)}`,
+            `貸款 7 成自備款：${formatReviewDownPayment(item.price, 0.7)}`,
             `地址：${item.address || "地址待補充"}`,
             `建坪：${areaValue}`,
             `格局：${formatReviewLayout(item)}`,
             `屋齡：${ageValue}`,
             `樓層：${floorValue}`,
-            ...extraDetails
+            ...officialDetails,
+            "",
+            "社區資料：",
+            ...communityLines,
+            "",
+            "實價登錄資料：",
+            ...realPriceLines
         ].join("\n");
     });
     return [
         "請用房仲顧問口吻，幫我比較以下多個物件並做 AI 點評。",
-        "請依序輸出：1. 一句總評 2. 每個物件的兩個亮點與兩個風險 3. 最推薦與次推薦物件及理由 4. 適合客群 5. 看房順序與議價提醒。",
-        "請用繁體中文、條列清楚、避免過度誇大；如果資料不足要直接講資料不足，不要亂補。",
+        "只能輸出以下 4 個章節，不能新增其他章節、前言、結語、總評、適合客群、看房順序或額外建議。",
+        "請嚴格依序輸出：",
+        "1. 自備款比較：針對每個物件，以總價分別列出貸款 8 成與貸款 7 成時所需自備款，並做相互比較。",
+        "2. 社區資料相互點評：只能根據提供的社區資料庫內容比較，不得引用未提供的社區資訊。",
+        "3. 物件優缺點相互比較：只能參考『社區資料庫』與『所選物件的官網/明細資料』這兩種來源做相互比較，其他任何外部資料、常識補充、推測、行情印象都禁止引用。",
+        "4. 社區成交實價登錄與開價/單價點評：若沒有提供從當日往回推一年的公開成交資料，就明確寫『資料不足，暫無法完成實價登錄比對』，但仍可根據目前開價與開價單價做有限說明；不得捏造任何成交月份、成交總價、成交單價或均價區間。",
+        "每個章節內請比較所有所選物件，不要只寫單一物件。請用繁體中文、條列清楚、避免過度誇大。",
         "",
         ...sections.flatMap((section, index) => index ? ["", section] : [section])
     ].join("\n");
@@ -10267,7 +10378,8 @@ async function submitListingReviewSelection() {
     }
     try {
         const detailDataList = await Promise.all(items.map((item) => ensureReviewDetail(item.sn || item.id || '')));
-        const prompt = buildMultiObjectReviewPrompt(items, detailDataList);
+        const realPriceDataList = await fetchListingReviewRealPriceData(items, detailDataList);
+        const prompt = buildMultiObjectReviewPrompt(items, detailDataList, realPriceDataList);
         addUserMsg(`請AI點評比較：${items.map((item) => item.title || '未命名物件').join('、')}`);
         await streamChatResponse({
             message: prompt,
