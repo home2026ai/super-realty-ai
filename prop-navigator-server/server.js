@@ -1541,7 +1541,7 @@ app.post('/api/review-real-price-search', async (req, res) => {
 
 app.post('/api/chat-stream', async (req, res) => {
     try {
-        const { message, imageData, attachmentData, attachmentMimeType, attachmentName, sessionId } = req.body;
+        const { message, imageData, attachmentData, attachmentMimeType, attachmentName, sessionId, skipHistory } = req.body;
         const inlineData = attachmentData || imageData || null;
         const inlineMimeType = attachmentMimeType || (imageData ? "image/jpeg" : null);
 
@@ -1565,7 +1565,7 @@ app.post('/api/chat-stream', async (req, res) => {
         const combinedText = `${SYSTEM_PROMPT}\n\n${message}${attachmentHint}${attachmentInstruction}`;
         promptParts.push({ text: combinedText });
 
-        const history = getHistory(sessionId);
+        const history = skipHistory ? [] : getHistory(sessionId);
         const contents = [...history, { role: 'user', parts: promptParts }];
 
         res.setHeader("Content-Type", "text/event-stream; charset=utf-8");
