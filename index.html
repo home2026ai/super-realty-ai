@@ -4336,6 +4336,104 @@
             margin: 0 0 6px;
             line-height: 1.68;
         }
+        .listing-review-rich {
+            display: grid;
+            gap: 12px;
+        }
+        .listing-review-rich-lead {
+            padding: 12px 14px;
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .listing-review-rich-grid {
+            display: grid;
+            gap: 12px;
+        }
+        .listing-review-rich-card {
+            display: grid;
+            gap: 12px;
+            padding: 14px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+        }
+        .listing-review-rich-head {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .listing-review-rich-index {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 999px;
+            background: rgba(255, 122, 0, 0.16);
+            color: #ffb067;
+            font-size: 13px;
+            font-weight: 900;
+            flex: 0 0 auto;
+        }
+        .listing-review-rich-title {
+            font-size: 16px;
+            font-weight: 800;
+            line-height: 1.35;
+        }
+        .listing-review-rich-body {
+            display: grid;
+            gap: 10px;
+        }
+        .listing-review-rich-kv {
+            width: 100%;
+            border-collapse: collapse;
+            overflow: hidden;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.04);
+        }
+        .listing-review-rich-kv th,
+        .listing-review-rich-kv td {
+            padding: 10px 12px;
+            text-align: left;
+            vertical-align: top;
+            font-size: 13px;
+            line-height: 1.6;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .listing-review-rich-kv tr:last-child th,
+        .listing-review-rich-kv tr:last-child td {
+            border-bottom: none;
+        }
+        .listing-review-rich-kv th {
+            width: 110px;
+            color: rgba(255, 255, 255, 0.72);
+            font-weight: 700;
+        }
+        .listing-review-rich-kv td {
+            color: var(--main-text);
+        }
+        html[data-bg="mist"] .listing-review-rich-lead,
+        html[data-bg="mist"] .listing-review-rich-card {
+            background: rgba(255, 255, 255, 0.76);
+            border-color: rgba(126, 102, 78, 0.14);
+            box-shadow: 0 12px 30px rgba(145, 123, 98, 0.12);
+        }
+        html[data-bg="mist"] .listing-review-rich-index {
+            background: rgba(255, 122, 0, 0.14);
+            color: #d56a00;
+        }
+        html[data-bg="mist"] .listing-review-rich-kv {
+            background: rgba(250, 244, 237, 0.92);
+        }
+        html[data-bg="mist"] .listing-review-rich-kv th,
+        html[data-bg="mist"] .listing-review-rich-kv td {
+            border-bottom-color: rgba(126, 102, 78, 0.12);
+        }
+        html[data-bg="mist"] .listing-review-rich-kv th {
+            color: #7a6757;
+        }
         .listing-review-return-wrap {
             display: flex;
             justify-content: flex-start;
@@ -9007,7 +9105,7 @@ function appendListingReviewReturnAction(container) {
 function renderUnifiedTaxResultHTML(lines) {
     return lines.map((line) => `<div>${formatInlineMarkdown(line)}</div>`).join('');
 }
-async function streamChatResponse({ message, sessionId, attachmentData = null, attachmentMimeType = null, attachmentName = null, loadingId = null, showListingReviewReturnBtn = false }) {
+async function streamChatResponse({ message, sessionId, attachmentData = null, attachmentMimeType = null, attachmentName = null, loadingId = null, showListingReviewReturnBtn = false, renderMode = 'default' }) {
     const targetEl = loadingId ? (document.getElementById(loadingId) || addStreamingBotMsg(loadingId, 'msg-ai-reply')) : addStreamingBotMsg(null, 'msg-ai-reply');
     const initialStatus = attachmentData ? "AI 正在分析附件..." : "AI 思考中...";
     const typingStatus = attachmentData ? "AI 已完成分析，正在輸入內容..." : "AI 正在輸入內容...";
@@ -9083,7 +9181,7 @@ async function streamChatResponse({ message, sessionId, attachmentData = null, a
             } else if (eventName === 'done') {
                 const finalText = typeof payload.text === 'string' ? payload.text : accumulated;
                 flushPreview(true);
-                finalizeStreamingMessage(targetEl, finalText);
+                finalizeStreamingMessage(targetEl, finalText, renderMode);
                 if (showListingReviewReturnBtn) appendListingReviewReturnAction(targetEl);
                 finalized = true;
                 updateChatThumb();
@@ -9108,7 +9206,7 @@ async function streamChatResponse({ message, sessionId, attachmentData = null, a
             renderScheduled = false;
         }
         if (accumulated && !finalized) {
-            finalizeStreamingMessage(targetEl, accumulated);
+            finalizeStreamingMessage(targetEl, accumulated, renderMode);
             if (showListingReviewReturnBtn) appendListingReviewReturnAction(targetEl);
         }
         updateChatThumb();
@@ -9133,7 +9231,7 @@ async function streamChatResponse({ message, sessionId, attachmentData = null, a
             if (loadingId) document.getElementById(loadingId)?.remove();
             throw error;
         }
-        finalizeStreamingMessage(targetEl, fallbackText || "連線失敗");
+        finalizeStreamingMessage(targetEl, fallbackText || "連線失敗", renderMode);
         if (showListingReviewReturnBtn) appendListingReviewReturnAction(targetEl);
         finalized = true;
         updateChatThumb();
@@ -10432,7 +10530,8 @@ async function submitListingReviewSelection() {
         await streamChatResponse({
             message: prompt,
             sessionId: getSessionId(),
-            showListingReviewReturnBtn: true
+            showListingReviewReturnBtn: true,
+            renderMode: 'listing-review'
         });
     } catch (error) {
         addBotMsg('AI 點評失敗，請稍後再試。');
@@ -13126,9 +13225,11 @@ function setStreamingStatus(container, text) {
     previewEl.innerHTML = `<p>${escapeHtml(text || "")}</p>`;
 }
 
-function finalizeStreamingMessage(container, text) {
+function finalizeStreamingMessage(container, text, renderMode = 'default') {
     const { previewEl, finalEl } = getStreamingNodes(container);
-    finalEl.innerHTML = formatMarkdownTable(text);
+    finalEl.innerHTML = renderMode === 'listing-review'
+        ? formatListingReviewResponse(text)
+        : formatMarkdownTable(text);
     finalEl.classList.remove('is-hidden');
     previewEl.classList.add('is-hidden');
 }
@@ -13216,6 +13317,101 @@ function formatMarkdownTable(text) {
     }
 
     return html.join('');
+}
+function formatListingReviewKeyValueTable(lines) {
+    const rows = lines
+        .map((line) => {
+            const trimmed = line.trim().replace(/^[-*]\s+/, '');
+            const match = trimmed.match(/^([^：:]{1,30})[：:]\s*(.+)$/);
+            if (!match) return null;
+            return {
+                key: match[1].trim(),
+                value: match[2].trim()
+            };
+        })
+        .filter(Boolean);
+    if (!rows.length) return '';
+    return `
+        <table class="listing-review-rich-kv">
+            <tbody>
+                ${rows.map((row) => `
+                    <tr>
+                        <th>${formatInlineMarkdown(row.key)}</th>
+                        <td>${formatInlineMarkdown(row.value)}</td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>
+    `;
+}
+function formatListingReviewBody(text) {
+    const blocks = String(text || "")
+        .split(/\n{2,}/)
+        .map((block) => block.trim())
+        .filter(Boolean);
+    if (!blocks.length) return '';
+    return blocks.map((block) => {
+        const lines = block.split('\n').map((line) => line.trim()).filter(Boolean);
+        const allKeyValue = lines.length >= 2 && lines.every((line) => {
+            const normalized = line.replace(/^[-*]\s+/, '');
+            return /^([^：:]{1,30})[：:]\s*.+$/.test(normalized);
+        });
+        if (allKeyValue) return formatListingReviewKeyValueTable(lines);
+        return formatMarkdownTable(block);
+    }).join('');
+}
+function splitListingReviewSections(text) {
+    const lines = String(text || "").replace(/\r\n/g, '\n').split('\n');
+    const sections = [];
+    const intro = [];
+    let current = null;
+
+    lines.forEach((line) => {
+        const trimmed = line.trim();
+        const headingMatch = trimmed.match(/^(\d+)\.\s+(.+)$/);
+        if (headingMatch) {
+            if (current) sections.push(current);
+            current = {
+                index: headingMatch[1],
+                title: headingMatch[2].trim(),
+                lines: []
+            };
+            return;
+        }
+        if (current) {
+            current.lines.push(line);
+        } else if (trimmed) {
+            intro.push(line);
+        }
+    });
+
+    if (current) sections.push(current);
+    return {
+        intro: intro.join('\n').trim(),
+        sections
+    };
+}
+function formatListingReviewResponse(text) {
+    const { intro, sections } = splitListingReviewSections(text);
+    if (!sections.length) return formatMarkdownTable(text);
+    const introHtml = intro
+        ? `<div class="listing-review-rich-lead">${formatMarkdownTable(intro)}</div>`
+        : '';
+    const cardsHtml = sections.map((section) => `
+        <section class="listing-review-rich-card">
+            <div class="listing-review-rich-head">
+                <div class="listing-review-rich-index">${escapeHtml(section.index)}</div>
+                <div class="listing-review-rich-title">${escapeHtml(section.title)}</div>
+            </div>
+            <div class="listing-review-rich-body">${formatListingReviewBody(section.lines.join('\n').trim())}</div>
+        </section>
+    `).join('');
+    return `
+        <div class="listing-review-rich">
+            ${introHtml}
+            <div class="listing-review-rich-grid">${cardsHtml}</div>
+        </div>
+    `;
 }
 function updateChatIndicatorBounds() {
     if (!chatBox || !chatIndicator) return;
