@@ -3454,7 +3454,8 @@
         }
         .media-category-preview iframe,
         .media-category-preview .media-category-fallback,
-        .media-category-preview .media-category-preview-poster {
+        .media-category-preview .media-category-preview-poster,
+        .media-category-preview .media-category-preview-cover {
             position: absolute;
             inset: 0;
             width: 100%;
@@ -3467,6 +3468,15 @@
             transform: scale(1);
             filter: saturate(1.08) contrast(1.03);
             transition: transform 0.45s ease, filter 0.45s ease;
+        }
+        .media-category-preview .media-category-preview-cover {
+            z-index: 2;
+            opacity: 1;
+            transition: opacity 0.26s ease;
+            pointer-events: none;
+        }
+        .media-category-preview .media-category-preview-cover.is-hidden {
+            opacity: 0;
         }
         .media-category-preview iframe {
             pointer-events: none;
@@ -11274,13 +11284,16 @@ function buildCategoryPreviewEmbed(category, previewMeta = null) {
     if (!category.playlistId) {
         return `<div class="media-category-fallback">尚未設定播放清單</div>`;
     }
-    if (previewMeta?.thumbnail) {
-        return `
-            <img class="media-category-preview-poster" src="${escapeHtml(previewMeta.thumbnail)}" alt="${escapeHtml(category.label)} 封面">
-            <div class="media-category-preview-badge">點擊播放</div>
-        `;
-    }
-    return `<div class="media-category-fallback">載入預覽封面中</div>`;
+    const poster = previewMeta?.thumbnail
+        ? `<div class="media-category-preview-cover" data-media-preview-cover>
+                <img class="media-category-preview-poster" src="${escapeHtml(previewMeta.thumbnail)}" alt="${escapeHtml(category.label)} 封面">
+                <div class="media-category-preview-badge">點擊播放</div>
+           </div>`
+        : '';
+    return `
+        <iframe src="https://www.youtube.com/embed/videoseries?list=${encodeURIComponent(category.playlistId)}&playlist=${encodeURIComponent(category.playlistId)}&autoplay=1&mute=1&controls=0&loop=1&playsinline=1&rel=0&modestbranding=1&iv_load_policy=3" title="${escapeHtml(category.label)} 預覽" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+        ${poster || '<div class="media-category-fallback">載入預覽封面中</div>'}
+    `;
 }
 
 async function renderMediaHome() {
@@ -11346,6 +11359,18 @@ async function renderMediaHome() {
             </div>
         </button>
     `).join('');
+    requestAnimationFrame(() => {
+        grid.querySelectorAll('.media-category-preview').forEach((previewEl) => {
+            const iframe = previewEl.querySelector('iframe');
+            const cover = previewEl.querySelector('[data-media-preview-cover]');
+            if (!iframe || !cover) return;
+            const reveal = () => cover.classList.add('is-hidden');
+            iframe.addEventListener('load', () => {
+                window.setTimeout(reveal, 450);
+            }, { once: true });
+            window.setTimeout(reveal, 1800);
+        });
+    });
 }
 
 function setAppScreen(nextScreen) {
