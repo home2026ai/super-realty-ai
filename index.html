@@ -3219,6 +3219,7 @@
         .chat-card.is-media-reels-mode .media-stage {
             padding: 0;
             position: relative;
+            background: #000;
         }
         .media-home,
         .media-reels {
@@ -3443,6 +3444,7 @@
             position: absolute;
             inset: 0;
             overflow: hidden;
+            z-index: 0;
         }
         .media-category-preview::after {
             content: "";
@@ -3470,7 +3472,7 @@
             transition: transform 0.45s ease, filter 0.45s ease;
         }
         .media-category-preview .media-category-preview-cover {
-            z-index: 2;
+            z-index: 1;
             opacity: 1;
             transition: opacity 0.26s ease;
             pointer-events: none;
@@ -3535,7 +3537,7 @@
         .media-category-chrome {
             position: absolute;
             inset: 14px 14px auto 14px;
-            z-index: 1;
+            z-index: 3;
             display: flex;
             align-items: flex-start;
             justify-content: space-between;
@@ -3580,7 +3582,7 @@
         .media-category-content {
             position: absolute;
             inset: auto 0 14px 0;
-            z-index: 1;
+            z-index: 3;
             padding: 0 16px;
             display: flex;
             flex-direction: column;
@@ -5767,6 +5769,7 @@
                 flex: 1 1 auto;
                 min-height: 0;
                 height: calc(100dvh - var(--safe-top));
+                background: #000;
             }
 
             .media-home-hero {
