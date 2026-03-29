@@ -9614,12 +9614,44 @@ function extractCommunityNameFromQuery(text) {
     if (cleaned.length >= 2) return cleaned;
     return "";
 }
-function findCommunityFromTitle(title) {
-    const communities = Object.values(communityDb || {}).flat();
-    const exact = communities.find((name) => title.includes(name));
+const COMMUNITY_NAME_ALIASES = {
+    "華悅城": ["興富發華悅城"]
+};
+function getAllCommunityNames() {
+    return Object.values(communityDb || {}).flat();
+}
+function resolveCommunityAliasName(name) {
+    const raw = String(name || "").trim();
+    if (!raw) return "";
+    const communities = getAllCommunityNames();
+    if (communities.includes(raw)) return raw;
+    for (const [canonical, aliases] of Object.entries(COMMUNITY_NAME_ALIASES)) {
+        const aliasList = [canonical, ...(Array.isArray(aliases) ? aliases : [])];
+        if (aliasList.some((alias) => raw === alias || raw.includes(alias) || alias.includes(raw))) {
+            return canonical;
+        }
+    }
+    return "";
+}
+function resolveCommunityName(text) {
+    const raw = String(text || "").trim();
+    if (!raw) return "";
+    const communities = getAllCommunityNames();
+    const aliasMatch = resolveCommunityAliasName(raw);
+    if (aliasMatch) return aliasMatch;
+    const exact = communities.find((name) => raw === name || raw.includes(name));
     if (exact) return exact;
+    const substring = findCommunityBySubstring(raw);
+    if (substring) return substring;
+    const best = findBestCommunityFromText(raw);
+    return best || "";
+}
+function findCommunityFromTitle(title) {
+    const resolved = resolveCommunityName(title);
+    if (resolved) return resolved;
+    const communities = getAllCommunityNames();
     const guess = extractCommunityNameFromQuery(title);
-    if (guess && communities.includes(guess)) return guess;
+    if (guess) return resolveCommunityName(guess);
     return "";
 }
 function normalizeCommunityText(text) {
@@ -9665,26 +9697,33 @@ function similarityScore(a, b) {
 function findBestCommunityFromText(text) {
     const communities = Object.values(communityDb || {}).flat();
     const normalizedText = normalizeCommunityText(text);
+    if (normalizedText.length < 3) return "";
     let best = "";
     let bestScore = 0;
+    let bestLcs = 0;
     communities.forEach((name) => {
         if (!name || String(name).trim().length < 2) return;
-        const score = similarityScore(normalizedText, normalizeCommunityText(name));
-        if (score > bestScore) {
+        const normalizedName = normalizeCommunityText(name);
+        if (normalizedName.length < 3) return;
+        const score = similarityScore(normalizedText, normalizedName);
+        const lcs = longestCommonSubstringLen(normalizedText, normalizedName);
+        if (score > bestScore || (score === bestScore && lcs > bestLcs)) {
             bestScore = score;
+            bestLcs = lcs;
             best = name;
         }
     });
-    return bestScore >= 0.12 ? best : "";
+    return bestScore >= 0.55 && bestLcs >= 3 ? best : "";
 }
 function findCommunityBySubstring(text) {
     const communities = Object.values(communityDb || {}).flat();
     const normalizedText = normalizeCommunityText(text);
+    if (normalizedText.length < 3) return "";
     let best = "";
     let bestLen = 0;
     communities.forEach((name) => {
         const normName = normalizeCommunityText(name);
-        if (normName.length < 2) return;
+        if (normName.length < 3) return;
         if (!normalizedText.includes(normName)) return;
         if (normName.length > bestLen) {
             bestLen = normName.length;
@@ -10224,7 +10263,7 @@ function formatReviewUnitPrice(item, detailMap = {}) {
     return unitPrice || "資料不足";
 }
 function getCommunityDistrictByName(name) {
-    const communityName = String(name || "").trim();
+    const communityName = resolveCommunityName(name);
     if (!communityName) return "";
     if ((communityDb["林口區"] || []).includes(communityName)) return "林口區";
     if ((communityDb["龜山區"] || []).includes(communityName)) return "龜山區";
@@ -10232,10 +10271,13 @@ function getCommunityDistrictByName(name) {
 }
 function getReviewCommunityName(item, detailData) {
     const fromDetail = extractCommunityFromDetailData(detailData);
-    if (fromDetail) return fromDetail;
+    if (fromDetail) {
+        const resolvedFromDetail = resolveCommunityName(fromDetail);
+        if (resolvedFromDetail) return resolvedFromDetail;
+    }
     const fromTitle = findCommunityFromTitle(item?.title || "");
     if (fromTitle) return fromTitle;
-    const best = findBestCommunityFromText(`${item?.title || ""} ${item?.address || ""}`);
+    const best = resolveCommunityName(`${item?.title || ""} ${item?.address || ""}`);
     return best || "";
 }
 function getReviewCommunitySummary(communityName) {
