@@ -6267,7 +6267,9 @@
                     <button type="button" class="media-back-btn press-glow" id="mediaBackToChatBtnSecondary">返 AI 對話匡</button>
                 </div>
                 <div class="media-reels-frame" id="mediaReelsFrame">
-                    <div class="media-reels-player" id="mediaReelsPlayer"></div>
+                    <div class="media-reels-player" id="mediaReelsPlayer">
+                        <div id="mediaReelsPlayerHost"></div>
+                    </div>
                     <div class="media-reels-swipe" id="mediaReelsSwipe"></div>
                     <button type="button" class="media-sound-hint" id="mediaSoundHint" aria-label="點一下開聲音">
                         <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -11325,7 +11327,7 @@ function endMediaStageSwipe(x) {
 }
 
 function resetMediaReelsPlayer() {
-    const playerHolder = document.getElementById('mediaReelsPlayer');
+    const playerShell = document.getElementById('mediaReelsPlayer');
     try {
         if (mediaPlayer) {
             if (typeof mediaPlayer.stopVideo === 'function') mediaPlayer.stopVideo();
@@ -11350,7 +11352,7 @@ function resetMediaReelsPlayer() {
     mediaTouchCurrentY = 0;
     mediaSwipeActive = false;
     mediaSwipeLocked = false;
-    if (playerHolder) playerHolder.innerHTML = "";
+    if (playerShell) playerShell.innerHTML = '<div id="mediaReelsPlayerHost"></div>';
     resetMediaReelsDrag(false);
 }
 
@@ -11839,10 +11841,10 @@ async function openMediaReels(categoryKey, targetVideoId = '') {
     mediaPlaylistMeta = await fetchMediaPlaylistMeta(category.playlistId, { forceRefresh: true });
     setMediaMode('reels');
     updateMediaReelsMeta(category);
-    const playerHolder = document.getElementById('mediaReelsPlayer');
+    const playerHolder = document.getElementById('mediaReelsPlayerHost');
     if (!playerHolder) return;
     await ensureYouTubePlayerApi();
-    mediaPlayer = new window.YT.Player('mediaReelsPlayer', {
+    mediaPlayer = new window.YT.Player('mediaReelsPlayerHost', {
         width: '100%',
         height: '100%',
         playerVars: {
